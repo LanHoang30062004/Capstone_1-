@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lexend:wght@100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+:root {
+  --bg-green-dark: #49BBBD;
+  --bg-green-normal: #33EFA0;
+  --bg-green-light: rgba(255, 255, 255, 0.30);
+  --color-blue-dark: #2F327D;
+  --color-blue-normal: #23BDEE;
+  --color-gray-one: #696984;
+  --color-white: #fff;
+  --color-green: #00CBB8;
+  --color-gray-two: #5B5B5B;
+  --color-black-one: #000;
+  --color-black-two: #252641;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Lato", sans-serif;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-size: 1.6rem;
+}
+
+.container {
+  width: 1200px;
+  max-width: calc(100% - 40px);
+  margin: 0 auto;
+}
