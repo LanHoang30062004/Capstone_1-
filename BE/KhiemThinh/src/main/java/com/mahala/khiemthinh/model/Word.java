@@ -29,4 +29,6 @@ public class Word {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> users ;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Category category ;
 }

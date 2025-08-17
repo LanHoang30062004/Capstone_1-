@@ -16,6 +16,7 @@ public class Category {
     @Column(name = "category_name")
     private String categoryName ;
 
-    @OneToMany(fetch = FetchType.EAGER , cascade = CascadeType.REMOVE , mappedBy = "category")
-    private List<Question> questions ;
+    @OneToMany(fetch = FetchType.EAGER , mappedBy = "category")
+    private List<Word> words ;
+
 }
