@@ -1,0 +1,112 @@
+.auth {
+  width: 100vw;
+  padding: 38px 41px;
+  height: 100vh;
+
+  &__body {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  &__left {
+    width: 51%;
+    height: 100%;
+    position: relative;
+  }
+
+  &__background {
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__intro {
+    position: absolute;
+    left: 45px;
+    bottom: 31px;
+
+    &--title {
+      color: var(--color-white);
+      font-size: 3.7rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    &--description {
+      color: var(--color-white);
+      font-size: 2.5rem;
+      font-weight: 400;
+    }
+
+  }
+
+  &__right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__content {
+    width: 454px;
+    text-align: center;
+  }
+
+  &__welcome {
+    font-size: 3rem;
+    font-weight: 700;
+    max-width: max-content;
+    margin: 0 auto;
+  }
+
+  &__segment {
+    padding: 10px 13px;
+    margin: 24px 0;
+
+    .ant-segmented-item {
+      padding: 0 32px;
+    }
+  }
+
+  &__description {
+    color: var(--color-gray-two);
+    line-height: 1.3;
+    margin-bottom: 24px;
+  }
+}
+
+// Login
+.login {
+  &__forgot-pass {
+    color: var(--color-black-one);
+    margin-bottom: 24px;
+  }
+}
+
+.ant-form-item-explain-error {
+  text-align: left;
+}
+
+@media (max-width: 1024px) {
+  .auth {
+    &__left {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .auth {
+    &__content {
+      width: 90%;
+    }
+  }
+}

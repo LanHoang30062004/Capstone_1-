@@ -3,7 +3,8 @@
 :root {
   --bg-green-dark: #49BBBD;
   --bg-green-normal: #33EFA0;
-  --bg-green-light: rgba(255, 255, 255, 0.30);
+  --bg-green-light-one: rgba(255, 255, 255, 0.30);
+  --bg-green-light-two: rgba(73, 187, 189, 0.60);
   --color-blue-dark: #2F327D;
   --color-blue-normal: #23BDEE;
   --color-gray-one: #696984;
@@ -18,7 +19,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Lato", sans-serif;
 }
 
 html {
@@ -27,6 +27,7 @@ html {
 
 body {
   font-size: 1.6rem;
+  font-family: "Lato", sans-serif;
 }
 
 .container {
@@ -34,3 +35,22 @@ body {
   max-width: calc(100% - 40px);
   margin: 0 auto;
 }
+
+// Input
+.input__custome {
+  border-radius: 40px;
+  padding: 10px 20px;
+}
+
+// End Input
+
+// Button
+.button__custome {
+  padding: 15px 40px;
+
+  span {
+    margin: 15px 40px;
+  }
+}
+
+// End Button
