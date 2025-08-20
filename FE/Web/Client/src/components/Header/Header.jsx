@@ -7,9 +7,11 @@ import { useState } from "react";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
+
   const showDrawer = () => {
     setOpen(true);
   };
+
   const onClose = () => {
     setOpen(false);
   };
@@ -57,6 +59,7 @@ const Header = () => {
                           className="header__icon"
                           onClick={showDrawer}
                         />
+
                         <button className="header__btn--login btn">
                           Đăng nhập
                         </button>
@@ -72,6 +75,7 @@ const Header = () => {
             </nav>
           </div>
         </div>
+
         <Drawer className="custome-drawer" onClose={onClose} open={open}>
           <Flex align="center" vertical gap={40}>
             <Link to="/" className="header__link--item">

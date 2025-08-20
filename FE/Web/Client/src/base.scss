@@ -11,6 +11,7 @@
   --color-white: #fff;
   --color-green: #00CBB8;
   --color-gray-two: #5B5B5B;
+  --color-gray-three: #B2B3CF;
   --color-black-one: #000;
   --color-black-two: #252641;
 }
@@ -62,3 +63,12 @@ body {
 }
 
 // End Button
+
+// Card
+.card {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 18.83px 47.08px 0 rgba(47, 50, 125, 0.10);
+}
+
+// End Card
