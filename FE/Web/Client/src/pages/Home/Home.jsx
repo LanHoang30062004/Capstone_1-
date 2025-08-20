@@ -7,7 +7,6 @@ import Stats from "~/components/Stats/Stats";
 const Home = () => {
   return (
     <>
-      <Header />
       <Hero />
       <Stats />
       <LearnIntro />

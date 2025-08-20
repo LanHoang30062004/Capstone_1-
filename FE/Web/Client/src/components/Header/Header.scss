@@ -1,5 +1,5 @@
 .header {
-  background: transparent;
+  background: var(--bg-green-dark);
   padding: 31px 0;
   position: fixed;
   top: 0;
@@ -47,6 +47,10 @@
   .ant-drawer-header {
     border: none;
   }
+}
+
+.display {
+  background: var(--bg-green-dark);
 }
 
 @media (max-width: 992px) {
