@@ -1,5 +1,5 @@
-.dictionary {
-  margin-top: 200px;
+// Lesson Content
+.lesson-content {
   text-align: center;
 
   &__title {
@@ -88,12 +88,15 @@
     }
   }
 
-  &__modal {
+  &__pagination {
+    margin-top: 30px;
+    margin-bottom: 60px;
+  }
 
-    .ant-modal-content {
-      padding: 0;
-      overflow: hidden;
-    }
+}
+
+.lesson {
+  &__modal {
 
     &--head {
       background: var(--bg-green-dark);
@@ -129,14 +132,9 @@
       margin: 15px;
     }
   }
-
-
-  &__pagination {
-    margin-top: 30px;
-    margin-bottom: 60px;
-  }
-
 }
+
+// End Lesson Content
 
 @keyframes fadeOut {
   0% {

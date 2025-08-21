@@ -25,6 +25,10 @@ function App() {
               // hoverBorderColor: "var(--bg-green-dark)",
               // activeShadow: "var(--bg-green-light-two)",
             },
+
+            Progress: {
+              defaultColor: "var(--bg-green-dark)",
+            },
           },
         }}
       >

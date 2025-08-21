@@ -1,0 +1,90 @@
+.lesson-analyze {
+
+  &__head {
+    background: var(--bg-green-dark);
+
+  }
+
+  &__title {
+    color: var(--color-white);
+    font-size: 3rem;
+    padding: 10px 15px;
+    text-align: center;
+  }
+
+  &__body {
+    padding: 0 15px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 42px;
+    margin-top: 40px;
+  }
+
+  &__instruct {
+    &--title {
+      color: var(--color-blue-dark);
+      font-size: 3rem;
+      font-weight: 600;
+    }
+  }
+
+  &__step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+
+    &--number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--color-blue-light);
+      color: var(--color-blue-dark);
+      font-weight: 700;
+    }
+
+    &--content {
+      color: var(--color-gray-one);
+      font-weight: 400;
+      line-height: 1.4;
+      /* 43.2px */
+      letter-spacing: 0.48px;
+    }
+  }
+
+  &__card {
+    margin-top: 36px;
+  }
+
+  &__result {
+    margin-top: 30px;
+
+    p {
+      color: var(--color-gray-one);
+      font-weight: 400;
+      line-height: 1.4;
+      /* 36px */
+      letter-spacing: 0.4px;
+    }
+  }
+
+  &__btn {
+    margin: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .lesson-analyze {
+
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

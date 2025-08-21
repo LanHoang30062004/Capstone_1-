@@ -3,8 +3,14 @@ import Background from "~/assets/images/Bg2.png";
 import { FaPlay } from "react-icons/fa";
 import "./Dictionary.scss";
 import { CiSearch } from "react-icons/ci";
+import DictionaryModal from "./DictionaryModal";
+import { useState } from "react";
 
 const Dictionary = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  console.log(isModalOpen);
+
   const handleSearch = (value) => {
     console.log(value);
   };
@@ -29,7 +35,10 @@ const Dictionary = () => {
 
             <div className="dictionary__grid">
               <div className="dictionary__card card">
-                <div className="dictionary__card--video">
+                <div
+                  className="dictionary__card--video"
+                  onClick={() => setIsModalOpen(true)}
+                >
                   <img src={Background} alt="Background" />
 
                   <div className="dictionary__card--play">
@@ -87,8 +96,6 @@ const Dictionary = () => {
 
                 <div className="dictionary__card--content">
                   <h3 className="dictionary__card--title">Địa chỉ</h3>
-
-                  <Button type="primary">Phân tích</Button>
                 </div>
               </div>
             </div>
@@ -100,6 +107,11 @@ const Dictionary = () => {
               total={50}
             />
           </div>
+
+          <DictionaryModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+          />
         </div>
       </section>
     </>

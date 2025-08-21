@@ -7,6 +7,7 @@
   --bg-green-light-two: rgba(73, 187, 189, 0.60);
   --color-blue-dark: #2F327D;
   --color-blue-normal: #23BDEE;
+  --color-blue-light: #9DCCFF;
   --color-gray-one: #696984;
   --color-white: #fff;
   --color-green: #00CBB8;
@@ -72,3 +73,14 @@ body {
 }
 
 // End Card
+
+.mt {
+  margin-top: 200px;
+}
+
+.modal {
+  .ant-modal-content {
+    padding: 0;
+    overflow: hidden;
+  }
+}
