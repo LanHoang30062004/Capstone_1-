@@ -4,6 +4,8 @@ import Login from "~/pages/Auth/Login";
 import Register from "~/pages/Auth/Register";
 import Dictionary from "~/pages/Dictionary/Dictionary";
 import Home from "~/pages/Home/Home";
+import Lesson from "~/pages/Lesson/Lesson";
+import LessonContent from "~/pages/Lesson/LessonContent";
 
 import SignLanguage from "~/pages/SignLanguage/SignLanguage";
 
@@ -25,6 +27,16 @@ const routes = [
       {
         path: "/dictionary",
         element: <Dictionary />,
+      },
+
+      {
+        path: "/lesson",
+        element: <Lesson />,
+      },
+
+      {
+        path: "/lesson/:id",
+        element: <LessonContent />,
       },
     ],
   },

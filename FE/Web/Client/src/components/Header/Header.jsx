@@ -43,7 +43,7 @@ const Header = () => {
                           Từ điển
                         </Link>
 
-                        <Link to="/learn" className="header__link--item">
+                        <Link to="/lesson" className="header__link--item">
                           Học
                         </Link>
 
