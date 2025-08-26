@@ -14,8 +14,10 @@ public class Option {
     @Column(name = "option_answer")
     private String optionAnswer;
 
+    @Column(name = "correct")
+    private Boolean correct;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Question question;
-
 
 }
