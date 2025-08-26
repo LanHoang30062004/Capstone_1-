@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lexend:wght@100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+:root {
+  --bg-green-dark: #49BBBD;
+  --bg-green-normal: #33EFA0;
+  --bg-green-light-one: rgba(255, 255, 255, 0.30);
+  --bg-green-light-two: rgba(73, 187, 189, 0.60);
+  --color-blue-dark: #2F327D;
+  --color-blue-normal: #23BDEE;
+  --color-blue-light: #9DCCFF;
+  --color-gray-one: #696984;
+  --color-white: #fff;
+  --color-green: #00CBB8;
+  --color-gray-two: #5B5B5B;
+  --color-gray-three: #B2B3CF;
+  --color-black-one: #000;
+  --color-black-two: #252641;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-size: 1.6rem;
+  font-family: "Lato", sans-serif;
+}
+
+.container {
+  width: 1200px;
+  max-width: calc(100% - 80px);
+  margin: 0 auto;
+}
+
+// Input
+.input__custome {
+  border-radius: 40px;
+  padding: 10px 20px;
+}
+
+// End Input
+
+// Button
+.btn {
+  border-radius: 80px;
+  padding: 10px 18px;
+  border: none;
+  cursor: pointer;
+  font-size: 2.2rem;
+}
+
+.button__custome {
+  padding: 15px 40px;
+
+  span {
+    margin: 15px 40px;
+  }
+}
+
+// End Button
+
+// Card
+.card {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 18.83px 47.08px 0 rgba(47, 50, 125, 0.10);
+}
+
+// End Card
+
+.mt {
+  margin-top: 100px;
+}
+
+.modal {
+  .ant-modal-content {
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
