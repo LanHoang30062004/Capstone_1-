@@ -46,8 +46,8 @@ public class UserController {
         try {
             return new ResponseData<>(HttpStatus.OK.value(), "Login successful", this.userService.login(userDTO.getEmail(), userDTO.getPassword()));
         } catch (Exception e) {
-            log.error("Can not login with email and password : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.UNAUTHORIZED.value(), "Email or password is incorrect");
+            log.error("Can not login : {}", e.getMessage());
+            return new ResponseData<>(HttpStatus.UNAUTHORIZED.value(), "Can not login : " + e.getMessage());
         }
     }
 
