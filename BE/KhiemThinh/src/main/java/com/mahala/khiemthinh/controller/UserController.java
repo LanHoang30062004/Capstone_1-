@@ -1,5 +1,6 @@
 package com.mahala.khiemthinh.controller;
 
+import com.mahala.khiemthinh.dto.request.AuthenDTO;
 import com.mahala.khiemthinh.dto.request.UserDTO;
 import com.mahala.khiemthinh.dto.response.PageResponse;
 import com.mahala.khiemthinh.dto.response.ResponseData;
@@ -41,7 +42,7 @@ public class UserController {
 
     @Operation(summary = "Dang nhap")
     @PostMapping("/login")
-    public ResponseData<?> login(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseData<?> login(@Valid @RequestBody AuthenDTO userDTO) {
         try {
             return new ResponseData<>(HttpStatus.OK.value(), "Login successful", this.userService.login(userDTO.getEmail(), userDTO.getPassword()));
         } catch (Exception e) {

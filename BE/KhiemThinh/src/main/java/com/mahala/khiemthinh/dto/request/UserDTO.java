@@ -40,6 +40,6 @@ public class UserDTO implements Serializable {
     private String gender ;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate dateOfBirth;
 }
