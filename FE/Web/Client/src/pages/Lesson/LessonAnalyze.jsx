@@ -1,6 +1,7 @@
 import { Button, Card, Flex, Modal, Progress } from "antd";
 import "./LessonAnalyze.scss";
 import WebcamVideo from "~/components/WebcamVideo/WebcamVideo";
+import UserPose from "~/components/WebcamVideo/UserPose";
 const { Meta } = Card;
 
 const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze }) => {
@@ -28,7 +29,8 @@ const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze }) => {
 
         <div className="lesson-analyze__body">
           <div className="lesson-analyze__grid">
-            <WebcamVideo />
+            {/* <WebcamVideo /> */}
+            <UserPose />
 
             <div className="lesson-analyze__instruct">
               <div className="lesson-analyze__instruct--title">
