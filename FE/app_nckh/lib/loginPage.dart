@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app_nckh/searchSign.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:app_nckh/forgetPasswordMainPage.dart';
@@ -21,25 +22,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String? _emailError;
   String? _passwordError;
-
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
+  final String baseUrl = "http://localhost:8080/api/v1/user";
+
 
     setState(() {
       _emailError = null;
       _passwordError = null;
     });
 
-    // Validate email
     if (email.isEmpty) {
       setState(() {
-        _emailError = "Vui lòng nhập tài khoản";
+        _emailError = "Vui lòng nhập email";
       });
       return;
     }
 
-    // Validate password
     if (password.isEmpty) {
       setState(() {
         _passwordError = "Vui lòng nhập mật khẩu";
@@ -51,22 +51,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse("https://reqres.in/api/login"),
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "reqres-free-v1",
-        },
-        body: jsonEncode({"email": email, "password": password}),
+        Uri.parse("$baseUrl/login"),   
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": email,
+          "password": password,
+        }),
       );
 
       final data = jsonDecode(response.body);
 
-      if (response.statusCode == 200 && data["token"] != null) {
-        // Đăng nhập thành công
-        Navigator.pushReplacementNamed(context, "/home");
+      if (response.statusCode == 200) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SearchSignScreen()),
+          );
       } else {
         setState(() {
-          _passwordError = data["error"] ?? "Sai tài khoản hoặc mật khẩu";
+          _passwordError = "Đăng nhập thất bại (${response.statusCode})";
         });
       }
     } catch (e) {
@@ -77,7 +79,6 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = false);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'loginPage.dart';
 import 'introductionApp.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -27,28 +30,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(email);
   }
 
-  void _handleRegister() {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmController.text.trim();
+  Future<void> _handleRegister() async {
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
+  final confirmPassword = _confirmController.text.trim();
 
+  setState(() {
+    _emailError = null;
+    _passwordError = null;
+    _confirmError = null;
+  });
+
+  if (!_isValidEmail(email)) {
     setState(() {
-      _emailError = null;
-      _passwordError = null;
-      _confirmError = null;
-
-      if (!_isValidEmail(email)) {
-        _emailError = "Email không hợp lệ";
-      } else if (password.length < 6) {
-        _passwordError = "Mật khẩu phải có ít nhất 6 ký tự";
-      } else if (password != confirmPassword) {
-        _confirmError = "Mật khẩu xác nhận không khớp";
-      } else {
-        // ✅ Đăng ký thành công → Hiện popup
-        _showSuccessDialog(context);
-      }
+      _emailError = "Email không hợp lệ";
     });
+    return;
   }
+  if (password.length < 6) {
+    setState(() {
+      _passwordError = "Mật khẩu phải có ít nhất 6 ký tự";
+    });
+    return;
+  }
+  if (password != confirmPassword) {
+    setState(() {
+      _confirmError = "Mật khẩu xác nhận không khớp";
+    });
+    return;
+  }
+
+  try {
+    final String baseUrl = "http://localhost:8080/api/v1/user";
+    final response = await http.post(
+      Uri.parse("$baseUrl/register"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "password": password,
+      }),
+    );
+
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      _showSuccessDialog(context);
+    } else {
+      // BE trả lỗi, show ra cho dễ debug
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Đăng ký thất bại: ${response.body}")),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Lỗi kết nối server: $e")),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -273,11 +312,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 // ✅ Hàm hiện popup thành công
 // ✅ Hàm hiện popup tự động ẩn sau 2 giây
 void _showSuccessDialog(BuildContext context) {
-  showDialog(
+  showGeneralDialog(
     context: context,
-    barrierDismissible: false, // không cho đóng thủ công
-    builder: (BuildContext context) {
-      Future.delayed(const Duration(seconds: 1), () {
+    barrierDismissible: false,
+    barrierLabel: "Success",
+    barrierColor: Colors.black.withOpacity(0.4),
+    transitionDuration: const Duration(milliseconds: 400),
+    pageBuilder: (context, anim1, anim2) {
+      Future.delayed(const Duration(seconds: 2), () {
         Navigator.of(context).pop(); // đóng dialog
         Navigator.pushReplacement(
           context,
@@ -285,23 +327,54 @@ void _showSuccessDialog(BuildContext context) {
         );
       });
 
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+      return Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon tròn
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                child: const Icon(Icons.check, size: 50, color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Đăng ký thành công!",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(height: 10),
+              
+            ],
+          ),
         ),
-        title: Row(
-          children: const [
-            Icon(Icons.check_circle, color: Colors.green, size: 30),
-            SizedBox(width: 10),
-            Text("Thành công"),
-          ],
-        ),
-        content: const Text(
-          "Đăng ký tài khoản thành công!",
-          style: TextStyle(fontSize: 16),
-        ),
+      );
+    },
+    transitionBuilder: (context, anim1, anim2, child) {
+      return Transform.scale(
+        scale: anim1.value,
+        child: Opacity(opacity: anim1.value, child: child),
       );
     },
   );
 }
-

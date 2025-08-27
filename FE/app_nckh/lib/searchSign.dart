@@ -13,36 +13,41 @@ class SearchSignScreen extends StatefulWidget {
 }
 
 class _SearchSignScreenState extends State<SearchSignScreen> {
-  final String apiKey = "51875160-7c81ffd6d3dc4c9fc631e4aa1"; // key Pixabay
   final TextEditingController _searchController = TextEditingController();
 
   List<dynamic> videos = [];
   bool isLoading = false;
 
-  /// Gọi API Pixabay
+ 
   Future<void> fetchVideos(String query) async {
-    setState(() => isLoading = true);
-
-    final url = Uri.parse(
-      "https://pixabay.com/api/videos/?key=$apiKey&q=$query&per_page=10",
+  try {
+    // dùng localhost khi chạy Flutter web
+    final uri = Uri.parse(
+      "http://localhost:8080/api/v1/translate?text=$query",
     );
-    final response = await http.get(url);
+
+    final response = await http.post(
+      uri,
+      headers: {"Content-Type": "application/json"},
+    );
+
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      setState(() {
-        videos = data["hits"];
-        isLoading = false;
-      });
+      print("Kết quả dịch: $data");
     } else {
-      setState(() => isLoading = false);
+      print("Lỗi từ server: ${response.body}");
     }
+  } catch (e) {
+    print("Lỗi kết nối API: $e");
   }
+}
 
   @override
   void initState() {
     super.initState();
-    // Khi vừa vào thì load video mặc định (vd: "hello")
     fetchVideos("hello");
   }
 
@@ -142,111 +147,56 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
                   : ListView.builder(
                       itemCount: videos.length,
                       itemBuilder: (context, index) {
-                        final video = videos[index];
-                        final thumb = video["videos"]["tiny"]["thumbnail"];
-                        final url = video["videos"]["large"]["url"];
-                        final tags = video["tags"];
-                        final duration = video["duration"];
+  final video = videos[index];
+  final wordName = video["wordName"];
+  final wordMeaning = video["wordMeaning"];
+  final videoUrl = video["videoUrl"];
 
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 6,
-                          clipBehavior: Clip.antiAlias, // bo góc cho cả ảnh
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      VideoPlayerScreen(videoUrl: url),
-                                ),
-                              );
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Thumbnail + duration overlay
-                                Stack(
-                                  children: [
-                                    Image.network(
-                                      thumb,
-                                      width: double.infinity,
-                                      height: 180,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Positioned(
-                                      bottom: 8,
-                                      right: 8,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.7),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          "$duration s",
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                // Nội dung bên dưới
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        tags,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: const [
-                                          Icon(
-                                            Icons.play_circle_fill,
-                                            color: Colors.orange,
-                                            size: 18,
-                                          ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            "Xem video",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+  return Card(
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    elevation: 6,
+    child: InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VideoPlayerScreen(videoUrl: videoUrl),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              wordName ?? "Không có tên",
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              wordMeaning ?? "Không có nghĩa",
+              style: const TextStyle(color: Colors.black54),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: const [
+                Icon(Icons.play_circle_fill, color: Colors.orange, size: 18),
+                SizedBox(width: 4),
+                Text("Xem video"),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
                     ),
             ),
           ],
