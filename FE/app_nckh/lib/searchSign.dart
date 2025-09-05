@@ -6,7 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
 
 class SearchSignScreen extends StatefulWidget {
-  const SearchSignScreen({super.key});
+  final String token;
+    const SearchSignScreen({super.key, required this.token});
+
 
   @override
   State<SearchSignScreen> createState() => _SearchSignScreenState();
@@ -18,17 +20,22 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
   List<dynamic> videos = [];
   bool isLoading = false;
 
- 
-  Future<void> fetchVideos(String query) async {
+ Future<void> fetchVideos(String query, {int page = 0, int size = 20}) async {
   try {
-    // dùng localhost khi chạy Flutter web
+    setState(() {
+      isLoading = true;
+    });
+
     final uri = Uri.parse(
-      "http://localhost:8080/api/v1/translate?text=$query",
+      "http://localhost:8080/api/v1/word?page=$page&size=$size&search=$query",
     );
 
-    final response = await http.post(
+    final response = await http.get(
       uri,
-      headers: {"Content-Type": "application/json"},
+      headers: {
+        "Authorization": "Bearer ${widget.token}",
+        "Content-Type": "application/json",
+      },
     );
 
     print("Response status: ${response.statusCode}");
@@ -36,19 +43,39 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      print("Kết quả dịch: $data");
+
+      if (data["data"] != null && data["data"]["items"] != null) {
+        final List items = data["data"]["items"];
+        setState(() {
+          videos = items.map((item) {
+            return {
+              "wordName": item["wordName"],
+              "wordMeaning": item["wordMeaning"],
+              "videoUrl": item["videoUrl"],
+            };
+          }).toList();
+        });
+      } else {
+        setState(() {
+          videos = [];
+        });
+      }
     } else {
       print("Lỗi từ server: ${response.body}");
     }
   } catch (e) {
     print("Lỗi kết nối API: $e");
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
   }
 }
 
   @override
   void initState() {
     super.initState();
-    fetchVideos("hello");
+    fetchVideos("cá"); 
   }
 
   @override
@@ -65,10 +92,8 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
           padding: const EdgeInsets.only(left: 12),
           child: Image.asset(
             'assets/img/logoMobile.png',
-            width: 50, // chỉnh lại size cho phù hợp
+            width: 50,
             height: 100,
-
-            // hoặc BoxFit.cover tùy bạn muốn
           ),
         ),
 
@@ -107,6 +132,7 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 30),
+
             // Ô tìm kiếm
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -143,87 +169,97 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : videos.isEmpty
-                  ? const Center(child: Text("Không có video nào"))
-                  : ListView.builder(
-                      itemCount: videos.length,
-                      itemBuilder: (context, index) {
-  final video = videos[index];
-  final wordName = video["wordName"];
-  final wordMeaning = video["wordMeaning"];
-  final videoUrl = video["videoUrl"];
+                      ? const Center(child: Text("Không có video nào"))
+                      : ListView.builder(
+                          itemCount: videos.length,
+                          itemBuilder: (context, index) {
+                            final video = videos[index];
+                            final wordName = video["wordName"];
+                            final wordMeaning = video["wordMeaning"];
+                            final videoUrl = video["videoUrl"];
 
-  return Card(
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    elevation: 6,
-    child: InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VideoPlayerScreen(videoUrl: videoUrl),
-          ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              wordName ?? "Không có tên",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              wordMeaning ?? "Không có nghĩa",
-              style: const TextStyle(color: Colors.black54),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: const [
-                Icon(Icons.play_circle_fill, color: Colors.orange, size: 18),
-                SizedBox(width: 4),
-                Text("Xem video"),
-              ],
+                            return Card(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
+                              elevation: 6,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          VideoPlayerScreen(videoUrl: videoUrl),
+                                    ),
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        wordName ?? "Không có tên",
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        wordMeaning ?? "Không có nghĩa",
+                                        style: const TextStyle(
+                                            color: Colors.black54),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Row(
+                                        children: const [
+                                          Icon(Icons.play_circle_fill,
+                                              color: Colors.orange, size: 18),
+                                          SizedBox(width: 4),
+                                          Text("Xem video"),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
             ),
           ],
         ),
       ),
-    ),
-  );
-}
 
-                    ),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: BottomNavigationBar(
-        items:  [
+        items: [
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Tìm kiếm'),
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(Icons.chat),
               onPressed: () {
-                Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ChatScreen()),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChatScreen(token: widget.token,)),
                 );
               },
             ),
             label: "Giao tiếp",
           ),
-          BottomNavigationBarItem(icon: IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SettingScreen()),
-                );
-              },
-            ), label: 'Cài đặt'),
+          BottomNavigationBarItem(
+              icon: IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingScreen(token: widget.token)),
+                  );
+                },
+              ),
+              label: 'Cài đặt'),
         ],
       ),
     );

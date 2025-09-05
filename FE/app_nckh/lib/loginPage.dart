@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app_nckh/chatScreen.dart';
 import 'package:app_nckh/searchSign.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -23,62 +24,76 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _emailError;
   String? _passwordError;
   Future<void> _login() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-  final String baseUrl = "http://localhost:8080/api/v1/user";
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
+  const String baseUrl = "http://localhost:8080/api/v1/user";
 
+  setState(() {
+    _emailError = null;
+    _passwordError = null;
+  });
 
+  if (email.isEmpty) {
     setState(() {
-      _emailError = null;
-      _passwordError = null;
+      _emailError = "Vui lòng nhập email";
     });
-
-    if (email.isEmpty) {
-      setState(() {
-        _emailError = "Vui lòng nhập email";
-      });
-      return;
-    }
-
-    if (password.isEmpty) {
-      setState(() {
-        _passwordError = "Vui lòng nhập mật khẩu";
-      });
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/login"),   
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": email,
-          "password": password,
-        }),
-      );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SearchSignScreen()),
-          );
-      } else {
-        setState(() {
-          _passwordError = "Đăng nhập thất bại (${response.statusCode})";
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _passwordError = "Không thể kết nối đến server";
-      });
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    return;
   }
+
+  if (password.isEmpty) {
+    setState(() {
+      _passwordError = "Vui lòng nhập mật khẩu";
+    });
+    return;
+  }
+
+  setState(() => _isLoading = true);
+
+  try {
+    final response = await http.post(
+      Uri.parse("$baseUrl/login"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "password": password,
+      }),
+    );
+
+    final body = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && body["status"] == 200) {
+      final token = body["data"];
+
+      if (token != null && token is String && token.isNotEmpty) {
+        // ✅ Đăng nhập thành công -> chuyển sang màn SearchSignScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(token: token),
+          ),
+        );
+      } else {
+        // Server trả về nhưng không có token
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Không lấy được token từ server")),
+        );
+      }
+    } else {
+      // ❌ Sai mật khẩu hoặc lỗi từ server
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(body["message"] ?? "Đăng nhập thất bại")),
+      );
+    }
+  } catch (e) {
+    // ❌ Lỗi kết nối
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Không thể kết nối đến server")),
+    );
+  } finally {
+    setState(() => _isLoading = false);
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
