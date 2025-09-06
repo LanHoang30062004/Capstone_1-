@@ -1,0 +1,8 @@
+.employee__search .ant-form-item {
+  margin: 0;
+}
+
+.employee__form--action {
+  width: max-content;
+  margin-left: auto;
+}
