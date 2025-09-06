@@ -92,7 +92,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("/email")
     @Operation(summary = "Tim kiem user dua tren email")
     public ResponseData<?> getUserByID (@RequestParam String email) {
         try {

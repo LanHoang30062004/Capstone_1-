@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:app_nckh/forgetPasswordMainPage.dart';
 import 'package:app_nckh/introductionApp.dart';
 import 'package:app_nckh/registerPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -65,11 +67,13 @@ class _LoginScreenState extends State<LoginScreen> {
       final token = body["data"];
 
       if (token != null && token is String && token.isNotEmpty) {
-        // ✅ Đăng nhập thành công -> chuyển sang màn SearchSignScreen
+         final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("token", token);
+        await prefs.setString("email", email);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatScreen(token: token),
+            builder: (context) => ChatScreen(token: token,),
           ),
         );
       } else {
