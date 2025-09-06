@@ -17,7 +17,7 @@ public interface UserService {
     UserDTO getUserByEmail(String email) throws Exception;
 
 
-    void updateUser(Long id , UserDTO user) throws Exception;
+    void updateUser(String email , UserDTO user) throws Exception;
 
     void deleteUser(Long id) throws Exception;
 }

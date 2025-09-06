@@ -125,8 +125,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(Long id ,UserDTO userDTO) throws Exception {
-        User userOld = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
+    public void updateUser(String email , UserDTO userDTO) throws Exception {
+        User userOld = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("User not found with email : " + email));
         userOld.setFullName(userDTO.getFullName());
         userOld.setDateOfBirth(userDTO.getDateOfBirth());
         userOld.setGender(userDTO.getGender());

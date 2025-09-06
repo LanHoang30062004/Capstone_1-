@@ -106,11 +106,11 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Cap nhat user dua tren user id")
-    public ResponseData<?> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO) {
+    @PutMapping("")
+    @Operation(summary = "Cap nhat user dua tren user email")
+    public ResponseData<?> updateUser(@Valid @RequestBody UserDTO userDTO) {
         try {
-            this.userService.updateUser(id, userDTO);
+            this.userService.updateUser(userDTO.getEmail(), userDTO);
             log.info("Update user successful");
             return new ResponseData<>(HttpStatus.OK.value(), "Update user successful");
         }
