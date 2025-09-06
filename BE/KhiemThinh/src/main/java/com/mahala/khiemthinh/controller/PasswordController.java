@@ -3,6 +3,7 @@ package com.mahala.khiemthinh.controller;
 import com.mahala.khiemthinh.dto.request.PasswordDTO;
 import com.mahala.khiemthinh.dto.response.ResponseData;
 import com.mahala.khiemthinh.service.EmailService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class PasswordController {
     private final EmailService emailService;
     @PostMapping("/forgot")
+    @Operation(summary = "Quên mật khẩu")
     public ResponseData<?> forgotPassword (@RequestParam("email") String email) {
         try {
             log.info("Send email verification successfully");
@@ -29,6 +31,7 @@ public class PasswordController {
         }
     }
     @PostMapping("/change")
+    @Operation(summary = "Thay đổi mật khẩu")
     public ResponseData<?> changePassword (@RequestBody PasswordDTO passwordDTO) {
         try {
             this.emailService.changePassword(passwordDTO);
