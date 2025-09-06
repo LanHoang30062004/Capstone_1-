@@ -79,6 +79,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Tim kiem user dua tren id")
     public ResponseData<?> getUserByID (@PathVariable("id") Long id) {
         try {
             UserDTO result = this.userService.getUserById(id);
@@ -87,6 +88,20 @@ public class UserController {
         }
         catch (Exception e){
             log.error("Can not get user by id : {}", e.getMessage());
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+        }
+    }
+
+    @GetMapping("/{email}")
+    @Operation(summary = "Tim kiem user dua tren email")
+    public ResponseData<?> getUserByID (@RequestParam String email) {
+        try {
+            UserDTO result = this.userService.getUserByEmail(email);
+            log.info("Get user by email successful");
+            return new ResponseData<>(HttpStatus.OK.value(), "Get user by email successful", result);
+        }
+        catch (Exception e){
+            log.error("Can not get user by email : {}", e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
         }
     }

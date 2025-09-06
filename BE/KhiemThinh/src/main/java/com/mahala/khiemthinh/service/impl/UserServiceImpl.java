@@ -112,6 +112,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO getUserByEmail(String email) throws Exception {
+        User user = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("User not found with email : " + email));
+        UserDTO result = UserDTO.builder()
+                .fullName(user.getFullName())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .build();
+        return result;
+    }
+
+    @Override
     public void updateUser(Long id ,UserDTO userDTO) throws Exception {
         User userOld = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
         userOld.setFullName(userDTO.getFullName());
