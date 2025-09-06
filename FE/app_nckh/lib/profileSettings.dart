@@ -8,19 +8,23 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final TextEditingController _nameController = TextEditingController(text: "Mai Hoàn Thành");
+  final TextEditingController _nameController =
+      TextEditingController(text: "Mai Hoàn Thành");
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor:  Color(0xFF49BBBD),
-        title: const Text("Thông tin cá nhân", style: TextStyle(color: Colors.white)),
-        
+        backgroundColor: const Color(0xFF49BBBD),
+        title: const Text("Thông tin cá nhân",
+            style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -38,7 +42,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
             Text(
               _nameController.text,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             const Align(
@@ -60,6 +65,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildTextField("Số điện thoại", _phoneController),
             const SizedBox(height: 10),
             _buildTextField("Tuổi", _ageController),
+            const SizedBox(height: 10),
+            _buildTextField("Địa chỉ", _addressController),
+            const SizedBox(height: 10),
+            _buildTextField("Giới tính", _genderController),
+            const SizedBox(height: 10),
+            _buildTextField("Ngày sinh", _dobController),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -69,13 +80,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF49BBBD),
+                backgroundColor: const Color(0xFF49BBBD),
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("Cập nhật", style: TextStyle(fontSize: 16,color: Colors.white)),
+              child: const Text("Cập nhật",
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ],
         ),

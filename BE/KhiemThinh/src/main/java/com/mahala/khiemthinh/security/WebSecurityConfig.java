@@ -53,7 +53,8 @@ public class WebSecurityConfig {
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                path+"/password/**"
                         ).permitAll()
 
                         // login/register
@@ -90,7 +91,6 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, path + "/translate/**").hasAnyRole("ADMIN", "USER")
 
                         // password
-                        .requestMatchers(HttpMethod.POST, path + "/password/**").hasAnyRole("ADMIN", "USER")
 
                         .anyRequest().authenticated()
                 )
