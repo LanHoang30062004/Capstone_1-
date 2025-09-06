@@ -77,22 +77,44 @@ public class UserController {
         return null ;
 
     }
-    @PatchMapping("/{id}")
+
+    @GetMapping("/{id}")
+    public ResponseData<?> getUserByID (@PathVariable("id") Long id) {
+        try {
+            UserDTO result = this.userService.getUserById(id);
+            log.info("Get user by id successful");
+            return new ResponseData<>(HttpStatus.OK.value(), "Get user by id successful", result);
+        }
+        catch (Exception e){
+            log.error("Can not get user by id : {}", e.getMessage());
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+        }
+    }
+
+    @PutMapping("/{id}")
     @Operation(summary = "Cap nhat user dua tren user id")
     public ResponseData<?> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO) {
         try {
-
+            this.userService.updateUser(id, userDTO);
+            log.info("Update user successful");
+            return new ResponseData<>(HttpStatus.OK.value(), "Update user successful");
         }
-        catch (Exception e){}
-        return null ;
+        catch (Exception e){
+            log.error("Can not update user : {}", e.getMessage());
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+        }
     }
     @DeleteMapping("/{id}")
     @Operation(summary = "Xoa user dua tren id user")
     public ResponseData<?> deleteUser(@PathVariable Long id) {
         try {
-
+           this.userService.deleteUser(id);
+           log.info("Delete user successful");
+           return new ResponseData<>(HttpStatus.OK.value(), "Delete user successful");
         }
-        catch (Exception e){}
-        return null ;
+        catch (Exception e){
+            log.error("Can not delete user : {}", e.getMessage());
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+        }
     }
 }
