@@ -11,4 +11,13 @@ public interface UserService {
     public String login(String email, String password) throws Exception;
 
     PageResponse<?> getUsers(int page , int size , String search) throws Exception;
+
+    UserDTO getUserById(Long id) throws Exception;
+
+    UserDTO getUserByEmail(String email) throws Exception;
+
+
+    void updateUser(Long id , UserDTO user) throws Exception;
+
+    void deleteUser(Long id) throws Exception;
 }

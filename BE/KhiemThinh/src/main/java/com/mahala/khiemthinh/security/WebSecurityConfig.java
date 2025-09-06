@@ -91,7 +91,6 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, path + "/translate/**").hasAnyRole("ADMIN", "USER")
 
                         // password
-
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(this.authProvider)

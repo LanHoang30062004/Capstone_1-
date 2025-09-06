@@ -97,4 +97,47 @@ public class UserServiceImpl implements UserService {
                 .items(result)
                 .build();
     }
+
+    @Override
+    public UserDTO getUserById(Long id) throws Exception {
+        User user = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
+        UserDTO result = UserDTO.builder()
+                .fullName(user.getFullName())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .build();
+        return result;
+    }
+
+    @Override
+    public UserDTO getUserByEmail(String email) throws Exception {
+        User user = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("User not found with email : " + email));
+        UserDTO result = UserDTO.builder()
+                .fullName(user.getFullName())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .build();
+        return result;
+    }
+
+    @Override
+    public void updateUser(Long id ,UserDTO userDTO) throws Exception {
+        User userOld = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
+        userOld.setFullName(userDTO.getFullName());
+        userOld.setDateOfBirth(userDTO.getDateOfBirth());
+        userOld.setGender(userDTO.getGender());
+        userOld.setPhone(userDTO.getPhone());
+        userOld.setAddress(userDTO.getAddress());
+        this.userRepository.save(userOld);
+    }
+
+    @Override
+    public void deleteUser(Long id) throws Exception {
+        User userOld = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
+        this.userRepository.delete(userOld);
+    }
 }

@@ -26,7 +26,7 @@ public class PasswordController {
             return new ResponseData<>(HttpStatus.OK.value(),"Send email verification successfully") ;
         }
         catch (Exception e) {
-            log.error("User not found with email {}", email);
+            log.error(e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),e.getMessage());
         }
     }
@@ -35,11 +35,11 @@ public class PasswordController {
     public ResponseData<?> changePassword (@RequestBody PasswordDTO passwordDTO) {
         try {
             this.emailService.changePassword(passwordDTO);
-            log.info("Change password successful with email : {}" );
+            log.info("Change password successful with email : {}", passwordDTO.getEmail() );
             return new ResponseData<>(HttpStatus.OK.value(),"Change password successful with email :" + passwordDTO.getEmail()) ;
         }
         catch (Exception e) {
-            log.error("Verification code not true {}");
+            log.error(e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),e.getMessage());
         }
     }
