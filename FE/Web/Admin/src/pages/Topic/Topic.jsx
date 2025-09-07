@@ -18,48 +18,68 @@ import {
   SearchOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./Topic.scss";
+import { fetchWord, fetchWordDelete } from "~/redux/word/wordSlice";
 
 const columns = [
-  { title: "Mã vị trí", dataIndex: "positionID" },
-  { title: "Tên vị trí", dataIndex: "positionName" },
+  { title: "Mã kí hiệu", dataIndex: "wordId" },
+  { title: "Video", dataIndex: "videoUrl" },
+  { title: "Tên kí hiệu", dataIndex: "wordName" },
+  { title: "Nghĩa kí hiệu", dataIndex: "wordMeaning" },
   { title: "Hành động", dataIndex: "action" },
 ];
 
 const Topic = () => {
   // const [openDetail, setOpenDetail] = useState(false);
-  // const [openAddPosition, setOpenAddPosition] = useState(false);
+  const [openAddTopic, setOpenAddTopic] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [topic, setTopic] = useState(null);
   // const [openEditPosition, setOpenEditPosition] = useState(false);
-  const [position, setPosition] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const words = useSelector((state) => state.word.words);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     const searchObject = Object.fromEntries(searchParams.entries());
 
-    // dispatch(fetchPositionGetAllApi(searchObject));
+    if (Object.keys(searchObject).length === 0) {
+      setSearchParams({
+        page: 1,
+        size: 10,
+      });
+    }
+
+    dispatch(fetchWord(searchObject));
   }, [dispatch, searchParams]);
 
-  const handleOpenModal = (setOpen, position) => {
+  const handleOpenModal = (setOpen, topic) => {
     setOpen(true);
-    setPosition(position);
+    setTopic(topic);
   };
 
-  const handleDelete = (positionID) => {
-    // toast.promise(dispatch(fetchPositionDeleteApi(positionID)), {
-    //   pending: "Đang xoá...",
-    // });
-    // if (positions.currentPosition.length === 1) {
-    //   const searchObject = Object.fromEntries(searchParams.entries());
-    //   setSearchParams({
-    //     ...searchObject,
-    //     PageNumber: searchParams.get("PageNumber") - 1,
-    //   });
-    // }
+  const handleDelete = (topicId) => {
+    try {
+      toast.promise(dispatch(fetchWordDelete(topicId)), {
+        pending: "Đang xoá...",
+      });
+
+      if (words.items.length === 1) {
+        const searchObject = Object.fromEntries(searchParams.entries());
+        setSearchParams({
+          ...searchObject,
+          page: searchParams.get("page") - 1,
+        });
+      }
+
+      toast.success("Xoá thành công!");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleSearch = (value) => {
@@ -67,57 +87,61 @@ const Topic = () => {
 
     setSearchParams({
       ...searchObject,
-      positionFind: value.search,
+      page: 1,
+      search: value.search,
     });
   };
 
-  const handleChangePage = (page) => {
+  const handleChangePage = (page, pageSize) => {
     const searchObject = Object.fromEntries(searchParams.entries());
 
     setSearchParams({
       ...searchObject,
-      PageNumber: page,
+      page: page,
+      size: pageSize,
     });
   };
 
-  // const dataSource = positions?.currentPosition.map((position) => {
-  //   return {
-  //     key: position.positionID,
-  //     positionID: position.positionID,
-  //     positionName: position.positionName,
-  //     action: (
-  //       <Flex align="center" gap="small">
-  //         <EyeOutlined
-  //           className="table__icon"
-  //           onClick={() => handleOpenModal(setOpenDetail, position)}
-  //         />
-  //         <EditOutlined
-  //           className="table__icon"
-  //           onClick={() => handleOpenModal(setOpenEditPosition, position)}
-  //         />
-  //         <Popconfirm
-  //           title="Xoá vị trí"
-  //           description="Bạn có chắc muốn xoá vị trí này?"
-  //           onConfirm={() => handleDelete(position.positionID)}
-  //           okText="Xoá"
-  //           cancelText="Huỷ"
-  //         >
-  //           <DeleteOutlined className="table__icon" />
-  //         </Popconfirm>
-  //       </Flex>
-  //     ),
-  //   };
-  // });
+  const dataSource = words?.items?.map((word) => {
+    return {
+      key: word.wordId,
+      wordId: word.wordId,
+      videoUrl: <video src={word.videoUrl} controls width={200} />,
+      wordName: word.wordName,
+      wordMeaning: word.wordMeaning,
+      action: (
+        <Flex align="center" gap="small">
+          {/* <EyeOutlined
+            className="table__icon"
+            onClick={() => handleOpenModal(setOpenDetail, position)}
+          /> */}
+          <EditOutlined
+            className="table__icon"
+            onClick={() => handleOpenModal(setEditModal, word)}
+          />
+          <Popconfirm
+            title="Xoá kí hiệu"
+            description="Bạn có chắc muốn xoá kí hiệu này?"
+            onConfirm={() => handleDelete(word.wordId)}
+            okText="Xoá"
+            cancelText="Huỷ"
+          >
+            <DeleteOutlined className="table__icon" />
+          </Popconfirm>
+        </Flex>
+      ),
+    };
+  });
 
   return (
     <>
-      <div className="topic__list contain">
-        <Header title="Chủ đề" subTitle="Danh sách chủ đề" />
+      <div className="word__list contain">
+        <Header title="Kí hiệu" subTitle="Danh sách kí hiệu" />
 
-        <Card className="topic__table table">
-          <div className="topic__table--head">
+        <Card className="word__table table">
+          <div className="word__table--head">
             <Flex align="center" justify="space-between">
-              <div className="topic__search">
+              <div className="word__search">
                 <Form onFinish={handleSearch}>
                   <Form.Item name="search">
                     <Input
@@ -135,51 +159,47 @@ const Topic = () => {
                 </Form>
               </div>
 
-              <div className="topic__action">
+              <div className="word__action">
                 <Button
                   type="primary"
                   icon={<PlusCircleOutlined />}
                   size="large"
-                  // onClick={() => setOpenAddPosition(true)}
+                  onClick={() => setOpenAddTopic(true)}
                 >
-                  Thêm vị trí
+                  Thêm kí hiệu
                 </Button>
               </div>
             </Flex>
           </div>
           <Table
             columns={columns}
-            // dataSource={dataSource}
+            dataSource={dataSource}
             style={{ marginTop: 20, marginBottom: 20 }}
             pagination={false}
           />
 
           <Pagination
-            current={parseInt(searchParams.get("PageNumber")) || 1}
-            // total={positions?.totalCount}
+            current={parseInt(searchParams.get("page")) || 1}
+            total={words?.totalPages * words?.pageSize}
             align="end"
-            showTotal={(total) => `Tổng: ${total} vị trí`}
             onChange={handleChangePage}
+            pageSize={words?.pageSize || 10}
+            pageSizeOptions={[5, 10, 20, 50]}
           />
         </Card>
       </div>
-      {/* 
-      {openDetail && (
+      {/* {openAddWord && <AddWord open={openAddWord} setOpen={setOpenAddWord} />} */}
+
+      {/* {openDetail && (
         <DetailPosition
           open={openDetail}
           setOpen={setOpenDetail}
           position={position}
         />
-      )}
-      {openAddPosition && (
-        <AddPosition open={openAddPosition} setOpen={setOpenAddPosition} />
-      )}
-      {openEditPosition && (
-        <EditPosition
-          open={openEditPosition}
-          setOpen={setOpenEditPosition}
-          position={position}
-        />
+      )} */}
+      {/* 
+      {editModal && (
+        <EditWord open={editModal} setOpen={setEditModal} word={word} />
       )} */}
     </>
   );

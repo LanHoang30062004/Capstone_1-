@@ -69,7 +69,7 @@ const Word = () => {
       toast.promise(dispatch(fetchWordDelete(wordId)), {
         pending: "Đang xoá...",
       });
-      
+
       if (words.items.length === 1) {
         const searchObject = Object.fromEntries(searchParams.entries());
         setSearchParams({
@@ -89,6 +89,7 @@ const Word = () => {
 
     setSearchParams({
       ...searchObject,
+      page: 1,
       search: value.search,
     });
   };
