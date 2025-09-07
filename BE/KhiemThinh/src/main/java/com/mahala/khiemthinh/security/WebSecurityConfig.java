@@ -54,7 +54,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                path+"/password/**"
                         ).permitAll()
 
                         // login/register
@@ -78,8 +79,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
                         // user
                         .requestMatchers(HttpMethod.POST, path + "/user/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, path + "/user/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, path + "/user/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.DELETE, path + "/user/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, path + "/user/**").hasAnyRole("ADMIN", "USER")
+
 
                         // flash card
                         .requestMatchers(HttpMethod.POST, path + "/flash-card/**").hasRole("ADMIN")
@@ -90,8 +93,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
                         // translate
                         .requestMatchers(HttpMethod.POST, path + "/translate/**").hasAnyRole("ADMIN", "USER")
 
-                        // password
-                        .requestMatchers(HttpMethod.POST, path + "/password/**").hasAnyRole("ADMIN", "USER")
 
                         .anyRequest().authenticated()
                 )

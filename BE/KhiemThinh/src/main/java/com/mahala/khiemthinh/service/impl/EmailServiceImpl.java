@@ -21,7 +21,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 @Transactional
 public class EmailServiceImpl implements EmailService {
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
