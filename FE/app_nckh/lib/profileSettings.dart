@@ -15,8 +15,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _genderController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
+
+  String? selectedGender; // Giá trị dropdown
+  final List<Map<String, String>> genders = [
+    {"value": "male", "label": "Nam"},
+    {"value": "female", "label": "Nữ"},
+    {"value": "other", "label": "Khác"},
+  ];
+
+  String mapGenderApiToDropdown(String? apiGender) {
+    switch (apiGender?.toLowerCase()) {
+      case "nam":
+        return "male";
+      case "nữ":
+        return "female";
+      default:
+        return "other";
+    }
+  }
+
+  String mapGenderDropdownToApi(String dropdownGender) {
+    switch (dropdownGender) {
+      case "male":
+        return "nam";
+      case "female":
+        return "nữ";
+      default:
+        return "khác";
+    }
+  }
 
   bool _isLoading = true;
 
@@ -26,58 +54,167 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _getUserInfo();
   }
 
-  Future<void> _getUserInfo() async {
-  final prefs = await SharedPreferences.getInstance();
-  final email = prefs.getString("email");
-  final token = prefs.getString("token");
-
-  print("DEBUG EMAIL: $email");
-  print("DEBUG TOKEN: $token");
-
-  if (email == null || token == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Không tìm thấy thông tin đăng nhập")),
+  void showAutoCloseDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => const AlertDialog(
+        title: Text("Thành công"),
+        content: Text("Cập nhật thành công!"),
+      ),
     );
-    return;
+
+    Future.delayed(const Duration(seconds: 1), () {
+      Navigator.of(context).pop(true); // Đóng dialog
+    });
   }
 
-  try {
-    final response = await http.get(
-      Uri.parse("http://localhost:8080/api/v1/user/email?email=$email"),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-    );
+    bool validateInputs() {
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final dob = _dobController.text.trim();
 
-    print("STATUS CODE: ${response.statusCode}");
-    print("RESPONSE BODY: ${response.body}");
-
-    if (response.statusCode == 200) {
-      final res = jsonDecode(response.body);
-      final data = res["data"];
-
-      setState(() {
-        _nameController.text = data["fullName"] ?? "";
-        _emailController.text = email;
-        _phoneController.text = data["phone"] ?? "";
-        _addressController.text = data["address"] ?? "";
-        _genderController.text = data["gender"] ?? "";
-        _dobController.text = data["dateOfBirth"] ?? "";
-        _isLoading = false;
-      });
-    } else {
+    // 1. Validate tên: chỉ cho chữ cái và khoảng trắng
+    final nameRegex = RegExp(r"^[a-zA-ZÀ-ỹ\s]+$");
+    if (name.isEmpty || !nameRegex.hasMatch(name)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi khi lấy thông tin: ${response.body}")),
+        const SnackBar(content: Text("Tên không hợp lệ (chỉ cho chữ cái, không số/ký tự đặc biệt).")),
+      );
+      return false;
+    }
+
+    // 2. Validate số điện thoại: 10 số
+    final phoneRegex = RegExp(r"^[0-9]{10}$");
+    if (phone.isEmpty || !phoneRegex.hasMatch(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Số điện thoại phải có đúng 10 chữ số.")),
+      );
+      return false;
+    }
+
+    
+    try {
+      final parsedDate = DateTime.parse(dob); 
+      final now = DateTime.now();
+
+      if (parsedDate.isAfter(now)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ngày sinh không được lớn hơn hiện tại.")),
+        );
+        return false;
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Ngày sinh không hợp lệ. Định dạng: yyyy-mm-dd")),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+
+    Future<void> _updateUserInfo() async {
+    if (!validateInputs()) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString("email");
+    final token = prefs.getString("token");
+
+    if (email == null || token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Không tìm thấy thông tin đăng nhập")),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.put(
+        Uri.parse("http://localhost:8080/api/v1/user"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode({
+          "email": email,
+          "password": "",
+          "fullName": _nameController.text,
+          "address": _addressController.text,
+          "phone": _phoneController.text,
+          "gender": mapGenderDropdownToApi(selectedGender ?? "other"),
+          "dateOfBirth": _dobController.text,
+        }),
+      );
+
+      print("UPDATE STATUS CODE: ${response.statusCode}");
+      print("UPDATE RESPONSE BODY: ${response.body}");
+
+      if (response.statusCode == 200) {
+        showAutoCloseDialog(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Lỗi cập nhật: ${response.body}")),
+        );
+      }
+    } catch (e) {
+      print("ERROR: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Không thể kết nối tới server")),
       );
     }
-  } catch (e) {
-    print("ERROR: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Không thể kết nối tới server")),
-    );
   }
-}
+
+  Future<void> _getUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString("email");
+    final token = prefs.getString("token");
+
+    print("DEBUG EMAIL: $email");
+    print("DEBUG TOKEN: $token");
+
+    if (email == null || token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Không tìm thấy thông tin đăng nhập")),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse("http://localhost:8080/api/v1/user/email?email=$email"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      print("STATUS CODE: ${response.statusCode}");
+      print("RESPONSE BODY: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final res = jsonDecode(response.body);
+        final data = res["data"];
+
+        setState(() {
+          _nameController.text = data["fullName"] ?? "";
+          _emailController.text = email;
+          _phoneController.text = data["phone"] ?? "";
+          _addressController.text = data["address"] ?? "";
+          selectedGender = mapGenderApiToDropdown(data["gender"]);
+          _dobController.text = data["dateOfBirth"] ?? "";
+          _isLoading = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Lỗi khi lấy thông tin: ${response.body}")),
+        );
+      }
+    } catch (e) {
+      print("ERROR: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Không thể kết nối tới server")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,17 +275,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 10),
                   _buildTextField("Địa chỉ", _addressController),
                   const SizedBox(height: 10),
-                  _buildTextField("Giới tính", _genderController),
+                  DropdownButtonFormField<String>(
+                    value: selectedGender,
+                    items: genders.map((g) {
+                      return DropdownMenuItem<String>(
+                        value: g["value"],
+                        child: Text(g["label"]!),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        selectedGender = val;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 10),
                   _buildTextField("Ngày sinh", _dobController),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      // TODO: gọi API update user
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Cập nhật thành công!")),
-                      );
-                    },
+                    onPressed: _updateUserInfo,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF49BBBD),
                       minimumSize: const Size(double.infinity, 50),
@@ -186,4 +340,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+
+void showAutoCloseDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => const AlertDialog(
+      title: Text("Thành công"),
+      content: Text("Cập nhật thành công!"),
+    ),
+  );
+
+  Future.delayed(const Duration(seconds: 1), () {
+    Navigator.of(context).pop(true); // Đóng dialog
+  });
 }

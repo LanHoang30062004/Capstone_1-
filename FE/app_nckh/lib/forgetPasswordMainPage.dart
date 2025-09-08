@@ -1,9 +1,69 @@
-import 'package:app_nckh/OtpPage.dart';
-import 'package:app_nckh/loginPage.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'OtpPage.dart';
+import 'loginPage.dart';
 
-class ForgetPasswordMainPage extends StatelessWidget {
+class ForgetPasswordMainPage extends StatefulWidget {
   const ForgetPasswordMainPage({super.key});
+
+  @override
+  State<ForgetPasswordMainPage> createState() => _ForgetPasswordMainPageState();
+}
+
+class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
+  final TextEditingController _emailController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _sendForgotPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vui lòng nhập email")),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse("http://localhost:8080/api/v1/password/forgot?email=$email"),
+      );
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        if (body["status"] == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Mã xác minh đã được gửi về email")),
+          );
+          // chuyển sang trang OTP
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => OtpScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(body["message"] ?? "Có lỗi xảy ra")),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Lỗi server: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lỗi kết nối: $e")),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +100,6 @@ class ForgetPasswordMainPage extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 40),
 
               // Title
@@ -54,7 +113,6 @@ class ForgetPasswordMainPage extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 32),
 
               // Label
@@ -66,11 +124,11 @@ class ForgetPasswordMainPage extends StatelessWidget {
                   color: Color(0xFF262A3B),
                 ),
               ),
-
               const SizedBox(height: 10),
 
               // Email Field
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   hintText: "Email",
                   filled: true,
@@ -85,10 +143,8 @@ class ForgetPasswordMainPage extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
 
-              // Thông báo
               const Text(
                 "Chúng tôi sẽ gửi mã xác minh đến email của bạn",
                 style: TextStyle(
@@ -96,22 +152,13 @@ class ForgetPasswordMainPage extends StatelessWidget {
                   color: Color(0xFF262A3B),
                 ),
               ),
-
               const SizedBox(height: 24),
 
               // Nút Gửi
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OtpScreen(),
-                        ),
-                        (route) => false,
-                      );
-                  },
+                  onPressed: _isLoading ? null : _sendForgotPassword,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF49BBBD),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -121,14 +168,16 @@ class ForgetPasswordMainPage extends StatelessWidget {
                     elevation: 4,
                     shadowColor: Colors.tealAccent.withOpacity(0.3),
                   ),
-                  child: const Text(
-                    "Gửi",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "Gửi",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ],

@@ -20,4 +20,5 @@ public interface UserService {
     void updateUser(String email , UserDTO user) throws Exception;
 
     void deleteUser(Long id) throws Exception;
+
 }
