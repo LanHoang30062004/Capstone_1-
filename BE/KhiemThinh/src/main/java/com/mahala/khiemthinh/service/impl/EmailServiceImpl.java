@@ -56,12 +56,18 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void changePassword(PasswordDTO passwordDTO) throws NotFoundException {
         User user = this.userRepository.findByEmail(passwordDTO.getEmail()).orElseThrow(() -> new NotFoundException("Can not find user with email :" + passwordDTO.getEmail()));
-        if (this.passwordEncoder.matches(passwordDTO.getCode(), user.getPassword())) {
-            user.setPassword(this.passwordEncoder.encode(passwordDTO.getPassword()));
-            this.userRepository.save(user);
-        } else {
-            throw new NotFoundException("Verification code wrong");
-        }
-
+        user.setPassword(this.passwordEncoder.encode(passwordDTO.getPassword()));
+        this.userRepository.save(user);
     }
+
+    @Override
+    public Boolean checkOTP(PasswordDTO passwordDTO) throws Exception {
+        User user = this.userRepository.findByEmail(passwordDTO.getEmail()).orElseThrow(() -> new NotFoundException("Can not find user with email :" + passwordDTO.getEmail()));
+        if (this.passwordEncoder.matches(passwordDTO.getCode(), user.getPassword())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
