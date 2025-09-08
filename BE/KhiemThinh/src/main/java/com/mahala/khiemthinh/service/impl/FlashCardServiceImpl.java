@@ -44,6 +44,7 @@ public class FlashCardServiceImpl implements FlashCardService {
         Page<TopicFlashCard> result = this.topicFlashCardRepository.findAll(specification, pageable);
         List<FlashCardDTO> flashCards = result.getContent().stream().map(item -> FlashCardDTO.builder()
                 .content(item.getContent())
+                .id(item.getId())
                 .build()).collect(Collectors.toList());
         return PageResponse.builder()
                 .pageSize(size)
@@ -58,6 +59,7 @@ public class FlashCardServiceImpl implements FlashCardService {
         TopicFlashCard topicFlashCard = this.topicFlashCardRepository.findById(id).orElseThrow(() -> new NotFoundException("Can not find this topic"));
         return FlashCardDTO.builder()
                 .content(topicFlashCard.getContent())
+                .id(topicFlashCard.getId())
                 .cards(topicFlashCard.getFlashCards().stream().map(item -> CardDTO.builder().result(item.getResult()).videoUrl(item.getVideoUrl()).build()).toList())
                 .build();
     }
