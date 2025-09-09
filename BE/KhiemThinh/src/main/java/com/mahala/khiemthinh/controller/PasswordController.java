@@ -31,7 +31,8 @@ public class PasswordController {
         }
     }
 
-    @GetMapping("/check")
+    @PostMapping("/check")
+    @Operation(summary = "kiem tra ma otp")
     public ResponseData<?> checkOtp(@RequestBody PasswordDTO passwordDTO) {
         try {
             log.info("Verification code successfully");

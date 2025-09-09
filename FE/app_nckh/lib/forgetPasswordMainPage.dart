@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'OtpPage.dart';
 import 'loginPage.dart';
 
@@ -14,55 +15,62 @@ class ForgetPasswordMainPage extends StatefulWidget {
 class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
   final TextEditingController _emailController = TextEditingController();
   bool _isLoading = false;
+  String? _emailError; 
 
-  Future<void> _sendForgotPassword() async {
+  Future<bool> _checkEmailExists(String email) async {
+  try {
+    final response = await http.get(
+              Uri.parse("http://localhost:8080/api/v1/user/email?email=$email"),
+    );
+
+    debugPrint("Status code: ${response.statusCode}");
+    debugPrint("Response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      return data["status"] == 0;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    debugPrint("Lỗi kết nối khi check email: $e");
+    return false;
+  }
+}
+
+  /// Xử lý khi nhấn nút Gửi
+  Future<void> _handleSend() async {
     final email = _emailController.text.trim();
+
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vui lòng nhập email")),
-      );
+      setState(() {
+        _emailError = "Vui lòng nhập email";
+      });
       return;
     }
 
     setState(() {
       _isLoading = true;
+      _emailError = null; // clear lỗi cũ
     });
 
-    try {
-      final response = await http.post(
-        Uri.parse("http://localhost:8080/api/v1/password/forgot?email=$email"),
-      );
+    final exists = await _checkEmailExists(email);
 
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body);
-        if (body["status"] == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Mã xác minh đã được gửi về email")),
-          );
-          // chuyển sang trang OTP
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => OtpScreen()),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(body["message"] ?? "Có lỗi xảy ra")),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Lỗi server: ${response.statusCode}")),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi kết nối: $e")),
-      );
-    } finally {
+    if (!exists) {
       setState(() {
         _isLoading = false;
+        _emailError = "Email không tồn tại trong hệ thống";
       });
+      return;
     }
+
+    // Nếu tồn tại → chuyển sang OTP
+    setState(() => _isLoading = false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const OtpScreen()),
+    );
   }
 
   @override
@@ -83,7 +91,7 @@ class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LoginScreen(),
+                          builder: (context) => const LoginScreen(),
                         ),
                         (route) => false,
                       );
@@ -100,6 +108,7 @@ class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 40),
 
               // Title
@@ -113,6 +122,7 @@ class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 32),
 
               // Label
@@ -124,6 +134,7 @@ class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
                   color: Color(0xFF262A3B),
                 ),
               ),
+
               const SizedBox(height: 10),
 
               // Email Field
@@ -141,8 +152,10 @@ class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
+                  errorText: _emailError, // hiển thị lỗi trực tiếp dưới field
                 ),
               ),
+
               const SizedBox(height: 20),
 
               const Text(
@@ -152,13 +165,14 @@ class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
                   color: Color(0xFF262A3B),
                 ),
               ),
+
               const SizedBox(height: 24),
 
               // Nút Gửi
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _sendForgotPassword,
+                  onPressed: _isLoading ? null : _handleSend,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF49BBBD),
                     padding: const EdgeInsets.symmetric(vertical: 16),

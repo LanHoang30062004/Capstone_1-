@@ -80,7 +80,6 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, path + "/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, path + "/user/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.DELETE, path + "/user/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, path + "/user/**").hasAnyRole("ADMIN", "USER")
 
 
                         // flash card
@@ -92,13 +91,9 @@ public class WebSecurityConfig {
                         // translate
                         .requestMatchers(HttpMethod.POST, path + "/translate/**").hasAnyRole("ADMIN", "USER")
 
-<<<<<<< HEAD
                         // password
-=======
 
-                        .requestMatchers(HttpMethod.GET , path + "/user/email/**").permitAll()
 
->>>>>>> 5562d43ee547f0b762dbe430d3613139049a3f20
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(this.authProvider)
