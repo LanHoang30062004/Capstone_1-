@@ -1,0 +1,10 @@
+mediapipe==0.10.14
+numpy==2.1.1
+opencv_contrib_python==4.10.0.84
+opencv_python==4.10.0.84
+scikit_learn==1.5.2
+streamlit==1.38.0
+fastapi==0.104.1
+uvicorn==0.24.0 
+python-multipart==0.0.6
+pydantic==2.5.0
