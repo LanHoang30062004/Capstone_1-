@@ -25,9 +25,9 @@ const getItems = (hasPermission) => {
     // },
 
     {
-      key: "employee",
+      key: "topic",
       icon: <MdOutlineTopic />,
-      label: <Link to="/employee">Chủ đề</Link>,
+      label: <Link to="/topic">Chủ đề</Link>,
     },
 
     {

@@ -3,6 +3,7 @@ import instance from '~/api/intance'
 
 const initialState = {
   flashCards: null,
+  flashCardDetail: null
 }
 
 export const fetchFlashCard = createAsyncThunk(
@@ -11,6 +12,15 @@ export const fetchFlashCard = createAsyncThunk(
     const response = await instance.get('/flash-card', {
       params: query
     })
+
+    return response.data
+  },
+)
+
+export const fetchFlashCardDetail = createAsyncThunk(
+  'flash-card/fetchFlashCardDetail',
+  async (id) => {
+    const response = await instance.get(`/flash-card/${id}`)
 
     return response.data
   },
@@ -27,10 +37,11 @@ export const fetchFlashCardAdd = createAsyncThunk(
 
 export const fetchFlashCardEdit = createAsyncThunk(
   'flash-card/fetchFlashCardEdit',
-  async (data) => {
-    const response = await instance.put(`/flash-card/${data.wordId}`, data)
+  async ({ id, data }) => {
+    const response = await instance.put(`/flash-card/${id}`, data)
 
-    return response.data.data
+    console.log(response)
+    return response.data
   },
 )
 
@@ -47,6 +58,7 @@ export const wordSlice = createSlice({
   name: 'flash-card',
   initialState,
   reducers: {
+
   },
 
   extraReducers: (builder) => {
@@ -55,20 +67,28 @@ export const wordSlice = createSlice({
       state.flashCards = action.payload.data
     })
 
+    builder.addCase(fetchFlashCardDetail.fulfilled, (state, action) => {
+      state.flashCardDetail = action.payload.data
+    })
+
     builder.addCase(fetchFlashCardAdd.fulfilled, (state, action) => {
       state.flashCards.items.push(action.payload.data)
     })
 
     builder.addCase(fetchFlashCardEdit.fulfilled, (state, action) => {
       const updatedWord = action.payload
-      const index = state.flashCards.items.findIndex(item => item.wordId === updatedWord.wordId);
+      const index = state.flashCards?.items?.findIndex(item => item.wordId === updatedWord.wordId);
 
-      state.flashCards.items[index] = updatedWord
+      // state.flashCards.items[index] = updatedWord
+    })
+
+    builder.addCase(fetchFlashCardEdit.rejected, (state, action) => {
+      console.log(action.payload)
     })
 
     builder.addCase(fetchFlashCardDelete.fulfilled, (state, action) => {
       const flashCardId = action.payload
-      state.flashCards.items = state.words.items.filter(item => item.wordId !== flashCardId)
+      state.flashCards.items = state.words?.items?.filter(item => item.wordId !== flashCardId)
     })
   },
 })

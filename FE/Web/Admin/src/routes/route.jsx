@@ -18,6 +18,7 @@ import InfoAccount from "~/pages/InfoAccount/InfoAccount";
 import Topic from "~/pages/Topic/Topic";
 import Word from "~/pages/Word/Word";
 import FlashCard from "~/pages/FlashCard/FlashCard";
+import FlashCardDetail from "~/pages/FlashCard/FlashCardDetail";
 
 const route = [
   {
@@ -85,6 +86,11 @@ const route = [
           {
             path: "/flash-card",
             element: <FlashCard />,
+          },
+
+          {
+            path: "/flash-card/:id",
+            element: <FlashCardDetail />,
           },
 
           {

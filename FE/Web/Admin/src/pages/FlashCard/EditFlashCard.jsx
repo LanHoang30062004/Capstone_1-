@@ -1,46 +1,40 @@
 import { Button, Form, Input, Modal, Space, Upload } from "antd";
 import { useContext, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { LoadingContext } from "~/context/LoadingContext";
-import { fetchFlashCardAdd } from "~/redux/flashCard/flashCardSlice";
-import { CloseOutlined } from "@ant-design/icons";
 import UploadFileNotShow from "~/components/UploadFile/UploadFileNotShow";
+import { CloseOutlined } from "@ant-design/icons";
+import { fetchFlashCardEdit } from "~/redux/flashCard/flashCardSlice";
 
-const AddFlashCard = (props) => {
+const EditFlashCard = (props) => {
   const { open, setOpen } = props;
-  const [fileUrl, setFileUrl] = useState("");
   const dispatch = useDispatch();
   const { loading, toggleLoading } = useContext(LoadingContext);
 
   const [form] = Form.useForm();
 
-  const handleAdd = async (value) => {
-    // if (!fileUrl) {
-    //   toast.error("Vui lòng upload video!");
-    //   return;
-    // }
+  const flashCard = useSelector((state) => state.flashCard.flashCardDetail);
 
-    value.cards.videoUrl = fileUrl;
-
-    console.log(value);
-
+  const handleEdit = async (value) => {
     try {
       toggleLoading(true);
-      const response = await dispatch(fetchFlashCardAdd(value)).unwrap();
 
-      toast.success("Thêm thành công!");
+      dispatch(fetchFlashCardEdit({ id: 1, data: value })).unwrap();
+
+      toast.success("Chỉnh sửa thành công!");
     } catch (error) {
       console.log(error);
+      toast.error(error.message);
     } finally {
       toggleLoading(false);
     }
   };
-
+  
   return (
     <>
       <Modal
-        title={<h4 className="modal__title">Thêm kí hiệu</h4>}
+        title={<h4 className="modal__title">Chỉnh sửa Flash Card</h4>}
         open={open}
         onCancel={() => setOpen(false)}
         footer={[
@@ -54,11 +48,16 @@ const AddFlashCard = (props) => {
             onClick={() => form.submit()}
             loading={loading}
           >
-            Thêm
+            Chỉnh sửa
           </Button>,
         ]}
       >
-        <Form form={form} onFinish={handleAdd} layout="vertical">
+        <Form
+          form={form}
+          onFinish={handleEdit}
+          initialValues={flashCard}
+          layout="vertical"
+        >
           <Form.Item label="FlashCard">
             <Form.List name="cards">
               {(subFields, subOpt) => (
@@ -112,4 +111,4 @@ const AddFlashCard = (props) => {
   );
 };
 
-export default AddFlashCard;
+export default EditFlashCard;

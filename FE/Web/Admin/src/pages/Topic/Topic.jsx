@@ -136,7 +136,7 @@ const Topic = () => {
   return (
     <>
       <div className="word__list contain">
-        <Header title="Kí hiệu" subTitle="Danh sách kí hiệu" />
+        <Header title="Chủ đề" subTitle="Danh sách chủ đề" />
 
         <Card className="word__table table">
           <div className="word__table--head">

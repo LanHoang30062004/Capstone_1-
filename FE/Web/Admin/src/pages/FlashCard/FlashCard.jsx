@@ -15,20 +15,20 @@ import {
   DeleteOutlined,
   SearchOutlined,
   PlusCircleOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./FlashCard.scss";
 import { fetchWord, fetchWordDelete } from "~/redux/word/wordSlice";
 import EditWord from "./EditWord";
 import AddFlashCard from "./AddFlashCard";
+import { fetchFlashCard } from "~/redux/flashCard/flashCardSlice";
 
 const columns = [
-  { title: "Mã kí hiệu", dataIndex: "wordId" },
-  { title: "Video", dataIndex: "videoUrl" },
-  { title: "Tên kí hiệu", dataIndex: "wordName" },
-  { title: "Nghĩa kí hiệu", dataIndex: "wordMeaning" },
+  { title: "Mã flashCard", dataIndex: "flashCardId" },
+  { title: "Nội dung", dataIndex: "content" },
   { title: "Hành động", dataIndex: "action" },
 ];
 
@@ -40,7 +40,7 @@ const FlashCard = () => {
   // const [openEditPosition, setOpenEditPosition] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const words = useSelector((state) => state.word.words);
+  const flashCards = useSelector((state) => state.flashCard.flashCards);
 
   const dispatch = useDispatch();
 
@@ -54,7 +54,7 @@ const FlashCard = () => {
       });
     }
 
-    dispatch(fetchWord(searchObject));
+    dispatch(fetchFlashCard(searchObject));
   }, [dispatch, searchParams]);
 
   const handleOpenModal = (setOpen, word) => {
@@ -68,7 +68,7 @@ const FlashCard = () => {
         pending: "Đang xoá...",
       });
 
-      if (words.items.length === 1) {
+      if (flashCards?.items.length === 1) {
         const searchObject = Object.fromEntries(searchParams.entries());
         setSearchParams({
           ...searchObject,
@@ -101,19 +101,16 @@ const FlashCard = () => {
     });
   };
 
-  const dataSource = words?.items?.map((word) => {
+  const dataSource = flashCards?.items?.map((flashCard) => {
     return {
-      key: word.wordId,
-      wordId: word.wordId,
-      videoUrl: <video src={word.videoUrl} controls width={200} />,
-      wordName: word.wordName,
-      wordMeaning: word.wordMeaning,
+      key: flashCard.content,
+      flashCardId: flashCard.wordId,
+      content: flashCard.content,
       action: (
         <Flex align="center" gap="small">
-          {/* <EyeOutlined
-            className="table__icon"
-            onClick={() => handleOpenModal(setOpenDetail, position)}
-          /> */}
+          <Link to="/flash-card/1">
+            <EyeOutlined className="table__icon" />
+          </Link>
           <EditOutlined
             className="table__icon"
             onClick={() => handleOpenModal(setEditModal, word)}
@@ -179,10 +176,10 @@ const FlashCard = () => {
 
           <Pagination
             current={parseInt(searchParams.get("page")) || 1}
-            total={words?.totalPages * words?.pageSize}
+            total={flashCards?.totalPages * flashCards?.pageSize}
             align="end"
             onChange={handleChangePage}
-            pageSize={words?.pageSize || 10}
+            pageSize={flashCards?.pageSize || 10}
             pageSizeOptions={[5, 10, 20, 50]}
           />
         </Card>
