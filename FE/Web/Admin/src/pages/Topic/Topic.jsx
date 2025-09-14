@@ -18,11 +18,12 @@ import {
   SearchOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./Topic.scss";
 import { fetchWord, fetchWordDelete } from "~/redux/word/wordSlice";
+import Link from "antd/es/typography/Link";
 
 const columns = [
   { title: "Mã kí hiệu", dataIndex: "wordId" },
@@ -39,6 +40,7 @@ const Topic = () => {
   const [topic, setTopic] = useState(null);
   // const [openEditPosition, setOpenEditPosition] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const words = useSelector((state) => state.word.words);
 
@@ -164,9 +166,9 @@ const Topic = () => {
                   type="primary"
                   icon={<PlusCircleOutlined />}
                   size="large"
-                  onClick={() => setOpenAddTopic(true)}
+                  onClick={() => navigate("/topic/add")}
                 >
-                  Thêm kí hiệu
+                  Thêm chủ đề
                 </Button>
               </div>
             </Flex>

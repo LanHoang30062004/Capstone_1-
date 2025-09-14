@@ -42,10 +42,6 @@ html {
   cursor: pointer;
 }
 
-.table__icon:hover {
-  // color: var(--color-purple);
-}
-
 /* End Table */
 
 /* Input */
@@ -77,3 +73,7 @@ a {
 }
 
 /* End Modal */
+
+.none {
+  display: none;
+}

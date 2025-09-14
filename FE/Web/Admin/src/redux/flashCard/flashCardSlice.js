@@ -1,4 +1,5 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, isRejectedWithValue } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
 import instance from '~/api/intance'
 
 const initialState = {
@@ -40,7 +41,6 @@ export const fetchFlashCardEdit = createAsyncThunk(
   async ({ id, data }) => {
     const response = await instance.put(`/flash-card/${id}`, data)
 
-    console.log(response)
     return response.data
   },
 )
@@ -72,7 +72,12 @@ export const wordSlice = createSlice({
     })
 
     builder.addCase(fetchFlashCardAdd.fulfilled, (state, action) => {
-      state.flashCards.items.push(action.payload.data)
+      if (action.payload.status > 400)
+        toast.error(action.payload.message)
+      else {
+        toast.success(action.payload.message)
+        state.flashCards.items.push(action.payload.data)
+      }
     })
 
     builder.addCase(fetchFlashCardEdit.fulfilled, (state, action) => {

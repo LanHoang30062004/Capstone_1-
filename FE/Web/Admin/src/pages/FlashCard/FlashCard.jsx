@@ -22,9 +22,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./FlashCard.scss";
 import { fetchWord, fetchWordDelete } from "~/redux/word/wordSlice";
-import EditWord from "./EditWord";
 import AddFlashCard from "./AddFlashCard";
-import { fetchFlashCard } from "~/redux/flashCard/flashCardSlice";
+import {
+  fetchFlashCard,
+  fetchFlashCardDelete,
+} from "~/redux/flashCard/flashCardSlice";
 
 const columns = [
   { title: "Mã flashCard", dataIndex: "flashCardId" },
@@ -33,11 +35,7 @@ const columns = [
 ];
 
 const FlashCard = () => {
-  // const [openDetail, setOpenDetail] = useState(false);
   const [openAddFlashCard, setOpenAddFlashCard] = useState(false);
-  const [editModal, setEditModal] = useState(false);
-  const [word, setWord] = useState(null);
-  // const [openEditPosition, setOpenEditPosition] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const flashCards = useSelector((state) => state.flashCard.flashCards);
@@ -57,23 +55,21 @@ const FlashCard = () => {
     dispatch(fetchFlashCard(searchObject));
   }, [dispatch, searchParams]);
 
-  const handleOpenModal = (setOpen, word) => {
-    setOpen(true);
-    setWord(word);
-  };
-
-  const handleDelete = (wordId) => {
+  const handleDelete = async (id) => {
     try {
-      toast.promise(dispatch(fetchWordDelete(wordId)), {
+      await toast.promise(dispatch(fetchFlashCardDelete(id)), {
         pending: "Đang xoá...",
       });
 
+      const searchObject = Object.fromEntries(searchParams.entries());
+
       if (flashCards?.items.length === 1) {
-        const searchObject = Object.fromEntries(searchParams.entries());
         setSearchParams({
           ...searchObject,
           page: searchParams.get("page") - 1,
         });
+      } else {
+        await dispatch(fetchFlashCard(searchObject));
       }
 
       toast.success("Xoá thành công!");
@@ -103,22 +99,19 @@ const FlashCard = () => {
 
   const dataSource = flashCards?.items?.map((flashCard) => {
     return {
-      key: flashCard.content,
-      flashCardId: flashCard.wordId,
-      content: flashCard.content,
+      key: flashCard?.id,
+      flashCardId: flashCard?.id,
+      content: flashCard?.content,
       action: (
         <Flex align="center" gap="small">
-          <Link to="/flash-card/1">
+          <Link to={`/flash-card/${flashCard.id}`}>
             <EyeOutlined className="table__icon" />
           </Link>
-          <EditOutlined
-            className="table__icon"
-            onClick={() => handleOpenModal(setEditModal, word)}
-          />
+
           <Popconfirm
             title="Xoá kí hiệu"
             description="Bạn có chắc muốn xoá kí hiệu này?"
-            onConfirm={() => handleDelete(word.wordId)}
+            onConfirm={() => handleDelete(flashCard.id)}
             okText="Xoá"
             cancelText="Huỷ"
           >
@@ -139,7 +132,7 @@ const FlashCard = () => {
             <Flex align="center" justify="space-between">
               <div className="flash-card_search">
                 <Form onFinish={handleSearch}>
-                  <Form.Item name="search">
+                  <Form.Item name="search" noStyle>
                     <Input
                       placeholder="Tìm kiếm"
                       prefix={<SearchOutlined className="table__icon" />}
@@ -186,10 +179,6 @@ const FlashCard = () => {
       </div>
       {openAddFlashCard && (
         <AddFlashCard open={openAddFlashCard} setOpen={setOpenAddFlashCard} />
-      )}
-
-      {editModal && (
-        <EditWord open={editModal} setOpen={setEditModal} word={word} />
       )}
     </>
   );

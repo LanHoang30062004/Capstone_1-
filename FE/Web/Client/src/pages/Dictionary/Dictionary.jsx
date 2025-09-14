@@ -1,19 +1,65 @@
-import { Button, Form, Input, Pagination } from "antd";
+import { Button, Form, Input, Pagination, Skeleton } from "antd";
 import Background from "~/assets/images/Bg2.png";
 import { FaPlay } from "react-icons/fa";
 import "./Dictionary.scss";
 import { CiSearch } from "react-icons/ci";
 import DictionaryModal from "./DictionaryModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { getWords } from "~/service/wordService";
 
 const Dictionary = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [words, setWords] = useState(null);
+  const [word, setWord] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  console.log(isModalOpen);
+  const hanldeOpenModal = (setOpen, word) => {
+    setOpen(true);
+    setWord(word);
+  };
 
   const handleSearch = (value) => {
-    console.log(value);
+    const searchObject = Object.fromEntries(searchParams.entries());
+    setSearchParams({
+      ...searchObject,
+      page: 1,
+      search: value.search,
+    });
   };
+
+  const handleChangePage = (page, pageSize) => {
+    const searchObject = Object.fromEntries(searchParams.entries());
+    setSearchParams({
+      ...searchObject,
+      page: page,
+      size: pageSize,
+    });
+  };
+
+  useEffect(() => {
+    const searchObject = Object.fromEntries(searchParams.entries());
+
+    if (Object.keys(searchObject).length === 0) {
+      setSearchParams({
+        page: 1,
+        size: 10,
+      });
+    }
+
+    const fetchWord = async () => {
+      try {
+        setLoading(true);
+        const response = await getWords(searchObject);
+        setWords(response.data);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWord();
+  }, [searchParams]);
 
   return (
     <>
@@ -34,83 +80,54 @@ const Dictionary = () => {
             </Form>
 
             <div className="dictionary__grid">
-              <div className="dictionary__card card">
-                <div
-                  className="dictionary__card--video"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  <img src={Background} alt="Background" />
-
-                  <div className="dictionary__card--play">
-                    <FaPlay className="dictionary__card--icon" />
-                  </div>
-                </div>
-
-                <div className="dictionary__card--content">
-                  <h3 className="dictionary__card--title">Địa chỉ</h3>
-
-                  <Button type="primary">Phân tích</Button>
-                </div>
-              </div>
-
-              <div className="dictionary__card card">
-                <div className="dictionary__card--video">
-                  <img src={Background} alt="Background" />
-
-                  <div className="dictionary__card--play">
-                    <FaPlay className="dictionary__card--icon" />
-                  </div>
-                </div>
-
-                <div className="dictionary__card--content">
-                  <h3 className="dictionary__card--title">Địa chỉ</h3>
-
-                  <Button type="primary">Phân tích</Button>
-                </div>
-              </div>
-
-              <div className="dictionary__card card">
-                <div className="dictionary__card--video">
-                  <img src={Background} alt="Background" />
-
-                  <div className="dictionary__card--play">
-                    <FaPlay className="dictionary__card--icon" />
-                  </div>
-                </div>
-
-                <div className="dictionary__card--content">
-                  <h3 className="dictionary__card--title">Địa chỉ</h3>
-
-                  <Button type="primary">Phân tích</Button>
-                </div>
-              </div>
-
-              <div className="dictionary__card card">
-                <div className="dictionary__card--video">
-                  <img src={Background} alt="Background" />
-
-                  <div className="dictionary__card--play">
-                    <FaPlay className="dictionary__card--icon" />
-                  </div>
-                </div>
-
-                <div className="dictionary__card--content">
-                  <h3 className="dictionary__card--title">Địa chỉ</h3>
-                </div>
-              </div>
+              {loading
+                ? // Render skeleton khi loading
+                  Array.from({ length: 6 }).map((_, i) => (
+                    <div className="dictionary__card card" key={i}>
+                      <Skeleton.Image
+                        style={{ width: "100%", height: 150 }}
+                        active
+                      />
+                      <Skeleton active title={false} paragraph={{ rows: 1 }} />
+                    </div>
+                  ))
+                : words?.items?.map((word) => (
+                    <div className="dictionary__card card" key={word.wordId}>
+                      <div
+                        className="dictionary__card--video"
+                        onClick={() => hanldeOpenModal(setIsModalOpen, word)}
+                      >
+                        <video src={word.videoUrl} />
+                        <div className="dictionary__card--play">
+                          <FaPlay className="dictionary__card--icon" />
+                        </div>
+                      </div>
+                      <div className="dictionary__card--content">
+                        <h3 className="dictionary__card--title">
+                          {word?.wordName}
+                        </h3>
+                      </div>
+                    </div>
+                  ))}
             </div>
 
-            <Pagination
-              className="dictionary__pagination"
-              align="center"
-              defaultCurrent={1}
-              total={50}
-            />
+            {!loading && (
+              <Pagination
+                className="dictionary__pagination"
+                align="center"
+                current={parseInt(searchParams.get("page")) || 1}
+                total={words?.totalPages * words?.pageSize}
+                onChange={handleChangePage}
+                pageSize={words?.pageSize || 10}
+                pageSizeOptions={[5, 10, 20, 50]}
+              />
+            )}
           </div>
 
           <DictionaryModal
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}
+            word={word}
           />
         </div>
       </section>

@@ -1,7 +1,5 @@
 import { Button, Modal } from "antd";
-import Background from "~/assets/images/Bg2.png";
-
-const DictionaryModal = ({ isModalOpen, setIsModalOpen }) => {
+const DictionaryModal = ({ isModalOpen, setIsModalOpen, word }) => {
   return (
     <>
       <Modal
@@ -20,16 +18,13 @@ const DictionaryModal = ({ isModalOpen, setIsModalOpen }) => {
         closable={false}
       >
         <div className="dictionary__modal--head">
-          <h3 className="dictionary__modal--title">Địa chỉ</h3>
+          <h3 className="dictionary__modal--title">{word?.wordName}</h3>
         </div>
 
         <div className="dictionary__modal--body">
-          <p className="dictionary__modal--description">
-            Những thông tin cụ thể về chỗ ở, nơi làm việc của một người, một cơ
-            quan, v.v.
-          </p>
+          <p className="dictionary__modal--description">{word?.wordMeaning}</p>
 
-          <img src={Background} alt="" />
+          <video src={word?.videoUrl} controls autoPlay />
         </div>
       </Modal>
     </>

@@ -1,8 +1,4 @@
 import DefaultLayout from "~/components/Layouts/DefaultLayout";
-import AddEmployee from "~/pages/Employee/AddEmployee";
-import EditEmployee from "~/pages/Employee/EditEmployee";
-import Employee from "~/pages/Employee/Employee";
-import ListEmployee from "~/pages/Employee/ListEmployee";
 import Login from "~/pages/Auth/Login";
 import Auth from "~/pages/Auth/Auth";
 import ProtectedRoute from "~/components/ProtectedRoute/ProtectedRoute";
@@ -19,6 +15,7 @@ import Topic from "~/pages/Topic/Topic";
 import Word from "~/pages/Word/Word";
 import FlashCard from "~/pages/FlashCard/FlashCard";
 import FlashCardDetail from "~/pages/FlashCard/FlashCardDetail";
+import AddTopic from "~/pages/Topic/AddTopic";
 
 const route = [
   {
@@ -30,52 +27,60 @@ const route = [
         element: <DefaultLayout />,
         children: [
           {
-            path: "/employee",
-            element: <Employee />,
-            children: [
-              {
-                path: "",
-                element: <ListEmployee />,
-              },
-
-              // {
-              //   path: "",
-              //   element: (
-              //     <RBACRoute
-              //       requiredPermission={permissions.CREATE_EMPLOYEE}
-              //     />
-              //   ),
-              //   children: [
-              //     {
-              //       path: "add",
-              //       element: <AddEmployee />,
-              //     },
-              //   ],
-              // },
-
-              {
-                path: "edit/:id",
-                element: <EditEmployee />,
-              },
-            ],
+            // path: "/employee",
+            // element: <Employee />,
+            // children: [
+            //   {
+            //     path: "",
+            //     element: <ListEmployee />,
+            //   },
+            //   // {
+            //   //   path: "",
+            //   //   element: (
+            //   //     <RBACRoute
+            //   //       requiredPermission={permissions.CREATE_EMPLOYEE}
+            //   //     />
+            //   //   ),
+            //   //   children: [
+            //   //     {
+            //   //       path: "add",
+            //   //       element: <AddEmployee />,
+            //   //     },
+            //   //   ],
+            //   // },
+            //   {
+            //     path: "edit/:id",
+            //     element: <EditEmployee />,
+            //   },
+            // ],
           },
 
+          // {
+          //   path: "",
+          //   element: (
+          //     <RBACRoute requiredPermission={permissions.VIEW_ACCOUNT} />
+          //   ),
+          //   children: [
+          //     {
+          //       path: "/account",
+          //       element: <Account />,
+          //     },
+          //   ],
+          // },
+
           {
-            path: "",
-            element: (
-              <RBACRoute requiredPermission={permissions.VIEW_ACCOUNT} />
-            ),
-            children: [
-              {
-                path: "/account",
-                element: <Account />,
-              },
-            ],
+            path: "/account",
+            element: <Account />,
           },
 
           {
             path: "/topic",
             element: <Topic />,
+          },
+
+          {
+            path: "/topic/add",
+            element: <AddTopic />,
           },
 
           {

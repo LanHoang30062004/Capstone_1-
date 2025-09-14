@@ -35,11 +35,9 @@ const columns = [
 ];
 
 const Word = () => {
-  // const [openDetail, setOpenDetail] = useState(false);
   const [openAddWord, setOpenAddWord] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [word, setWord] = useState(null);
-  // const [openEditPosition, setOpenEditPosition] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const words = useSelector((state) => state.word.words);

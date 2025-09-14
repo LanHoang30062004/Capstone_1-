@@ -1,11 +1,13 @@
-import { Button, Form, Input, Modal, Space, Upload } from "antd";
-import { useContext, useState } from "react";
+import { Button, Form, Input, Modal, Space } from "antd";
+import { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { LoadingContext } from "~/context/LoadingContext";
-import UploadFileNotShow from "~/components/UploadFile/UploadFileNotShow";
 import { CloseOutlined } from "@ant-design/icons";
-import { fetchFlashCardEdit } from "~/redux/flashCard/flashCardSlice";
+import {
+  fetchFlashCardDetail,
+  fetchFlashCardEdit,
+} from "~/redux/flashCard/flashCardSlice";
 
 const EditFlashCard = (props) => {
   const { open, setOpen } = props;
@@ -20,7 +22,9 @@ const EditFlashCard = (props) => {
     try {
       toggleLoading(true);
 
-      dispatch(fetchFlashCardEdit({ id: 1, data: value })).unwrap();
+      await dispatch(fetchFlashCardEdit({ id: 1, data: value })).unwrap();
+
+      await dispatch(fetchFlashCardDetail(flashCard.id));
 
       toast.success("Chỉnh sửa thành công!");
     } catch (error) {
@@ -30,7 +34,7 @@ const EditFlashCard = (props) => {
       toggleLoading(false);
     }
   };
-  
+
   return (
     <>
       <Modal
@@ -71,11 +75,14 @@ const EditFlashCard = (props) => {
                   {subFields.map((subField) => (
                     <Space key={subField.key}>
                       <Form.Item noStyle name={[subField.name, "result"]}>
-                        <Input placeholder="first" />
+                        <Input placeholder="Kí hiệu" />
                       </Form.Item>
 
-                      <Form.Item noStyle name={[subField.name, "videoUrl"]}>
-                        <UploadFileNotShow />
+                      <Form.Item
+                        name={[subField.name, "videoUrl"]}
+                        style={{ display: "none" }}
+                      >
+                        <Input />
                       </Form.Item>
 
                       <CloseOutlined

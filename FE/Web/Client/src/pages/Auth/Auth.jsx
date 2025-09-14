@@ -7,14 +7,11 @@ import "./Auth.scss";
 const Auth = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [currentLocate, setCurrentLocate] = useState(
-    location.pathname.slice(1)
-  );
 
   const handleChange = (value) => {
     navigate(`/${value}`);
-    setCurrentLocate(value);
   };
+
   return (
     <>
       <div className="auth">
@@ -42,7 +39,7 @@ const Auth = () => {
                 size="large"
                 options={["login", "register"]}
                 className="auth__segment"
-                defaultValue={currentLocate}
+                defaultValue={location.pathname.slice(1)}
                 onChange={handleChange}
               />
               <p className="auth__description">

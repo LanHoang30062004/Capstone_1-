@@ -10,4 +10,6 @@ public interface EmailService {
     public void sendSimpleEmail(String to) throws MessagingException, NotFoundException;
 
     public void changePassword(PasswordDTO passwordDTO) throws NotFoundException;
+
+    Boolean checkOTP(PasswordDTO passwordDTO) throws Exception;
 }

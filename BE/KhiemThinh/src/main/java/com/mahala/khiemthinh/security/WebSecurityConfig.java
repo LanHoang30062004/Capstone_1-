@@ -31,14 +31,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
     private String path;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/api/**") // 👈 chỉ áp dụng cho API
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(Arrays.asList(
                             "http://localhost:3000",
                             "http://localhost:5173",
+                            "http://localhost:5174",
                             "http://localhost:63645"
                     ));
                     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -55,15 +57,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                path+"/password/**"
+                                path + "/password/**"
                         ).permitAll()
 
                         // login/register
                         .requestMatchers(HttpMethod.POST, path + "/user/login").permitAll()
                         .requestMatchers(HttpMethod.POST, path + "/user/register").permitAll()
 
-                        // OAuth2 login endpoints
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        // user/email
+                        .requestMatchers(HttpMethod.GET, path + "/user/email").permitAll()
 
                         // word
                         .requestMatchers(HttpMethod.POST, path + "/word/**").hasRole("ADMIN")
@@ -83,7 +85,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
                         .requestMatchers(HttpMethod.DELETE, path + "/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, path + "/user/**").hasAnyRole("ADMIN", "USER")
 
-
                         // flash card
                         .requestMatchers(HttpMethod.POST, path + "/flash-card/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, path + "/flash-card/**").hasRole("ADMIN")
@@ -93,18 +94,25 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
                         // translate
                         .requestMatchers(HttpMethod.POST, path + "/translate/**").hasAnyRole("ADMIN", "USER")
 
-
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(this.authProvider)
-                .addFilterBefore(this.jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                // 👇 thêm cấu hình oauth2 login
+                .addFilterBefore(this.jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    public SecurityFilterChain oauth2SecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/oauth2/**", "/login/oauth2/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization"))
                         .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*"))
                         .successHandler(oAuth2SuccessHandler)
                 );
-
-            return http.build();
-        }
+        return http.build();
     }
+
+}

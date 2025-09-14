@@ -16,7 +16,6 @@ const Login = () => {
     try {
       toggleLoading(true);
       const response = await accountService.login(values);
-      console.log(response);
 
       if (response.status !== 200) {
         toast.error(response.message);

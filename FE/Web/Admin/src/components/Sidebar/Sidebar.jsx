@@ -41,6 +41,12 @@ const getItems = (hasPermission) => {
       icon: <MdOutlineTopic />,
       label: <Link to="/flash-card">Flash card</Link>,
     },
+
+    {
+      key: "account",
+      icon: <MdOutlineTopic />,
+      label: <Link to="/account">Tài khoản</Link>,
+    },
   ];
 };
 

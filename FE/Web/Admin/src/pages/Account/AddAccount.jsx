@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { roles } from "~/configs/rbacConfig";
 import { LoadingContext } from "~/context/LoadingContext";
+import { fetchAccountAddAdmin } from "~/redux/account/accountSlice";
 
 const AddAccount = (props) => {
   const { open, setOpen } = props;
@@ -13,22 +14,18 @@ const AddAccount = (props) => {
   const { loading, toggleLoading } = useContext(LoadingContext);
 
   const handleAdd = async (value) => {
+    console.log(value);
     try {
       toggleLoading(true);
-      value.dateOfBirth = dayjs(value.dateOfBirth).format("DD/MM/YYYY");
+      value.dateOfBirth = dayjs(value.dateOfBirth).format("YYYY-MM-DD");
+      await dispatch(fetchAccountAddAdmin(value));
+      toast.success("Thêm thành công!");
     } catch (error) {
-      console.log(error);
+      toast.error(error);
     } finally {
       toggleLoading(false);
     }
   };
-
-  const optionsRole = [
-    { label: "Admin", value: roles.ADMIN },
-    { label: "HR Manager", value: roles.HR_MANAGER },
-    { label: "Payroll Manager", value: roles.PAYROLL_MANAGER },
-    { label: "Employee", value: roles.EMPLOYEE },
-  ];
 
   return (
     <>
@@ -107,17 +104,35 @@ const AddAccount = (props) => {
             />
           </Form.Item>
 
+          <Form.Item name="address" label="Địa chỉ">
+            <Input />
+          </Form.Item>
+
           <Form.Item
-            name="role"
-            label="Vai trò"
+            name="phone"
+            label="Số điện thoại"
             rules={[
               {
-                required: true,
-                message: "Vui lòng chọn vai trò",
+                pattern: /^\d+$/,
+                message: "Số điện thoại chỉ được chứa số",
+              },
+
+              {
+                max: 10,
+                message: "Số điện thoại chỉ chứa 10 số",
               },
             ]}
           >
-            <Select placeholder="Chọn vai trò" options={optionsRole} />
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="gender" label="Giới tính">
+            <Select
+              options={[
+                { value: "Nam", label: "Nam" },
+                { value: "Nữ", label: "Nữ" },
+              ]}
+            />
           </Form.Item>
         </Form>
       </Modal>

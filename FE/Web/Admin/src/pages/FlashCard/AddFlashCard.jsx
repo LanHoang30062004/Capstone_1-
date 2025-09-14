@@ -9,27 +9,15 @@ import UploadFileNotShow from "~/components/UploadFile/UploadFileNotShow";
 
 const AddFlashCard = (props) => {
   const { open, setOpen } = props;
-  const [fileUrl, setFileUrl] = useState("");
   const dispatch = useDispatch();
   const { loading, toggleLoading } = useContext(LoadingContext);
 
   const [form] = Form.useForm();
 
   const handleAdd = async (value) => {
-    // if (!fileUrl) {
-    //   toast.error("Vui lòng upload video!");
-    //   return;
-    // }
-
-    value.cards.videoUrl = fileUrl;
-
-    console.log(value);
-
     try {
       toggleLoading(true);
-      const response = await dispatch(fetchFlashCardAdd(value)).unwrap();
-
-      toast.success("Thêm thành công!");
+      await dispatch(fetchFlashCardAdd(value)).unwrap();
     } catch (error) {
       console.log(error);
     } finally {
@@ -40,7 +28,7 @@ const AddFlashCard = (props) => {
   return (
     <>
       <Modal
-        title={<h4 className="modal__title">Thêm kí hiệu</h4>}
+        title={<h4 className="modal__title">Thêm flash card</h4>}
         open={open}
         onCancel={() => setOpen(false)}
         footer={[
@@ -72,11 +60,14 @@ const AddFlashCard = (props) => {
                   {subFields.map((subField) => (
                     <Space key={subField.key}>
                       <Form.Item noStyle name={[subField.name, "result"]}>
-                        <Input placeholder="first" />
+                        <Input placeholder="Kí hiệu" />
                       </Form.Item>
 
-                      <Form.Item noStyle name={[subField.name, "videoUrl"]}>
-                        <UploadFileNotShow />
+                      <Form.Item
+                        name={[subField.name, "videoUrl"]}
+                        style={{ display: "none" }}
+                      >
+                        <Input />
                       </Form.Item>
 
                       <CloseOutlined

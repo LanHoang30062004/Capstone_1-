@@ -30,7 +30,6 @@ const items = [
 
 const Header = (props) => {
   const { title, subTitle } = props;
-  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const [notification, setNotification] = useState([]);
   const { myTheme } = useContext(ThemeContext);
 
@@ -118,8 +117,8 @@ const Header = (props) => {
                   size={40}
                 />
                 <div className="header__account--info">
-                  <p className="header__account--name">{userInfo.userName}</p>
-                  <p className="header__account--role">{userInfo.role}</p>
+                  <p className="header__account--name">Long</p>
+                  <p className="header__account--role">admin</p>
                 </div>
                 <DownOutlined />
               </div>

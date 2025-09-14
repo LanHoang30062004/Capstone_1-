@@ -14,33 +14,45 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${api.prefix}/password")
 @Slf4j
 @RequiredArgsConstructor
-@Tag(name = "API cho Password" )
+@Tag(name = "API cho Password")
 public class PasswordController {
     private final EmailService emailService;
+
     @PostMapping("/forgot")
     @Operation(summary = "Quên mật khẩu")
-    public ResponseData<?> forgotPassword (@RequestParam("email") String email) {
+    public ResponseData<?> forgotPassword(@RequestParam("email") String email) {
         try {
             log.info("Send email verification successfully");
             this.emailService.sendSimpleEmail(email);
-            return new ResponseData<>(HttpStatus.OK.value(),"Send email verification successfully") ;
-        }
-        catch (Exception e) {
+            return new ResponseData<>(HttpStatus.OK.value(), "Send email verification successfully");
+        } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),e.getMessage());
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
         }
     }
+
+    @PostMapping("/check")
+    @Operation(summary = "Kiểm tra otp")
+    public ResponseData<?> checkOtp(@RequestBody PasswordDTO passwordDTO) {
+        try {
+            log.info("Verification code successfully");
+            return new ResponseData<>(HttpStatus.OK.value(), "Verification code successfully", this.emailService.checkOTP(passwordDTO));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage() , false);
+        }
+    }
+
     @PostMapping("/change")
     @Operation(summary = "Thay đổi mật khẩu")
-    public ResponseData<?> changePassword (@RequestBody PasswordDTO passwordDTO) {
+    public ResponseData<?> changePassword(@RequestBody PasswordDTO passwordDTO) {
         try {
             this.emailService.changePassword(passwordDTO);
-            log.info("Change password successful with email : {}", passwordDTO.getEmail() );
-            return new ResponseData<>(HttpStatus.OK.value(),"Change password successful with email :" + passwordDTO.getEmail()) ;
-        }
-        catch (Exception e) {
+            log.info("Change password successful with email : {}", passwordDTO.getEmail());
+            return new ResponseData<>(HttpStatus.OK.value(), "Change password successful with email :" + passwordDTO.getEmail());
+        } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),e.getMessage());
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
         }
     }
 }

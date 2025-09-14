@@ -29,13 +29,13 @@ const FlashCardDetail = () => {
         cards: flashCard.cards.filter((item) => item.result !== value),
       };
 
-      const response = await dispatch(
-        fetchFlashCardEdit({ id: 1, data: data })
-      ).unwrap();
+      await dispatch(fetchFlashCardEdit({ id: 1, data: data })).unwrap();
 
-      toast.success("Thêm thành công!");
+      dispatch(fetchFlashCardDetail(id));
+
+      toast.success("Xoá thành công!");
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error);
     } finally {
       toggleLoading(false);
     }
@@ -55,11 +55,12 @@ const FlashCardDetail = () => {
             <Button type="primary" onClick={() => setOpenEditFlashCard(true)}>
               Chỉnh sửa
             </Button>
-            <Button type="primary">Thêm từ mới</Button>
           </Space>
         </div>
 
-        <p className="flash-card__number">List có 31 từ</p>
+        <p className="flash-card__number">
+          List có {flashCard?.cards?.length} từ
+        </p>
 
         <div className="flash-card__items">
           <Row gutter={[16, 16]}>

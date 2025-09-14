@@ -44,13 +44,15 @@
   }
 
   &__btn {
+
     &--login {
       color: var(--color-gray-two);
       background: conic-gradient(from 90deg at 50% 100%, #FFF 0deg, #FFF 360deg);
       box-shadow: 0 20px 24px 0 rgba(0, 0, 0, 0.03);
     }
 
-    &--register {
+    &--register,
+    &--logout {
       background: var(--bg-green-light-one);
       color: var(--color-white);
     }
