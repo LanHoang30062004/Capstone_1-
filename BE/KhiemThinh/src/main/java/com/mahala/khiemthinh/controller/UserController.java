@@ -1,5 +1,6 @@
 package com.mahala.khiemthinh.controller;
 
+import com.mahala.khiemthinh.dto.request.AdminDTO;
 import com.mahala.khiemthinh.dto.request.AuthenDTO;
 import com.mahala.khiemthinh.dto.request.UserDTO;
 import com.mahala.khiemthinh.dto.response.PageResponse;
@@ -67,15 +68,16 @@ public class UserController {
 
     @PostMapping("")
     @Operation(summary = "Them moi admin")
-    public ResponseData<?> addNewAdmin (@Valid @RequestBody UserDTO userDTO) {
+    public ResponseData<?> addNewAdmin (@Valid @RequestBody AdminDTO userDTO) {
         try{
-
+           this.userService.addNewAdmin(userDTO);
+           log.info("Admin added successfully");
+           return new ResponseData<>(HttpStatus.OK.value(),"Admin added successfully" , null ) ;
         }
         catch (Exception e){
-
+         log.error("Can not add admin : {}", e.getMessage());
+         return new ResponseData<>(HttpStatus.UNAUTHORIZED.value(),"Can not add admin : " + e.getMessage());
         }
-        return null ;
-
     }
 
     @GetMapping("/{id}")

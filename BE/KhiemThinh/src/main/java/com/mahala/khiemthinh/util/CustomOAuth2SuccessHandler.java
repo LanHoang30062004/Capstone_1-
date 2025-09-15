@@ -36,19 +36,22 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         }
         if (email == null || email.isEmpty()) {
             Role role = this.roleRepository.findById(1L).orElse(null);
-            User newUser = new User();
-            newUser.setRole(role);
-            newUser.setEmail(email);
-            userRepository.save(newUser);
-            String token = jwtToken.generateToken(newUser);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"token\": \"" + token + "\"}");
-        }
-        else {
-            Optional<User> user = userRepository.findByEmail(email);
-            String token = jwtToken.generateToken(user.get());
-            response.setContentType("application/json");
-            response.getWriter().write("{\"token\": \"" + token + "\"}");
+            User oldUser = this.userRepository.findByEmail(email).orElse(null);
+            if (oldUser == null) {
+                User newUser = new User();
+                newUser.setRole(role);
+                newUser.setEmail(email);
+                newUser.setRole(role);
+                userRepository.save(newUser);
+                String token = jwtToken.generateToken(newUser);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"token\": \"" + token + "\"}");
+            } else {
+                Optional<User> user = userRepository.findByEmail(email);
+                String token = jwtToken.generateToken(user.get());
+                response.setContentType("application/json");
+                response.getWriter().write("{\"token\": \"" + token + "\"}");
+            }
         }
     }
 }
