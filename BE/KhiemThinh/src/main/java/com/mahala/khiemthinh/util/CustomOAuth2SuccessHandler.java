@@ -1,6 +1,8 @@
 package com.mahala.khiemthinh.util;
 
+import com.mahala.khiemthinh.model.Role;
 import com.mahala.khiemthinh.model.User;
+import com.mahala.khiemthinh.repository.RoleRepository;
 import com.mahala.khiemthinh.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +22,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     private final JWTToken jwtToken ;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -30,9 +33,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         if (email == null) {
             email = oAuth2User.getAttribute("login"); // GitHub có "login"
         }
-        if (email == null || email.isEmpty()) {
+        User oldUser = this.userRepository.findByEmail(email).orElse(null);
+        if (oldUser == null) {
+            Role role = this.roleRepository.findByRoleName("USER").orElse(null);
             User newUser = new User();
             newUser.setEmail(email);
+            newUser.setRole(role);
             userRepository.save(newUser);
             String token = jwtToken.generateToken(newUser);
             response.setContentType("application/json");
