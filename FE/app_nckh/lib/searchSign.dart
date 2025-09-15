@@ -81,9 +81,9 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF03174C),
+      backgroundColor: const Color(0xFF49BBBD),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF03174C),
+        backgroundColor: const Color(0xFF49BBBD),
         elevation: 0,
         toolbarHeight: 80,
 
@@ -91,9 +91,9 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 12),
           child: Image.asset(
-            'assets/img/logoMobile.png',
-            width: 50,
-            height: 100,
+            'assets/img/SignSmart_Logo_TrongSuot.png',
+            width: 200,
+            height: 300,
           ),
         ),
 
@@ -169,7 +169,7 @@ class _SearchSignScreenState extends State<SearchSignScreen> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : videos.isEmpty
-                      ? const Center(child: Text("Không có video nào"))
+                      ? const Center(child: Text("Không tìm thấy ngôn ngữ kí hiệu"))
                       : ListView.builder(
                           itemCount: videos.length,
                           itemBuilder: (context, index) {

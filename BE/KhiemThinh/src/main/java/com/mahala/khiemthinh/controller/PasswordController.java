@@ -32,11 +32,7 @@ public class PasswordController {
     }
 
     @PostMapping("/check")
-<<<<<<< HEAD
-    @Operation(summary = "kiem tra ma otp")
-=======
     @Operation(summary = "Kiểm tra otp")
->>>>>>> a8cb2be445a8dd0562005e321e6a7d3cf68c4325
     public ResponseData<?> checkOtp(@RequestBody PasswordDTO passwordDTO) {
         try {
             log.info("Verification code successfully");

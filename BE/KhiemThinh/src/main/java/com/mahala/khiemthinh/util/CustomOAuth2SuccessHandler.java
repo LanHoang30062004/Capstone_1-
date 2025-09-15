@@ -1,10 +1,13 @@
 package com.mahala.khiemthinh.util;
 
+import com.mahala.khiemthinh.model.Role;
 import com.mahala.khiemthinh.model.User;
+import com.mahala.khiemthinh.repository.RoleRepository;
 import com.mahala.khiemthinh.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -20,6 +23,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     private final JWTToken jwtToken ;
     private final UserRepository userRepository;
+    private  final RoleRepository roleRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -31,7 +35,9 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             email = oAuth2User.getAttribute("login"); // GitHub có "login"
         }
         if (email == null || email.isEmpty()) {
+            Role role = this.roleRepository.findById(1L).orElse(null);
             User newUser = new User();
+            newUser.setRole(role);
             newUser.setEmail(email);
             userRepository.save(newUser);
             String token = jwtToken.generateToken(newUser);

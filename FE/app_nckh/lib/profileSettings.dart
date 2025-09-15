@@ -18,6 +18,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _dobController = TextEditingController();
 
   String? selectedGender; // Giá trị dropdown
+
+  String? _nameError;
+  String? _phoneError;
+  String? _dobError;
+  String ?_addressError;
   final List<Map<String, String>> genders = [
     {"value": "male", "label": "Nam"},
     {"value": "female", "label": "Nữ"},
@@ -68,52 +73,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-    bool validateInputs() {
+  bool validateInputs() {
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
     final dob = _dobController.text.trim();
+    final address = _addressController.text.trim();
+
+    bool isValid = true;
+
+    setState(() {
+      _nameError = null;
+      _phoneError = null;
+      _dobError = null;
+      _addressError=null;
+    });
 
     // 1. Validate tên: chỉ cho chữ cái và khoảng trắng
     final nameRegex = RegExp(r"^[a-zA-ZÀ-ỹ\s]+$");
     if (name.isEmpty || !nameRegex.hasMatch(name)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Tên không hợp lệ (chỉ cho chữ cái, không số/ký tự đặc biệt).")),
-      );
-      return false;
+      setState(() {
+        _nameError =
+            "Tên không hợp lệ (chỉ cho chữ cái, không số/ký tự đặc biệt).";
+      });
+      isValid = false;
+    }
+
+    if (address.isEmpty){
+      setState(() {
+        _addressError ="Vui lòng nhập địa chỉ";
+      });
+      isValid = false;
     }
 
     // 2. Validate số điện thoại: 10 số
     final phoneRegex = RegExp(r"^[0-9]{10}$");
     if (phone.isEmpty || !phoneRegex.hasMatch(phone)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Số điện thoại phải có đúng 10 chữ số.")),
-      );
-      return false;
+      setState(() {
+        _phoneError = "Số điện thoại phải có đúng 10 chữ số.";
+      });
+      isValid = false;
     }
 
-    
     try {
-      final parsedDate = DateTime.parse(dob); 
+      final parsedDate = DateTime.parse(dob);
       final now = DateTime.now();
 
       if (parsedDate.isAfter(now)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Ngày sinh không được lớn hơn hiện tại.")),
-        );
-        return false;
+        setState(() {
+          _dobError = "Ngày sinh không được lớn hơn hiện tại.";
+        });
+        isValid = false;
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Ngày sinh không hợp lệ. Định dạng: yyyy-mm-dd")),
-      );
-      return false;
+      setState(() {
+        _dobError = "Ngày sinh không hợp lệ. Định dạng: yyyy-mm-dd";
+      });
+      isValid = false;
     }
 
-    return true;
+    return isValid;
   }
 
-
-    Future<void> _updateUserInfo() async {
+  Future<void> _updateUserInfo() async {
     if (!validateInputs()) return;
 
     final prefs = await SharedPreferences.getInstance();
@@ -263,17 +284,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  _buildTextField("Họ và tên", _nameController),
+                  _buildTextField(
+                    "Họ và tên",
+                    _nameController,
+                    errorText: _nameError,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildTextField("Email", _emailController, enabled: false),
                   const SizedBox(height: 10),
                   _buildTextField(
-                    "Email",
-                    _emailController,
-                    enabled: false,
-                  ), // Email không cho sửa
+                    "Số điện thoại",
+                    _phoneController,
+                    errorText: _phoneError,
+                  ),
                   const SizedBox(height: 10),
-                  _buildTextField("Số điện thoại", _phoneController),
-                  const SizedBox(height: 10),
-                  _buildTextField("Địa chỉ", _addressController),
+                  _buildTextField("Địa chỉ", _addressController, errorText: _addressError,),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String>(
                     value: selectedGender,
@@ -299,7 +324,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
 
                   const SizedBox(height: 10),
-                  _buildTextField("Ngày sinh", _dobController),
+                  _buildTextField(
+                    "Ngày sinh",
+                    _dobController,
+                    errorText: _dobError,
+                  ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _updateUserInfo,
@@ -325,6 +354,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String label,
     TextEditingController controller, {
     bool enabled = true,
+    String? errorText, // nhận errorText để hiển thị
   }) {
     return TextField(
       controller: controller,
@@ -337,6 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
+        errorText: errorText, // 👈 thêm dòng này để hiển thị lỗi
       ),
     );
   }

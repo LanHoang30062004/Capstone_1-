@@ -8,6 +8,13 @@ import 'package:app_nckh/introductionApp.dart';
 import 'package:app_nckh/registerPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+import 'package:url_launcher/url_launcher.dart'; // Thêm import này
+
+
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,83 +27,97 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _isObscure = true; 
+  bool _isObscure = true;
   bool _isLoading = false;
 
   String? _emailError;
   String? _passwordError;
-  Future<void> _login() async {
-  final email = _emailController.text.trim();
-  final password = _passwordController.text.trim();
-  const String baseUrl = "http://localhost:8080/api/v1/user";
+  String? _loginError; // <- biến lưu lỗi khi call API
 
-  setState(() {
-    _emailError = null;
-    _passwordError = null;
-  });
 
-  if (email.isEmpty) {
-    setState(() {
-      _emailError = "Vui lòng nhập email";
-    });
-    return;
-  }
-
-  if (password.isEmpty) {
-    setState(() {
-      _passwordError = "Vui lòng nhập mật khẩu";
-    });
-    return;
-  }
-
-  setState(() => _isLoading = true);
+  Future<void> _signInWithGoogle() async {
+final Uri googleLoginUrl = Uri.parse("http://localhost:8080/oauth2/authorization/google");
 
   try {
-    final response = await http.post(
-      Uri.parse("$baseUrl/login"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "email": email,
-        "password": password,
-      }),
-    );
-
-    final body = jsonDecode(response.body);
-
-    if (response.statusCode == 200 && body["status"] == 200) {
-      final token = body["data"];
-
-      if (token != null && token is String && token.isNotEmpty) {
-         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("token", token);
-        await prefs.setString("email", email);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(token: token,),
-          ),
-        );
-      } else {
-        // Server trả về nhưng không có token
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Không lấy được token từ server")),
-        );
-      }
+    if (await canLaunchUrl(googleLoginUrl)) {
+      await launchUrl(
+        googleLoginUrl,
+        mode: LaunchMode.externalApplication, // mở trên trình duyệt ngoài
+      );
     } else {
-      // ❌ Sai mật khẩu hoặc lỗi từ server
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(body["message"] ?? "Đăng nhập thất bại")),
+        const SnackBar(content: Text("Không mở được trang đăng nhập Google")),
       );
     }
   } catch (e) {
-    // ❌ Lỗi kết nối
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Không thể kết nối đến server")),
-    );
-  } finally {
-    setState(() => _isLoading = false);
+    debugPrint("Lỗi mở link đăng nhập Google: $e");
   }
 }
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    const String baseUrl = "http://localhost:8080/api/v1/user";
+
+    setState(() {
+      _emailError = null;
+      _passwordError = null;
+      _loginError = null; // reset lỗi API cũ
+    });
+
+    if (email.isEmpty) {
+      setState(() {
+        _emailError = "Vui lòng nhập email";
+      });
+      return;
+    }
+
+    if (password.isEmpty) {
+      setState(() {
+        _passwordError = "Vui lòng nhập mật khẩu";
+      });
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/login"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
+
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && body["status"] == 200) {
+        final token = body["data"];
+
+        if (token != null && token is String && token.isNotEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("token", token);
+          await prefs.setString("email", email);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => ChatScreen(token: token)),
+          );
+        } else {
+          setState(() {
+            _loginError = "Không lấy được token từ server";
+          });
+        }
+      } else {
+        setState(() {
+          _loginError = "Email hoặc mật khẩu không đúng" ?? body["message"];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _loginError = "Không thể kết nối đến server";
+      });
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +236,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
+              // ✅ Lỗi khi call API (ví dụ: email/mật khẩu sai, server lỗi)
+              if (_loginError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, left: 8),
+                  child: Text(
+                    _loginError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ),
+
               const SizedBox(height: 8),
 
               Align(
@@ -308,7 +339,10 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _socialButton("assets/img/google.png"),
+                  _socialButton(
+                    "assets/img/google.png",
+                    onTap: _signInWithGoogle,
+                  ),
                   const SizedBox(width: 16),
                   _socialButton("assets/img/facebook.png"),
                   const SizedBox(width: 16),
@@ -322,11 +356,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _socialButton(String imagePath) {
+  Widget _socialButton(String imagePath, {VoidCallback? onTap}) {
     return InkWell(
-      onTap: () {
-        debugPrint("Clicked on $imagePath");
-      },
+      onTap: onTap,
       borderRadius: BorderRadius.circular(50),
       child: Container(
         width: 50,

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:video_player/video_player.dart';
+import 'ollama_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String token;
@@ -18,40 +19,83 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
   final ImagePicker _picker = ImagePicker();
+  final _ollama = OllamaService();
+   final ScrollController _scrollController = ScrollController();
+
+     @override
+  void dispose() {
+    _scrollController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+  // Chờ 100ms để ListView build xong rồi mới scroll
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  });
+}
 
   Future<void> _sendTextMessage() async {
-    if (_controller.text.isEmpty) return;
+  if (_controller.text.isEmpty) return;
 
-    final inputText = _controller.text.trim();
+  final inputText = _controller.text.trim();
+  final groupId = DateTime.now().millisecondsSinceEpoch.toString(); // unique
 
-    setState(() {
-      _messages.add({"type": "text", "data": inputText, "isMe": true});
+  setState(() {
+    _messages.add({
+      "type": "text",
+      "data": inputText,
+      "isMe": true,
+      "group": groupId
     });
+  });
+  _scrollToBottom();
+  _controller.clear();
 
-    _controller.clear();
+  try {
+    final response = await http.post(
+      Uri.parse("http://localhost:8080/api/v1/translate?text=$inputText"),
+      headers: {
+        "Authorization": "Bearer ${widget.token}",
+        "accept": "application/json",
+      },
+    );
 
-    try {
-      final response = await http.post(
-        Uri.parse("http://localhost:8080/api/v1/translate?text=$inputText"),
-        headers: {
-          "Authorization": "Bearer ${widget.token}",
-          "accept": "application/json",
-        },
-      );
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      final videoUrl = body["data"];
 
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body);
-        final videoUrl = body["data"];
-        setState(() {
-          _messages.add({"type": "video", "data": videoUrl, "isMe": false});
+      setState(() {
+        _messages.add({
+          "type": "video",
+          "data": videoUrl ?? "",
+          "isMe": true, // ✅ vẫn bên phải vì cùng group với text
+          "group": groupId
         });
-      } else {
-        debugPrint("Lỗi dịch: ${response.body}");
-      }
-    } catch (e) {
-      debugPrint("Lỗi kết nối API: $e");
+      });
+
+    } else {
+      setState(() {
+        _messages.add({
+          "type": "text",
+          "data": "Không tồn tại ngôn ngữ ký hiệu cho từ này.",
+          "isMe": true,
+          "group": groupId
+        });
+      });
     }
+    _scrollToBottom();
+  } catch (e) {
+    debugPrint("Lỗi kết nối API: $e");
   }
+}
 
   void _sendEmoji(String emoji) {
     setState(() {
@@ -59,9 +103,57 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+
+  Future<void> _pickVideo() async {
+  final XFile? pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
+
+  if (pickedFile != null) {
+    final groupId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    setState(() {
+      _messages.add({
+        "type": "video",
+        "data": pickedFile.path,
+        "isMe": false,  // ✅ bên trái
+        "group": groupId
+      });
+    });
+
+    try {
+      final request = http.MultipartRequest(
+        "POST",
+        Uri.parse("http://localhost:8080/api/v1/video-to-text"),
+      )
+        ..headers["Authorization"] = "Bearer ${widget.token}"
+        ..files.add(await http.MultipartFile.fromPath("file", pickedFile.path));
+
+      final response = await request.send();
+      final respBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final rawText = jsonDecode(respBody)["data"];
+        final refinedText = await _ollama.generateText(rawText);
+
+        setState(() {
+          _messages.add({
+            "type": "text",
+            "data": refinedText,
+            "isMe": true, // ✅ nhưng nằm cùng group với video (liên quan)
+            "group": groupId
+          });
+        });
+      }
+      _scrollToBottom();
+    } catch (e) {
+      debugPrint("Lỗi kết nối video→text API: $e");
+    }
+  }
+}
+
   Future<void> _pickImage() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
 
     if (pickedFile != null) {
       setState(() {
@@ -100,11 +192,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } else if (type == "image") {
       bubble = ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.file(
-          message["data"],
-          width: 180,
-          fit: BoxFit.cover,
-        ),
+        child: Image.file(message["data"], width: 180, fit: BoxFit.cover),
       );
     } else if (type == "video") {
       bubble = GestureDetector(
@@ -151,8 +239,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    SearchSignScreen(token: widget.token),
+                builder: (context) => SearchSignScreen(token: widget.token),
               ),
               (route) => false,
             );
@@ -164,6 +251,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.all(12),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
@@ -176,9 +264,7 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
+                border: Border(top: BorderSide(color: Colors.grey.shade300)),
               ),
               child: Row(
                 children: [
@@ -204,8 +290,17 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.emoji_emotions,
-                        color: Colors.orangeAccent),
+                    icon: const Icon(
+                      Icons.video_library,
+                      color: Colors.blueAccent,
+                    ),
+                    onPressed: _pickVideo,
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.emoji_emotions,
+                      color: Colors.orangeAccent,
+                    ),
                     onPressed: () => _sendEmoji("😊"),
                   ),
                   IconButton(
@@ -244,7 +339,6 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -261,11 +355,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                   child: VideoPlayer(_controller),
                 ),
               ),
-              Icon(
-                Icons.play_circle_fill,
-                size: 50,
-                color: Colors.white70,
-              ),
+              Icon(Icons.play_circle_fill, size: 50, color: Colors.white70),
             ],
           )
         : const Center(child: CircularProgressIndicator());
@@ -322,4 +412,3 @@ class _FullScreenVideoPageState extends State<FullScreenVideoPage> {
     );
   }
 }
-
