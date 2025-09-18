@@ -32,6 +32,7 @@ public class TopicController {
     }
 
     @GetMapping("/content")
+    @Operation(summary = "Lay tat ca danh sach cac content cua topic", description = "Lay tat ca danh sach cac content cua topic")
     public ResponseData<?> getAllContent() {
         log.info("Get all content successful");
         return new ResponseData<>(HttpStatus.OK.value(), "Get all content successful" , this.topicService.getAllContent());
