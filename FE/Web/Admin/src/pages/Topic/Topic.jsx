@@ -90,7 +90,7 @@ const Topic = () => {
     });
   };
 
-  const dataSource = topics?.map((topic) => {
+  const dataSource = topics?.items?.map((topic) => {
     return {
       key: topic.id,
       topicId: topic.id,
