@@ -13,7 +13,22 @@ class ExpressionHandler:
         "o": "o", "p": "p", "q": "q", "r": "r",
         "u": "u", "v": "v",
         "No hands/face detected": "❌ Không phát hiện tay/mặt",
-        "Error in detection": "⚠️ Lỗi phát hiện"
+        "Error in detection": "⚠️ Lỗi phát hiện",
+        "a_rap": "Ả Rập",
+        "dia_chi": "Địa chỉ",
+        "do_thai": "Do Thái",
+        "dubai": "Dubai",
+        "ma_cao": "Ma Cao",
+        "mien_dien": "Miến Điện",
+        "nguoi_nuoc_ngoai": "Người nước ngoài",
+        "nhan_vien": "Nhân viên",
+        "nhap_khau": "Nhập khẩu",
+        "phuong_dong": "Phương Đông",
+        "phuong_tay": "Phương Tây",
+        "quy_nhon": "Quy Nhơn",
+        "tiep_tan": "Tiếp tân",
+        "tinh": "Tỉnh",
+        "tuy_hoa": "Tuy Hòa",
     }
 
     def __init__(self, min_frames_per_gesture=5, similarity_threshold=0.7):
