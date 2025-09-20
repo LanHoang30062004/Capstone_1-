@@ -1,12 +1,16 @@
 import 'package:app_nckh/chatScreen.dart';
 import 'package:app_nckh/loginPage.dart';
 import 'package:app_nckh/profileSettings.dart';
+import 'package:app_nckh/registerPage.dart';
 import 'package:app_nckh/search.dart';
 import 'package:app_nckh/searchSign.dart';
 import 'package:flutter/material.dart';
 
 class SettingScreen extends StatelessWidget {
-  const SettingScreen({super.key});
+   final String token;
+
+  const SettingScreen({super.key, required this.token});
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +77,7 @@ class SettingScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SearchSignScreen()),
+                  MaterialPageRoute(builder: (context) => SearchSignScreen(token: token)),
                 );
               },
             ),
@@ -85,7 +89,7 @@ class SettingScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ChatScreen()),
+              MaterialPageRoute(builder: (context) => RegisterScreen()),
                 );
               },
             ),

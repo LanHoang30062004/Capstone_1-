@@ -1,0 +1,40 @@
+.topic__search .ant-form-item {
+  margin: 0;
+}
+
+.topic__form--action {
+  width: max-content;
+  margin-left: auto;
+}
+
+.topic {
+  &__detail {
+    &--title {
+      h2 {
+        font-size: 3rem;
+        font-weight: 700;
+      }
+
+    }
+
+    &--info {
+      margin: 10px 0;
+
+      p {
+        font-size: 2rem;
+      }
+    }
+  }
+}
+
+.question {
+  &__delete {
+    text-align: end;
+
+    .icon {
+      color: red;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+  }
+}

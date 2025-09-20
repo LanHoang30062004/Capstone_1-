@@ -32,7 +32,6 @@ public class FlashCardController {
         } catch (Exception e) {
             log.error("Get all flash card failed : {}", e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Get all flash card failed : " + e.getMessage(), null);
-
         }
     }
 

@@ -16,7 +16,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 
 if __name__ == "__main__":
     # Get the pose name from argument
-    parser = argparse.ArgumentParser("Pose Data Capture")
+    parser = argparse.ArgumentParser("Pose Data Capture")   
 
     # Add and parse the arguments
     parser.add_argument("--pose_name", help="Name of the pose to be save in the data folder",
@@ -93,7 +93,8 @@ if __name__ == "__main__":
                     landmark_list=face_landmarks,
                     connections=mp_face_mesh.FACEMESH_TESSELATION,
                     landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1)
+                    connection_drawing_spec=mp_drawing.DrawingSpec(
+                        color=(0, 255, 0), thickness=1, circle_radius=1)
                 )
 
         # Draw the hand annotations on the image
@@ -103,8 +104,10 @@ if __name__ == "__main__":
                     image=image,
                     landmark_list=hand_landmarks,
                     connections=mp_hands.HAND_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=2, circle_radius=2),
-                    connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=2)
+                    landmark_drawing_spec=mp_drawing.DrawingSpec(
+                        color=(0, 0, 255), thickness=2, circle_radius=2),
+                    connection_drawing_spec=mp_drawing.DrawingSpec(
+                        color=(0, 255, 0), thickness=2, circle_radius=2)
                 )
 
         # Convert back to BGR to render

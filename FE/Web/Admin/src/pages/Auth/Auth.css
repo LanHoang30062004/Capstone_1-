@@ -1,0 +1,137 @@
+.auth {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-image: linear-gradient(to right, #cd81f9 0%, #a009f7 100%); */
+}
+
+.auth .auth__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 60%;
+  height: 600px;
+  box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.auth .auth__container--left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: linear-gradient(to bottom, #b3f5f7, #34bfc2);
+}
+
+.content {
+  text-align: center;
+  padding: 0 40px;
+}
+
+.content h2 {
+  font-size: 5rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 40px;
+}
+
+.content p {
+  font-size: 2rem;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.auth__img {
+  display: flex;
+  justify-content: center;
+  height: max-content;
+}
+
+.auth .auth__container--left img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.auth .auth__container--right {
+  width: 60%;
+  padding: 50px;
+}
+
+.auth .auth__container--right .auth__logo {
+  width: 200px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.auth .auth__container--right .auth__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+.btn-grad {
+  background-image: linear-gradient(to right, #CC95C0 0%, #DBD4B4 51%, #CC95C0 100%)
+}
+
+.btn-grad {
+  margin: 10px;
+  padding: 15px 45px;
+  text-align: center;
+  text-transform: uppercase;
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;
+  box-shadow: 0 0 20px #eee;
+  border-radius: 10px;
+  display: block;
+}
+
+.btn-grad:hover {
+  background-position: right center;
+  /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+
+
+.auth .auth__container--right .auth__title {
+  text-align: center;
+  font-size: 5rem;
+  margin-bottom: 10px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.33;
+  /* 133.333% */
+}
+
+.auth .auth__forgot-password {
+  color: var(--color-purple)
+}
+
+.auth__description {
+  text-align: center;
+  color: #A2A1A8;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.btn-custome {
+  background: transparent;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: 1px solid #fff;
+  font-size: 2rem;
+  margin-top: 40px;
+}
+
+.resend-otp {
+  color: var(--color-purple) !important;
+}

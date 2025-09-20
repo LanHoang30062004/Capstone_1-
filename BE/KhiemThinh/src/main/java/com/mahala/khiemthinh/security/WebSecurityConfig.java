@@ -40,11 +40,13 @@ public class WebSecurityConfig {
                     config.setAllowedOrigins(Arrays.asList(
                             "http://localhost:3000",
                             "http://localhost:5173",
+                            "http://localhost:5174",
                             "http://localhost:63645"
                     ));
                     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(List.of("Content-Type", "Authorization", "x-auth-token"));
+                    config.setAllowedHeaders(List.of("Content-Type", "Authorization", "x-auth-token", "x-requested-with"));
                     config.addExposedHeader("x-auth-token");
+                    config.setAllowCredentials(true);
                     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                     source.registerCorsConfiguration("/**", config);
                     cors.configurationSource(source);
@@ -81,7 +83,6 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, path + "/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, path + "/user/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.DELETE, path + "/user/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, path + "/user/**").hasAnyRole("ADMIN", "USER")
 
                         // flash card
                         .requestMatchers(HttpMethod.POST, path + "/flash-card/**").hasRole("ADMIN")
@@ -91,6 +92,10 @@ public class WebSecurityConfig {
 
                         // translate
                         .requestMatchers(HttpMethod.POST, path + "/translate/**").hasAnyRole("ADMIN", "USER")
+
+
+
+
 
                         .anyRequest().authenticated()
                 )

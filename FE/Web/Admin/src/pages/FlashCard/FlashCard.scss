@@ -1,0 +1,44 @@
+.flash-card__search {
+  .ant-form-item {
+    margin: 0;
+  }
+}
+
+.flash-card__form--action {
+  width: max-content;
+  margin-left: auto;
+}
+
+.flash-card {
+  &__title {
+    h1 {
+      font-weight: 700;
+      font-size: 3rem;
+    }
+  }
+
+  &__number {
+    margin: 15px 0;
+    font-size: 2rem;
+  }
+
+  &__items {
+    .termlist-item {
+      &__title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      &__delete {
+        text-align: end;
+
+        .icon {
+          color: red;
+          font-size: 2rem;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}

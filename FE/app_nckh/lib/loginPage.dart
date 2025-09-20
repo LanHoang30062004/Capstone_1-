@@ -1,10 +1,20 @@
 import 'dart:convert';
+import 'package:app_nckh/chatScreen.dart';
 import 'package:app_nckh/searchSign.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:app_nckh/forgetPasswordMainPage.dart';
 import 'package:app_nckh/introductionApp.dart';
 import 'package:app_nckh/registerPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+import 'package:url_launcher/url_launcher.dart'; // Thêm import này
+
+
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,20 +27,41 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _isObscure = true; 
+  bool _isObscure = true;
   bool _isLoading = false;
 
   String? _emailError;
   String? _passwordError;
+  String? _loginError; // <- biến lưu lỗi khi call API
+
+
+  Future<void> _signInWithGoogle() async {
+final Uri googleLoginUrl = Uri.parse("http://localhost:8080/oauth2/authorization/google");
+
+  try {
+    if (await canLaunchUrl(googleLoginUrl)) {
+      await launchUrl(
+        googleLoginUrl,
+        mode: LaunchMode.externalApplication, // mở trên trình duyệt ngoài
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Không mở được trang đăng nhập Google")),
+      );
+    }
+  } catch (e) {
+    debugPrint("Lỗi mở link đăng nhập Google: $e");
+  }
+}
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-  final String baseUrl = "http://localhost:8080/api/v1/user";
-
+    const String baseUrl = "http://localhost:8080/api/v1/user";
 
     setState(() {
       _emailError = null;
       _passwordError = null;
+      _loginError = null; // reset lỗi API cũ
     });
 
     if (email.isEmpty) {
@@ -51,34 +82,43 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/login"),   
+        Uri.parse("$baseUrl/login"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": email,
-          "password": password,
-        }),
+        body: jsonEncode({"email": email, "password": password}),
       );
 
-      final data = jsonDecode(response.body);
+      final body = jsonDecode(response.body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && body["status"] == 200) {
+        final token = body["data"];
+
+        if (token != null && token is String && token.isNotEmpty) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("token", token);
+          await prefs.setString("email", email);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => SearchSignScreen()),
+            MaterialPageRoute(builder: (context) => ChatScreen(token: token)),
           );
+        } else {
+          setState(() {
+            _loginError = "Không lấy được token từ server";
+          });
+        }
       } else {
         setState(() {
-          _passwordError = "Đăng nhập thất bại (${response.statusCode})";
+          _loginError = "Email hoặc mật khẩu không đúng" ?? body["message"];
         });
       }
     } catch (e) {
       setState(() {
-        _passwordError = "Không thể kết nối đến server";
+        _loginError = "Không thể kết nối đến server";
       });
     } finally {
       setState(() => _isLoading = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,6 +236,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
+              // ✅ Lỗi khi call API (ví dụ: email/mật khẩu sai, server lỗi)
+              if (_loginError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, left: 8),
+                  child: Text(
+                    _loginError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ),
+
               const SizedBox(height: 8),
 
               Align(
@@ -289,7 +339,10 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _socialButton("assets/img/google.png"),
+                  _socialButton(
+                    "assets/img/google.png",
+                    onTap: _signInWithGoogle,
+                  ),
                   const SizedBox(width: 16),
                   _socialButton("assets/img/facebook.png"),
                   const SizedBox(width: 16),
@@ -303,11 +356,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _socialButton(String imagePath) {
+  Widget _socialButton(String imagePath, {VoidCallback? onTap}) {
     return InkWell(
-      onTap: () {
-        debugPrint("Clicked on $imagePath");
-      },
+      onTap: onTap,
       borderRadius: BorderRadius.circular(50),
       child: Container(
         width: 50,
