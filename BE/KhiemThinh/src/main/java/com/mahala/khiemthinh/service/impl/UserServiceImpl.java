@@ -1,18 +1,24 @@
 package com.mahala.khiemthinh.service.impl;
 
+import com.mahala.khiemthinh.dto.request.AdminDTO;
 import com.mahala.khiemthinh.dto.request.UserDTO;
 import com.mahala.khiemthinh.dto.response.PageResponse;
+import com.mahala.khiemthinh.exception.NotFoundException;
 import com.mahala.khiemthinh.model.Role;
 import com.mahala.khiemthinh.model.User;
 import com.mahala.khiemthinh.repository.RoleRepository;
 import com.mahala.khiemthinh.repository.UserRepository;
 import com.mahala.khiemthinh.service.UserService;
 import com.mahala.khiemthinh.util.JWTToken;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +27,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +43,35 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final JWTToken jwtToken;
     private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender javaMailSender ;
+    private static final char[] SPECIAL_CHARS = {
+            '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '='
+    };
 
+    private static final SecureRandom secureRandom = new SecureRandom();
+
+    private static String generatePassword(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email không được để trống");
+        }
+
+        char special = SPECIAL_CHARS[secureRandom.nextInt(SPECIAL_CHARS.length)];
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                .withZone(ZoneId.of("Asia/Ho_Chi_Minh"));
+        String timestamp = fmt.format(Instant.now());
+
+        return email + special + timestamp;
+    }
+
+    private void sendSimpleEmail(String to , String password) throws MessagingException, NotFoundException {
+        MimeMessage mimeMessage = this.javaMailSender.createMimeMessage() ;
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+        mimeMessageHelper.setTo(to);
+        mimeMessageHelper.setSubject("NEW PASSWORD");
+        mimeMessageHelper.setText("Password : " + password, true);
+        javaMailSender.send(mimeMessage);
+    }
     @Override
     public void save(UserDTO userDTO) throws Exception {
         User user = this.userRepository.findByEmail(userDTO.getEmail()).orElse(null);
@@ -76,7 +114,7 @@ public class UserServiceImpl implements UserService {
         Specification<User> specification = (root, query, criteriaBuilder) -> {
             if (search != null && !search.trim().isEmpty()) {
                 String searchPattern = "%" + search.toLowerCase() + "%";
-                return criteriaBuilder.equal(criteriaBuilder.lower(root.get("fullName")), searchPattern);
+                return criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), searchPattern);
             }
             return criteriaBuilder.conjunction();
         } ;
@@ -143,6 +181,23 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) throws Exception {
         User userOld = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
         this.userRepository.delete(userOld);
+    }
+
+    @Override
+    public void addNewAdmin(AdminDTO adminDTO) throws Exception {
+        User admin = this.userRepository.findByEmail(adminDTO.getEmail()).orElse(null) ;
+        if (admin != null) {
+            throw new Exception("Admin is exist with email :" + adminDTO.getEmail());
+        }
+        admin.setEmail(adminDTO.getEmail());
+        admin.setFullName(adminDTO.getFullName());
+        admin.setDateOfBirth(adminDTO.getDateOfBirth());
+        admin.setGender(adminDTO.getGender());
+        admin.setPhone(adminDTO.getPhone());
+        admin.setAddress(adminDTO.getAddress());
+        String password = this.passwordEncoder.encode(generatePassword(adminDTO.getEmail())) ;
+        admin.setPassword(password);
+        this.sendSimpleEmail(adminDTO.getEmail(),password);
     }
 
 }

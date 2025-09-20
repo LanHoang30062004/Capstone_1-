@@ -3,6 +3,7 @@ package com.mahala.khiemthinh.service.impl;
 import com.mahala.khiemthinh.dto.request.OptionDTO;
 import com.mahala.khiemthinh.dto.request.QuestionDTO;
 import com.mahala.khiemthinh.dto.request.TopicDTO;
+import com.mahala.khiemthinh.dto.response.PageResponse;
 import com.mahala.khiemthinh.exception.NotFoundException;
 import com.mahala.khiemthinh.model.Option;
 import com.mahala.khiemthinh.model.Question;
@@ -12,6 +13,10 @@ import com.mahala.khiemthinh.repository.TopicRepository;
 import com.mahala.khiemthinh.repository.WordRepository;
 import com.mahala.khiemthinh.service.TopicService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,17 +31,35 @@ public class TopicServiceImpl implements TopicService {
     private final WordRepository wordRepository;
 
     @Override
-    public List<TopicDTO> getAllTopics() {
-        List<Topic> topics = this.topicRepository.findAll();
-        List<TopicDTO> result = topics.stream().map(item -> {
-            return TopicDTO.builder()
-                    .id(item.getId())
-                    .content(item.getContent())
-                    .durationMinutes(item.getDurationMinutes())
-                    .numberOfQuestion(item.getNumberOfQuestion())
-                    .build();
-        }).collect(Collectors.toList());
-        return result;
+    public PageResponse<?> getAllTopics(int page , int size , String search , String content) {
+        page = page > 0 ? page - 1 : page ;
+        Pageable pageable = PageRequest.of(page , size) ;
+        Specification<Topic> specification = (root, query, criteriaBuilder) -> {
+            if (search != null && !search.isEmpty()) {
+                String searchPattern = "%"+search+"%" ;
+                return criteriaBuilder.or(criteriaBuilder.like(root.get("content") , searchPattern)) ;
+            }
+            if (content != null && !content.isEmpty()) {
+                return criteriaBuilder.or(criteriaBuilder.equal(root.get("content"), content)) ;
+            }
+            return criteriaBuilder.conjunction() ;
+        } ;
+        Page<Topic> topics = topicRepository.findAll(specification, pageable) ;
+        List<TopicDTO> result = topics.getContent().stream().map((item) ->
+                TopicDTO.builder()
+                        .id(item.getId())
+                        .numberOfQuestion(item.getNumberOfQuestion())
+                        .durationMinutes(item.getDurationMinutes())
+                        .content(item.getContent())
+                        .build()
+
+        ).collect(Collectors.toList()) ;
+        return PageResponse.builder()
+                .items(result)
+                .totalPages(topics.getTotalPages())
+                .pageNo(page + 1)
+                .pageSize(size)
+                .build() ;
     }
 
     @Override
@@ -128,5 +151,10 @@ public class TopicServiceImpl implements TopicService {
     public void deleteTopic(Long idTopic) throws NotFoundException {
         Topic topic = this.topicRepository.findById(idTopic).orElseThrow(() -> new NotFoundException("Can not found topic with id " + idTopic)) ;
         this.topicRepository.delete(topic);
+    }
+
+    @Override
+    public List<String> getAllContent() {
+        return this.topicRepository.findAll().stream().map((item) -> item.getContent()).collect(Collectors.toList());
     }
 }
