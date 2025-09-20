@@ -1,9 +1,84 @@
-import 'package:app_nckh/changePassword.dart';
-import 'package:app_nckh/forgetPasswordMainPage.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'changePassword.dart';
+import 'forgetPasswordMainPage.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 
-class OtpScreen extends StatelessWidget {
-  const OtpScreen({super.key});
+class OtpScreen extends StatefulWidget {
+  final String email;
+  const OtpScreen({super.key, required this.email});
+
+  @override
+  State<OtpScreen> createState() => _OtpScreenState();
+}
+
+class _OtpScreenState extends State<OtpScreen> {
+  final TextEditingController _otpController = TextEditingController();
+  String? _otpError;
+  bool _isLoading = false;
+
+  Future<void> _checkOtp() async {
+    final otp = _otpController.text.trim();
+
+    if (otp.isEmpty) {
+      setState(() {
+        _otpError = "Vui lòng nhập mã OTP";
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _otpError = null;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse("http://localhost:8080/api/v1/password/check"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "code": otp,
+          "email": widget.email,
+          "password": "", // để trống, mật khẩu nhập ở màn sau
+        }),
+      );
+
+      debugPrint("Check OTP - Status: ${response.statusCode}");
+      debugPrint("Check OTP - Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data["data"] == true) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ChangePasswordScreen(email: widget.email, otp: otp),
+            ),
+          );
+        } else {
+          setState(() {
+            _otpError = "OTP sai, vui lòng kiểm tra lại";
+          });
+        }
+      } else {
+        setState(() {
+          _otpError = "Có lỗi xảy ra, vui lòng thử lại";
+        });
+      }
+    } catch (e) {
+      debugPrint("Lỗi khi gọi API check OTP: $e");
+      setState(() {
+        _otpError = "Không thể kết nối máy chủ";
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +87,6 @@ class OtpScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -51,59 +125,59 @@ class OtpScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Hàng nhập mã + nút gửi lại
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "0123***",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF49BBBD),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 18,
-                        horizontal: 22,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: () {
-                      // xử lý gửi lại mã OTP
-                    },
-                    child: const Text(
-                      "Gửi lại",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-              const Text(
-                "Mã này sẽ hết hạn sau 10 phút kể từ khi gửi tin nhắn này. "
-                "Nếu bạn không nhận được tin nhắn hãy nhấn nút “Gửi lại”",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                  height: 1.4,
+              // TextField OTP
+              PinCodeTextField(
+                appContext: context,
+                length: 6,
+                controller: _otpController,
+                keyboardType: TextInputType.number,
+                animationType: AnimationType.fade,
+                cursorColor: Colors.black,
+                obscureText: true, 
+                obscuringCharacter: "*", 
+                pinTheme: PinTheme(
+                  shape: PinCodeFieldShape.box,
+                  borderRadius: BorderRadius.circular(8),
+                  fieldHeight: 50,
+                  fieldWidth: 45,
+                  inactiveColor: Colors.grey, 
+                  activeColor: Colors.teal, 
+                  selectedColor: Colors.blue, 
+                  activeFillColor: Colors.white,
+                  inactiveFillColor: Colors.white,
+                  selectedFillColor: Colors.white,
                 ),
+                animationDuration: const Duration(milliseconds: 300),
+                enableActiveFill: true,
+                onCompleted: (value) {
+                  _checkOtp(); // Khi nhập đủ 6 số -> gọi API
+                },
+                onChanged: (value) {
+                  setState(() {
+                    _otpError = null;
+                  });
+                },
               ),
 
-            SizedBox(height: 30,),
-              // Nút đổi mật khẩu
+              if (_otpError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    _otpError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ),
+
+              const SizedBox(height: 15),
+
+              const Text(
+                "Chúng tôi đã gửi mã đến Email của bạn, vui lòng kiểm tra Email \n Quá trình gửi sẽ mất 1-3 phút",
+                style: TextStyle(color: Colors.black, fontSize: 14),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Nút kiểm tra OTP
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -114,22 +188,15 @@ class OtpScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChangePasswordScreen(),
+                  onPressed: _isLoading ? null : _checkOtp,
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "Xác nhận OTP",
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
-                        (route) => false,
-                      );
-                  },
-                  child: const Text(
-                    "Đổi mật khẩu",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
                 ),
               ),
-              const SizedBox(height: 20),
             ],
           ),
         ),
