@@ -2,7 +2,7 @@
 FEATURES_PER_HAND = 21
 
 # Name of the model
-MODEL_NAME = "simple_9_expression_model.pkl"
+MODEL_NAME = "simple_10_expression_model.pkl"
 MODEL_CONFIDENCE = 0.5
 
 # Processing parameters
