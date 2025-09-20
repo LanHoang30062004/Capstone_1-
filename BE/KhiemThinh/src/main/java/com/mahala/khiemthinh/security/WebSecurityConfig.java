@@ -1,4 +1,4 @@
-    package com.mahala.khiemthinh.security;
+package com.mahala.khiemthinh.security;
 
 import com.mahala.khiemthinh.filter.JwtTokenFilter;
 import com.mahala.khiemthinh.util.CustomOAuth2SuccessHandler;
@@ -15,13 +15,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-    import java.util.Arrays;
-    import java.util.List;
+import java.util.Arrays;
+import java.util.List;
 
-    @Configuration
-    @EnableWebSecurity
-    @RequiredArgsConstructor
-    public class WebSecurityConfig {
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class WebSecurityConfig {
 
     private final DaoAuthenticationProvider authProvider;
     private final JwtTokenFilter jwtTokenFilter;
@@ -44,7 +44,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
                             "http://localhost:63645"
                     ));
                     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(List.of("Content-Type", "Authorization", "x-auth-token","x-requested-with"));
+                    config.setAllowedHeaders(List.of("Content-Type", "Authorization", "x-auth-token", "x-requested-with"));
                     config.addExposedHeader("x-auth-token");
                     config.setAllowCredentials(true);
                     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

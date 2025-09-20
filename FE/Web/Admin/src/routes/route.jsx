@@ -16,6 +16,8 @@ import Word from "~/pages/Word/Word";
 import FlashCard from "~/pages/FlashCard/FlashCard";
 import FlashCardDetail from "~/pages/FlashCard/FlashCardDetail";
 import AddTopic from "~/pages/Topic/AddTopic";
+import TopicDetail from "~/pages/Topic/TopicDetail";
+import EditTopic from "~/pages/Topic/EditTopic";
 
 const route = [
   {
@@ -76,6 +78,16 @@ const route = [
           {
             path: "/topic",
             element: <Topic />,
+          },
+
+          {
+            path: "/topic/:id",
+            element: <TopicDetail />,
+          },
+
+          {
+            path: "/topic/edit/:id",
+            element: <EditTopic />,
           },
 
           {

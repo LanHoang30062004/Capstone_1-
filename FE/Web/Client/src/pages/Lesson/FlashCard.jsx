@@ -4,9 +4,11 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "./FlashCard.scss";
 import { useParams } from "react-router-dom";
 import * as flashcardService from "~/service/flashcardService";
+import LessonAnalyze from "./LessonAnalyze";
 
 const FlashCard = () => {
   const [data, setData] = useState([]);
+  const [lessonAnalyze, setLessonAnalyze] = useState(false);
 
   const params = useParams();
 
@@ -83,6 +85,15 @@ const FlashCard = () => {
         size="small"
         showInfo={false}
         className="flashcards__progress"
+      />
+
+      <Button type="primary" onClick={() => setLessonAnalyze(true)}>
+        Phân tích
+      </Button>
+
+      <LessonAnalyze
+        lessonAnalyze={lessonAnalyze}
+        setLessonAnalyze={setLessonAnalyze}
       />
     </div>
   );

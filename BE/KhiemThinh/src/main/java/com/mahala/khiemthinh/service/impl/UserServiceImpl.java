@@ -102,6 +102,8 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserById(Long id) throws Exception {
         User user = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
         UserDTO result = UserDTO.builder()
+                .id(user.getId())
+                .email(user.getEmail())
                 .fullName(user.getFullName())
                 .dateOfBirth(user.getDateOfBirth())
                 .gender(user.getGender())
@@ -115,6 +117,8 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserByEmail(String email) throws Exception {
         User user = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("User not found with email : " + email));
         UserDTO result = UserDTO.builder()
+                .id(user.getId())
+                .email(user.getEmail())
                 .fullName(user.getFullName())
                 .dateOfBirth(user.getDateOfBirth())
                 .gender(user.getGender())

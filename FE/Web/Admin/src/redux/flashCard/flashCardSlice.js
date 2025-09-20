@@ -41,6 +41,8 @@ export const fetchFlashCardEdit = createAsyncThunk(
   async ({ id, data }) => {
     const response = await instance.put(`/flash-card/${id}`, data)
 
+    console.log(response)
+
     return response.data
   },
 )

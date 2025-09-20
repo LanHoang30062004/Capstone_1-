@@ -2,8 +2,8 @@ import { Button, Form, Input } from "antd";
 import { toast } from "react-toastify";
 import * as userService from "~/service/userService";
 
-const SendOtp = () => {
-  const handleForgotPassword = async (value) => {
+const CheckOtp = () => {
+  const handleCheckOtp = async (value) => {
     try {
       const response = await userService.forgot(value);
 
@@ -15,7 +15,7 @@ const SendOtp = () => {
 
   return (
     <>
-      <Form onFinish={handleForgotPassword}>
+      <Form onFinish={handleCheckOtp}>
         <h2 className="forgot-pass__title">Quên mật khẩu</h2>
         <p className="forgot-pass__description">
           Vui lòng nhập email để lấy lại mật khẩu
@@ -44,4 +44,4 @@ const SendOtp = () => {
   );
 };
 
-export default SendOtp;
+export default CheckOtp;

@@ -1,4 +1,4 @@
-import { Button, Form, Input, Pagination, Skeleton } from "antd";
+import { Button, Col, Form, Input, Pagination, Row, Skeleton } from "antd";
 import Background from "~/assets/images/Bg2.png";
 import { FaPlay } from "react-icons/fa";
 import "./Dictionary.scss";

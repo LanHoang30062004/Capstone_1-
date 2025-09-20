@@ -104,11 +104,11 @@ const Word = () => {
 
   const dataSource = words?.items?.map((word) => {
     return {
-      key: word.wordId,
-      wordId: word.wordId,
-      videoUrl: <video src={word.videoUrl} controls width={200} />,
-      wordName: word.wordName,
-      wordMeaning: word.wordMeaning,
+      key: word?.wordId,
+      wordId: word?.wordId,
+      videoUrl: <video src={word?.videoUrl} controls width={200} />,
+      wordName: word?.wordName,
+      wordMeaning: word?.wordMeaning,
       action: (
         <Flex align="center" gap="small">
           {/* <EyeOutlined

@@ -21,6 +21,8 @@ export const fetchWordAdd = createAsyncThunk(
   async (data) => {
     const response = await instance.post('/word', data)
 
+    console.log(response)
+
     return response.data
   },
 )

@@ -8,11 +8,13 @@ import {
   fetchFlashCardDetail,
   fetchFlashCardEdit,
 } from "~/redux/flashCard/flashCardSlice";
+import { useParams } from "react-router-dom";
 
 const EditFlashCard = (props) => {
   const { open, setOpen } = props;
   const dispatch = useDispatch();
   const { loading, toggleLoading } = useContext(LoadingContext);
+  const { id } = useParams();
 
   const [form] = Form.useForm();
 
@@ -22,7 +24,7 @@ const EditFlashCard = (props) => {
     try {
       toggleLoading(true);
 
-      await dispatch(fetchFlashCardEdit({ id: 1, data: value })).unwrap();
+      await dispatch(fetchFlashCardEdit({ id: id, data: value })).unwrap();
 
       await dispatch(fetchFlashCardDetail(flashCard.id));
 

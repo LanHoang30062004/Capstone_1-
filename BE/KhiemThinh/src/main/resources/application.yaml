@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/khiem_thinh?createDatabaseIfNotExist=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3307/khiem_thinh?createDatabaseIfNotExist=true&serverTimezone=UTC
     username: root
-    password: 123456
+    password:
   jpa:
     properties:
       hibernate:

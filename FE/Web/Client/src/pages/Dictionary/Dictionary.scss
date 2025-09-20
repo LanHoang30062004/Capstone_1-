@@ -14,7 +14,7 @@
   &__grid {
     display: grid;
     align-items: center;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 40px;
   }
 
@@ -145,5 +145,35 @@
 
   100% {
     transform: scale(1.4);
+  }
+}
+
+@media (max-width: 992px) {
+  .dictionary {
+
+    &__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+  }
+}
+
+@media (max-width: 768px) {
+  .dictionary {
+
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+  }
+}
+
+@media (max-width: 576px) {
+  .dictionary {
+
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+
   }
 }

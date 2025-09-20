@@ -61,6 +61,7 @@ instance.interceptors.response.use(function (response) {
   }
 
   if (error.response?.status !== 410) {
+    toast.error(error?.message)
     // toast.error(error.response?.data || error?.message);
     // console.log(error.response)
   }

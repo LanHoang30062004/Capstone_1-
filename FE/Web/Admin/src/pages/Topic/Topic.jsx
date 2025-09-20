@@ -1,5 +1,5 @@
 import Header from "~/components/Header/Header";
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Button,
   Card,
@@ -9,37 +9,30 @@ import {
   Pagination,
   Popconfirm,
   Table,
-  Tag,
 } from "antd";
 import {
   EyeOutlined,
-  EditOutlined,
   DeleteOutlined,
   SearchOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./Topic.scss";
-import { fetchWord, fetchWordDelete } from "~/redux/word/wordSlice";
-import Link from "antd/es/typography/Link";
+import { fetchTopic, fetchTopicDelete } from "~/redux/topic/topicSlice";
 
 const columns = [
-  { title: "Mã kí hiệu", dataIndex: "wordId" },
-  { title: "Video", dataIndex: "videoUrl" },
-  { title: "Tên kí hiệu", dataIndex: "wordName" },
-  { title: "Nghĩa kí hiệu", dataIndex: "wordMeaning" },
+  { title: "Mã chủ đề", dataIndex: "topicId" },
+  { title: "Nội dung", dataIndex: "content" },
+  { title: "Thời gian", dataIndex: "durationMinutes" },
+  { title: "Số lượng câu hỏi", dataIndex: "numberOfQuestion" },
   { title: "Hành động", dataIndex: "action" },
 ];
 
 const Topic = () => {
-  // const [openDetail, setOpenDetail] = useState(false);
-  const [openAddTopic, setOpenAddTopic] = useState(false);
-  const [editModal, setEditModal] = useState(false);
-  const [topic, setTopic] = useState(null);
-  // const [openEditPosition, setOpenEditPosition] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const topics = useSelector((state) => state.topic.topics);
   const navigate = useNavigate();
 
   const words = useSelector((state) => state.word.words);
@@ -56,29 +49,22 @@ const Topic = () => {
       });
     }
 
-    dispatch(fetchWord(searchObject));
+    dispatch(fetchTopic(searchObject));
   }, [dispatch, searchParams]);
 
-  const handleOpenModal = (setOpen, topic) => {
-    setOpen(true);
-    setTopic(topic);
-  };
-
-  const handleDelete = (topicId) => {
+  const handleDelete = async (topicId) => {
     try {
-      toast.promise(dispatch(fetchWordDelete(topicId)), {
+      await toast.promise(dispatch(fetchTopicDelete(topicId)), {
         pending: "Đang xoá...",
       });
 
-      if (words.items.length === 1) {
+      if (topics.length === 1) {
         const searchObject = Object.fromEntries(searchParams.entries());
         setSearchParams({
           ...searchObject,
           page: searchParams.get("page") - 1,
         });
       }
-
-      toast.success("Xoá thành công!");
     } catch (error) {
       console.log(error);
     }
@@ -104,27 +90,23 @@ const Topic = () => {
     });
   };
 
-  const dataSource = words?.items?.map((word) => {
+  const dataSource = topics?.map((topic) => {
     return {
-      key: word.wordId,
-      wordId: word.wordId,
-      videoUrl: <video src={word.videoUrl} controls width={200} />,
-      wordName: word.wordName,
-      wordMeaning: word.wordMeaning,
+      key: topic.id,
+      topicId: topic.id,
+      content: topic.content,
+      durationMinutes: topic.durationMinutes,
+      numberOfQuestion: topic.numberOfQuestion,
       action: (
         <Flex align="center" gap="small">
-          {/* <EyeOutlined
-            className="table__icon"
-            onClick={() => handleOpenModal(setOpenDetail, position)}
-          /> */}
-          <EditOutlined
-            className="table__icon"
-            onClick={() => handleOpenModal(setEditModal, word)}
-          />
+          <Link to={`/topic/${topic.id}`}>
+            <EyeOutlined className="table__icon" />
+          </Link>
+
           <Popconfirm
             title="Xoá kí hiệu"
             description="Bạn có chắc muốn xoá kí hiệu này?"
-            onConfirm={() => handleDelete(word.wordId)}
+            onConfirm={() => handleDelete(topic.id)}
             okText="Xoá"
             cancelText="Huỷ"
           >
@@ -190,19 +172,6 @@ const Topic = () => {
           />
         </Card>
       </div>
-      {/* {openAddWord && <AddWord open={openAddWord} setOpen={setOpenAddWord} />} */}
-
-      {/* {openDetail && (
-        <DetailPosition
-          open={openDetail}
-          setOpen={setOpenDetail}
-          position={position}
-        />
-      )} */}
-      {/* 
-      {editModal && (
-        <EditWord open={editModal} setOpen={setEditModal} word={word} />
-      )} */}
     </>
   );
 };

@@ -21,9 +21,7 @@ const AddWord = (props) => {
     }
 
     value.videoUrl = fileUrl;
-    value.userId = 1;
 
-    console.log(value);
     try {
       toggleLoading(true);
       toast.promise(dispatch(fetchWordAdd(value)), {

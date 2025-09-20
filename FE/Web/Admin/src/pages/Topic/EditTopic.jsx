@@ -1,20 +1,22 @@
-import { Form, Input, InputNumber, Button, Space, Checkbox } from "antd";
+import { Form, Input, InputNumber, Button, Space, Checkbox, Flex } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import Header from "~/components/Header/Header";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { LoadingContext } from "~/context/LoadingContext";
-import { useDispatch } from "react-redux";
-import { fetchTopicAdd } from "~/redux/topic/topicSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTopicDetail, fetchTopicEdit } from "~/redux/topic/topicSlice";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-const AddTopic = () => {
+const EditTopic = () => {
   const [form] = Form.useForm();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const topic = useSelector((state) => state.topic.topicDetail);
   const { loading, toggleLoading } = useContext(LoadingContext);
+  const navigate = useNavigate();
+  const { id } = useParams();
 
-  const questions = Form.useWatch("questions", form); // 👈 theo dõi số câu hỏi
+  const questions = Form.useWatch("questions", form);
   const numberOfQuestion = questions ? questions.length : 0;
 
   const handleFinish = async (value) => {
@@ -22,10 +24,11 @@ const AddTopic = () => {
       toggleLoading(true);
       const payload = {
         ...value,
+        id: id,
         numberOfQuestion: numberOfQuestion,
       };
 
-      toast.promise(dispatch(fetchTopicAdd(payload)).unwrap());
+      toast.promise(dispatch(fetchTopicEdit(payload)).unwrap());
     } catch (error) {
       console.log(error);
     } finally {
@@ -33,17 +36,21 @@ const AddTopic = () => {
     }
   };
 
+  useEffect(() => {
+    () => {
+      dispatch(fetchTopicDetail(id));
+    };
+  }, [id, dispatch]);
+
   return (
-    <div className="word__list contain">
+    <div className="topic__list contain">
       <Header title="Chủ đề" subTitle="Danh sách chủ đề" />
 
       <Form
         form={form}
         onFinish={handleFinish}
         layout="vertical"
-        initialValues={{
-          durationMinutes: 0,
-        }}
+        initialValues={topic}
       >
         <Form.Item
           name="content"
@@ -168,14 +175,14 @@ const AddTopic = () => {
         <Space>
           <Form.Item noStyle>
             <Button type="primary" htmlType="submit" loading={loading}>
-              Thêm chủ đề
+              Chỉnh sửa
             </Button>
           </Form.Item>
 
           <Button
             variant="outlined"
             color="primary"
-            onClick={() => navigate("/topic")}
+            onClick={() => navigate(`/topic/${id}`)}
           >
             Quay lại
           </Button>
@@ -185,4 +192,4 @@ const AddTopic = () => {
   );
 };
 
-export default AddTopic;
+export default EditTopic;

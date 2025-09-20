@@ -13,9 +13,7 @@ export const login = async (data) => {
 }
 
 export const forgot = async (data) => {
-  const response = await instance.post('/password/forgot', data)
-
-  console.log(response)
+  const response = await instance.post(`/password/forgot?email=${data}`, data)
 
   return response.data
 }
