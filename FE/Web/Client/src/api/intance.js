@@ -40,8 +40,6 @@ instance.interceptors.response.use(function (response) {
   if (error.response?.status === 410 && !originalRequest._retry) {
     originalRequest._retry = true;
 
-    const refreshToken = localStorage.getItem("refreshToken");
-
     // return accountService.refreshToken(refreshToken)
     //   .then((res) => {
     //     // Lấy accessToken gắn lại localStorage
@@ -58,9 +56,8 @@ instance.interceptors.response.use(function (response) {
     //     return Promise.reject(err);
     //   })
   }
-
   if (error.response?.status !== 410) {
-    toast.error(error.response?.data?.message || error?.message);
+    toast.error(error.response?.data?.message || error.response?.message || error?.message);
     // console.log(error.response)
   }
 

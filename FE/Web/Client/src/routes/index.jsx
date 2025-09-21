@@ -15,6 +15,9 @@ import Test from "~/pages/Practise/Test";
 import SignLanguage from "~/pages/SignLanguage/SignLanguage";
 import SendOtp from "~/pages/ForgotPassword/SendOtp";
 import FlashCard from "~/pages/Lesson/FlashCard";
+import CheckOtp from "~/pages/ForgotPassword/CheckOtp";
+import ResetPassword from "~/pages/ForgotPassword/ResetPassword";
+import LoginGoogle from "~/pages/Auth/LoginGoogle";
 
 const routes = [
   {
@@ -80,6 +83,11 @@ const routes = [
         path: "/register",
         element: <Register />,
       },
+
+      {
+        path: "/callback",
+        element: <LoginGoogle />,
+      },
     ],
   },
 
@@ -90,6 +98,15 @@ const routes = [
       {
         path: "/forgot-pass",
         element: <SendOtp />,
+      },
+
+      {
+        path: "/check-pass/:email",
+        element: <CheckOtp />,
+      },
+      {
+        path: "/reset-password/:email/:code",
+        element: <ResetPassword />,
       },
     ],
   },

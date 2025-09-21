@@ -1,13 +1,17 @@
 import { Button, Form, Input } from "antd";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as userService from "~/service/userService";
 
 const SendOtp = () => {
+  const navigate = useNavigate();
+
   const handleForgotPassword = async (value) => {
     try {
       const response = await userService.forgot(value);
 
-      console.log(response);
+      if (response.status < 400) navigate(`/check-pass/${value.email}`);
+      else toast.error(response.message);
     } catch (error) {
       console.log(error);
     }

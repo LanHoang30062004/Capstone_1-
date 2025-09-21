@@ -35,7 +35,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         if (email == null) {
             email = oAuth2User.getAttribute("login"); // GitHub có "login"
         }
-        if (email == null || email.isEmpty()) {
             Role role = this.roleRepository.findById(1L).orElse(null);
             User oldUser = this.userRepository.findByEmail(email).orElse(null);
             if (oldUser == null) {
@@ -48,7 +47,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 if ("app".equalsIgnoreCase(state)) {
                     response.sendRedirect("myapp://callback?token=" + token);
                 } else {
-                    response.getWriter().write("{\"token\": \"" + token + "\"}");
+                    response.sendRedirect("http://localhost:5173/callback?token=" + token);
                 }
 
             } else {
@@ -57,10 +56,10 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 if ("app".equalsIgnoreCase(state)) {
                     response.sendRedirect("myapp://callback?token=" + token);
                 } else {
-                    response.getWriter().write("{\"token\": \"" + token + "\"}");
+                    response.sendRedirect("http://localhost:5173/callback?token=" + token);
                 }
             }
-        }
+
     }
 }
 
