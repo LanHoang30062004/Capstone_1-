@@ -33,7 +33,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/**") // 👈 chỉ áp dụng cho API
+                .securityMatcher(path + "/**")
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {
                     CorsConfiguration config = new CorsConfiguration();
