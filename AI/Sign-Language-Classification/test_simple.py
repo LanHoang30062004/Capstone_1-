@@ -15,7 +15,7 @@ from typing import List, Dict, Any
 from pydantic import BaseModel
 from pydantic import BaseModel
 from typing import List, Optional
-from utils.conversion import convert_to_mp_face_results , convert_to_mp_hand_results
+from utils.conversion import convert_to_mp_face_results, convert_to_mp_hand_results
 
 
 # Import utils
@@ -38,7 +38,19 @@ logger = logging.getLogger(__name__)
 mp_face_mesh = mp.solutions.face_mesh
 mp_hands = mp.solutions.hands
 
+from fastapi.middleware.cors import CORSMiddleware
+
+# Khởi tạo app
 app = FastAPI(title="ASL Video Processing API")
+
+# Thêm CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Global thread pool for CPU-bound tasks
 thread_pool = ThreadPoolExecutor(max_workers=4)
