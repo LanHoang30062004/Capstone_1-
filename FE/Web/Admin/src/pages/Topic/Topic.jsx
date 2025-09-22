@@ -43,11 +43,12 @@ const Topic = () => {
     const searchObject = Object.fromEntries(searchParams.entries());
 
     if (Object.keys(searchObject).length === 0) {
-      setSearchParams({
-        page: 1,
-        size: 10,
-      });
+      searchObject.page = 1;
+      searchObject.size = 10;
     }
+
+    searchObject.page = parseInt(searchObject.page);
+    searchObject.size = parseInt(searchObject.size);
 
     dispatch(fetchTopic(searchObject));
   }, [dispatch, searchParams]);

@@ -21,6 +21,7 @@ const AddWord = (props) => {
     }
 
     value.videoUrl = fileUrl;
+    value.userId = 2;
 
     try {
       toggleLoading(true);

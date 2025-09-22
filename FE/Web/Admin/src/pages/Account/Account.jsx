@@ -17,7 +17,7 @@ import {
   PlusCircleOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./Account.scss";
@@ -54,11 +54,12 @@ const FlashCard = () => {
     const searchObject = Object.fromEntries(searchParams.entries());
 
     if (Object.keys(searchObject).length === 0) {
-      setSearchParams({
-        page: 1,
-        size: 10,
-      });
+      searchObject.page = 1;
+      searchObject.size = 10;
     }
+
+    searchObject.page = parseInt(searchObject.page);
+    searchObject.size = parseInt(searchObject.size);
 
     dispatch(fetchAccount(searchObject));
   }, [dispatch, searchParams]);
