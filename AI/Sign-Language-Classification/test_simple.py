@@ -291,31 +291,117 @@ async def health_check():
 @app.post("/predict")
 async def predict(request: PredictionRequest):
     try:
-        # Tái tạo cấu trúc MediaPipe results
-        face_results = convert_to_mp_face_results(request.face_landmarks)
-        hand_results = convert_to_mp_hand_results(request.hand_landmarks)
+        # Validate input
+        if not request.word or not request.word.strip():
+            return {"accuracy": 0.0, "message": "Word is required", "success": False}
+
+        if not request.face_landmarks and not request.hand_landmarks:
+            return {
+                "accuracy": 0.0,
+                "message": "No landmarks provided",
+                "success": False,
+            }
+
+        # Validate landmarks structure
+        try:
+            face_results = convert_to_mp_face_results(request.face_landmarks)
+            hand_results = convert_to_mp_hand_results(request.hand_landmarks)
+        except Exception as e:
+            return {
+                "accuracy": 0.0,
+                "message": f"Invalid landmarks format: {str(e)}",
+                "success": False,
+            }
 
         # Trích xuất features
         feature = extract_features(mp_hands, face_results, hand_results)
         if feature is None:
-            return {"accuracy": 0.0, "message": "No face/hands detected"}
+            return {
+                "accuracy": 0.0,
+                "message": "No detectable features from landmarks",
+                "success": False,
+            }
 
-        # Dự đoán
-        prediction = model.predict(feature)
-        predicted_word = prediction.lower().strip()
+        # Dự đoán với error handling
+        try:
+            prediction = model.predict(feature)
+            if prediction is None:
+                return {
+                    "accuracy": 0.0,
+                    "message": "Model prediction failed",
+                    "success": False,
+                }
 
-        # Tính accuracy
-        accuracy = 1.0 if request.word.lower() == predicted_word else 0.0
+            predicted_word = str(prediction).lower().strip()
+        except Exception as e:
+            return {
+                "accuracy": 0.0,
+                "message": f"Prediction error: {str(e)}",
+                "success": False,
+            }
+
+        # Tính accuracy cải tiến
+        target_word = request.word.lower().strip()
+        accuracy = calculate_gesture_accuracy(target_word, predicted_word)
 
         return {
             "input_word": request.word,
             "predicted_word": predicted_word,
             "accuracy": accuracy,
+            "confidence": get_prediction_confidence(
+                model, feature
+            ),  # Thêm confidence score
             "success": True,
         }
 
     except Exception as e:
-        return {"error": str(e), "success": False}
+        logger.error(f"Predict error: {str(e)}")
+        return {"error": str(e), "success": False, "accuracy": 0.0}
+
+
+def calculate_gesture_accuracy(target_word: str, predicted_word: str) -> float:
+    """Tính độ chính xác với nhiều mức độ"""
+
+    # Trùng khớp hoàn toàn
+    if target_word == predicted_word:
+        return 1.0
+
+    # So sánh chuỗi với độ khoan dung
+    similarity = calculate_similarity(target_word, predicted_word)
+
+    # Ngưỡng chấp nhận
+    if similarity >= 0.8:  # 80% trùng khớp
+        return 0.8
+    elif similarity >= 0.6:  # 60% trùng khớp
+        return 0.6
+    elif similarity >= 0.4:  # 40% trùng khớp
+        return 0.4
+    else:
+        return 0.0
+
+
+def calculate_similarity(word1: str, word2: str) -> float:
+    """Tính độ tương đồng giữa 2 từ"""
+    # Sử dụng sequence matching đơn giản
+    from difflib import SequenceMatcher
+
+    return SequenceMatcher(None, word1, word2).ratio()
+
+
+def get_prediction_confidence(model, feature) -> float:
+    """Lấy confidence score từ model (nếu supported)"""
+    try:
+        # Thử lấy probability
+        if hasattr(model, "predict_proba"):
+            proba = model.predict_proba(feature.reshape(1, -1))
+            return float(np.max(proba[0]))
+        elif hasattr(model, "decision_function"):
+            decision = model.decision_function(feature.reshape(1, -1))
+            return float(np.max(decision))
+    except:
+        pass
+
+    return 0.5  # Default confidence
 
 
 if __name__ == "__main__":

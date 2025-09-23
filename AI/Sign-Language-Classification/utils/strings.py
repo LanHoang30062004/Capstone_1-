@@ -118,7 +118,7 @@ class ExpressionHandler:
             self.gesture_start_frame = len(self.predictions)
 
     def get_sequence(self):
-        # Thêm cử chỉ cuối cùng nếu tồn tại đủ lâu (đã mapped)
+        # Thêm cử chỉ cuối cùng nếu tồn tại đủ lâu
         if (
             self.current_gesture
             and len(self.predictions) - self.gesture_start_frame
@@ -129,20 +129,36 @@ class ExpressionHandler:
             )
             self.sequence.append(mapped_gesture)
 
-        # Loại bỏ cử chỉ trùng lặp liên tiếp và thêm khoảng trắng giữa các từ
-        cleaned_sequence = []
-        for gesture in self.sequence:
-            if not cleaned_sequence or gesture != cleaned_sequence[-1]:
-                # Thêm khoảng trắng nếu là từ mới (không phải ký tự đơn)
-                if (
-                    cleaned_sequence
-                    and len(gesture) > 1
-                    and len(cleaned_sequence[-1]) > 1
-                ):
-                    cleaned_sequence.append(" ")
-                cleaned_sequence.append(gesture)
+        if not self.sequence:
+            return ""
 
-        return "".join(cleaned_sequence)
+        # Loại bỏ trùng lặp liên tiếp
+        unique_sequence = []
+        for gesture in self.sequence:
+            if not unique_sequence or gesture != unique_sequence[-1]:
+                unique_sequence.append(gesture)
+
+        # Nhóm ký tự đơn và từ
+        result_parts = []
+        current_chars = []  # Các ký tự đơn đang ghép
+
+        for gesture in unique_sequence:
+            # Xử lý ký tự đơn (A-Z, 0-9, v.v.)
+            if len(gesture) == 1 and gesture.isalnum():
+                current_chars.append(gesture)
+            else:  # Từ đa ký tự hoặc ký tự đặc biệt
+                # Ghép các ký tự đơn trước đó thành từ
+                if current_chars:
+                    result_parts.append("".join(current_chars))
+                    current_chars = []
+                # Thêm từ đa ký tự
+                result_parts.append(gesture)
+
+        # Thêm phần còn lại
+        if current_chars:
+            result_parts.append("".join(current_chars))
+
+        return ", ".join(result_parts)
 
     def get_message(self):
         sequence = self.get_sequence()
