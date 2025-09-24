@@ -28,6 +28,7 @@ from config import (
     MAX_PROCESSING_TIME,
     TARGET_FPS,
     MIN_FRAME_COUNT,
+    MAX_CONCURRENT_VIDEOS,
 )
 
 # Initialize logging
@@ -81,69 +82,142 @@ except Exception as e:
     logger.error(f"❌ Error loading model: {e}")
     traceback.print_exc()
 
-    # Fallback to dummy model
-    class DummyModel:
-        def predict(self, feature):
-            return "A"  # Default prediction
-
-    model = DummyModel()
-
 
 @app.get("/")
 def read_root():
     return {"message": "ASL Video Processing API", "status": "running"}
 
 
-@app.post("/process-video")
-async def process_video(
-    background_tasks: BackgroundTasks, file: UploadFile = File(...)
+@app.post("/process-videos")
+async def process_videos(
+    background_tasks: BackgroundTasks, files: List[UploadFile] = File(...)
 ):
-    """Process video and return ASL prediction"""
+    """Process multiple videos and return combined ASL prediction"""
     try:
-        # Validate file type
-        if not file.content_type.startswith("video/"):
-            raise HTTPException(400, "Invalid file format. Please upload a video file.")
+        # Validate that files are provided
+        if not files:
+            raise HTTPException(400, "No files provided")
 
-        # Save uploaded video to temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
-            content = await file.read()
-            tmp_file.write(content)
-            tmp_file_path = tmp_file.name
+        # Validate file types
+        for file in files:
+            if not file.content_type.startswith("video/"):
+                raise HTTPException(
+                    400,
+                    f"Invalid file format for {file.filename}. Please upload video files only.",
+                )
 
-        # Process the video in background with timeout
-        try:
-            # Use thread pool for CPU-intensive task
-            loop = asyncio.get_event_loop()
-            results = await asyncio.wait_for(
-                loop.run_in_executor(thread_pool, process_video_file, tmp_file_path),
-                timeout=MAX_PROCESSING_TIME,
-            )
-        except asyncio.TimeoutError:
-            raise HTTPException(408, "Video processing timeout")
-        finally:
-            # Clean up in background
+        temp_files = []  # Track all temporary files for cleanup
+        all_sequences = []  # Store sequences from all videos
+        combined_details = {
+            "total_processing_time": 0,
+            "total_frames_processed": 0,
+            "total_original_duration": 0,
+            "videos_processed": 0,
+            "individual_results": [],
+        }
+
+        # Process each video file sequentially
+        for file in files:
+            tmp_file_path = None
+            try:
+                # Save uploaded video to temporary file
+                with tempfile.NamedTemporaryFile(
+                    delete=False, suffix=".mp4"
+                ) as tmp_file:
+                    content = await file.read()
+                    tmp_file.write(content)
+                    tmp_file_path = tmp_file.name
+                    temp_files.append(tmp_file_path)
+
+                # Process the video in background with timeout
+                loop = asyncio.get_event_loop()
+                video_result = await asyncio.wait_for(
+                    loop.run_in_executor(
+                        thread_pool, process_video_file, tmp_file_path
+                    ),
+                    timeout=MAX_PROCESSING_TIME,
+                )
+
+                # Add sequence to combined result
+                if video_result["sequence"]:  # Only add non-empty sequences
+                    all_sequences.append(video_result["sequence"])
+
+                # Update combined details
+                combined_details["total_processing_time"] += float(
+                    video_result["processing_time"].replace("s", "")
+                )
+                combined_details["total_frames_processed"] += video_result[
+                    "frames_processed"
+                ]
+                combined_details["total_original_duration"] += float(
+                    video_result["original_duration"].replace("s", "")
+                )
+                combined_details["videos_processed"] += 1
+
+                # Store individual video results for debugging
+                combined_details["individual_results"].append(
+                    {
+                        "filename": file.filename,
+                        "sequence": video_result["sequence"],
+                        "processing_time": video_result["processing_time"],
+                        "frames_processed": video_result["frames_processed"],
+                        "original_duration": video_result["original_duration"],
+                        "original_fps": video_result["original_fps"],
+                    }
+                )
+
+            except asyncio.TimeoutError:
+                # Skip this video but continue processing others
+                logger.warning(f"Timeout processing video: {file.filename}")
+                combined_details["individual_results"].append(
+                    {
+                        "filename": file.filename,
+                        "error": "Video processing timeout",
+                        "sequence": "",
+                    }
+                )
+            except Exception as e:
+                # Skip this video but continue processing others
+                logger.error(f"Error processing video {file.filename}: {str(e)}")
+                combined_details["individual_results"].append(
+                    {
+                        "filename": file.filename,
+                        "error": f"Error processing video: {str(e)}",
+                        "sequence": "",
+                    }
+                )
+
+        # Clean up all temporary files in background
+        for tmp_file_path in temp_files:
             background_tasks.add_task(cleanup_file, tmp_file_path)
+
+        # Combine all sequences with comma separation
+        combined_sequence = ", ".join(all_sequences)
 
         return JSONResponse(
             content={
                 "success": True,
-                "recognized_sequence": results["sequence"],
+                "recognized_sequence": combined_sequence,
                 "details": {
-                    "processing_time": results["processing_time"],
-                    "frames_processed": results["frames_processed"],
-                    "original_duration": results["original_duration"],
-                    "original_fps": results["original_fps"],
-                    "raw_predictions": results["raw_predictions"],  # For debugging
+                    "total_processing_time": f"{combined_details['total_processing_time']:.2f}s",
+                    "total_frames_processed": combined_details[
+                        "total_frames_processed"
+                    ],
+                    "total_original_duration": f"{combined_details['total_original_duration']:.2f}s",
+                    "videos_processed": combined_details["videos_processed"],
+                    "total_videos_received": len(files),
                 },
             }
         )
 
     except Exception as e:
         # Clean up on error
-        if "tmp_file_path" in locals() and os.path.exists(tmp_file_path):
-            background_tasks.add_task(cleanup_file, tmp_file_path)
-        logger.error(f"Error processing video: {str(e)}")
-        raise HTTPException(500, f"Error processing video: {str(e)}")
+        if "temp_files" in locals():
+            for tmp_file_path in temp_files:
+                if os.path.exists(tmp_file_path):
+                    background_tasks.add_task(cleanup_file, tmp_file_path)
+        logger.error(f"Error processing videos: {str(e)}")
+        raise HTTPException(500, f"Error processing videos: {str(e)}")
 
 
 async def cleanup_file(file_path: str):
@@ -177,7 +251,7 @@ def process_video_file(video_path: str) -> Dict[str, Any]:
     )
 
     # Sử dụng ExpressionHandler mới với thời gian tối thiểu cho mỗi cử chỉ
-    expression_handler = ExpressionHandler(min_frames_per_gesture=2)
+    expression_handler = ExpressionHandler(min_frames_per_gesture=3)
     processed_frames = 0
 
     try:
@@ -280,12 +354,6 @@ def process_video_file(video_path: str) -> Dict[str, Any]:
             cap.release()
         face_mesh.close()
         hands.close()
-
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy", "model_loaded": not isinstance(model, DummyModel)}
 
 
 @app.post("/predict")

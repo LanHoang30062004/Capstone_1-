@@ -2,7 +2,6 @@ class ExpressionHandler:
     MAPPING = {
         "bình_thường": "Ngồi yên",
         "cảm_ơn": "Cảm ơn",
-        "cảm_ơn": "Cảm ơn",
         "xin_chào": "Xin chào",
         "yêu": "Yêu",
         "không": "Không",
@@ -89,7 +88,7 @@ class ExpressionHandler:
         self.gesture_start_frame = 0
         self.min_frames_per_gesture = min_frames_per_gesture
         self.similarity_threshold = similarity_threshold
-        self.sequence = []  # Chuỗi cử chỉ đã nhận diện
+        self.sequence = []  # Chuỗi cử chỉ đã nhận diện (đã mapped)
 
     def receive(self, prediction):
         # Chuyển đổi prediction thành dạng chuẩn (lowercase) để so sánh
@@ -108,10 +107,10 @@ class ExpressionHandler:
                 and len(self.predictions) - self.gesture_start_frame
                 >= self.min_frames_per_gesture
             ):
+                # LUÔN mapping từ key sang value trước khi thêm vào sequence
                 mapped_gesture = self.MAPPING.get(
                     self.current_gesture, self.current_gesture
                 )
-
                 self.sequence.append(mapped_gesture)
 
             self.current_gesture = normalized_prediction
@@ -124,6 +123,7 @@ class ExpressionHandler:
             and len(self.predictions) - self.gesture_start_frame
             >= self.min_frames_per_gesture
         ):
+            # LUÔN mapping từ key sang value
             mapped_gesture = self.MAPPING.get(
                 self.current_gesture, self.current_gesture
             )
