@@ -1,74 +1,50 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import streamlit as st
+import warnings
+import json
 
 from utils.feature_extraction import *
 from utils.strings import *
 from utils.model import ASLClassificationModel
 from config import MODEL_NAME, MODEL_CONFIDENCE
 
-import streamlit as st
-
-# Temporarily ignore warning
-import warnings
-
 warnings.filterwarnings("ignore")
 
-# Initialize MediaPipe Holistic
-mp_holistic = mp.solutions.holistic
+# Initialize MediaPipe
+mp_face_mesh = mp.solutions.face_mesh
+mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
+
+
+def landmarks_to_list(landmarks):
+    """Convert mediapipe landmarks to list of dicts (x,y,z)."""
+    return [{"x": lm.x, "y": lm.y, "z": lm.z} for lm in landmarks.landmark]
+
 
 if __name__ == "__main__":
-    # Initialize the webcam
     cap = cv2.VideoCapture(0)
-
-    # Check if webcam is opened correctly
     if not cap.isOpened():
         st.error("Cannot open webcam. Please check your camera connection.")
         st.stop()
 
-    # Create message handler
-    expression_handler = ExpressionHandler()
-
-    # Streamlit app
+    # Streamlit UI
     st.set_page_config(layout="wide")
-    st.markdown(
-        """
-        <style>
-            .big-font {
-                color: #e76f51 !important;
-                font-size: 60px !important;
-                border: 0.5rem solid #fcbf49 !important;
-                border-radius: 2rem;
-                text-align: center;
-            }
-        </style>
-    """,
-        unsafe_allow_html=True,
-    )
-
-    # Create two columns
     col1, col2 = st.columns([4, 2])
-
-    # Create a placeholder for the webcam feed in the first column
     with col1:
         video_placeholder = st.empty()
-
-    # Create a placeholder for prediction text in the second column
     with col2:
         prediction_placeholder = st.empty()
 
     # Load model
     try:
-        print("Initialising model ...")
         model = ASLClassificationModel.load_model(f"models/{MODEL_NAME}")
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")
         st.stop()
 
-    # Initialize MediaPipe Face Mesh
-    mp_face_mesh = mp.solutions.face_mesh
+    # Initialize mediapipe
     face_mesh = mp_face_mesh.FaceMesh(
         max_num_faces=1,
         refine_landmarks=True,
@@ -76,54 +52,43 @@ if __name__ == "__main__":
         min_tracking_confidence=MODEL_CONFIDENCE,
     )
 
-    # Initialize MediaPipe Hands
-    mp_hands = mp.solutions.hands
     hands = mp_hands.Hands(
         max_num_hands=2,
         min_detection_confidence=MODEL_CONFIDENCE,
         min_tracking_confidence=MODEL_CONFIDENCE,
     )
 
-    # Initialize drawing utility
-    mp_drawing = mp.solutions.drawing_utils
-    drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
+    print("Starting application ...")
 
-    # Starting the application
-    print("Starting application")
-
-    # Set up the holistic model
     while cap.isOpened():
         try:
-            # Check if getting frame is successful
             success, image = cap.read()
             if not success:
-                print("Ignoring empty camera frame.")
                 continue
 
-            # Convert the image to RGB
             image.flags.writeable = False
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-            # Process the image and find faces
             face_results = face_mesh.process(image)
-
-            # Process the image and find hands
             hand_results = hands.process(image)
 
-            # Extract feature from face and hand results with error handling
-            try:
-                feature = extract_features(mp_hands, face_results, hand_results)
-                if feature is not None:
-                    expression = model.predict(feature)
-                    expression_handler.receive_old(expression)
-                else:
-                    # Handle case when no features are detected
-                    expression_handler.receive_old("No hands/face detected")
-            except Exception as e:
-                print(f"Error in feature extraction or prediction: {e}")
-                expression_handler.receive_old("Error in detection")
+            # === Collect landmarks into JSON dict ===
+            keypoints = {"left_hand": [], "right_hand": []}
 
-            # Draw the face mesh annotations on the image
+
+            # Hands (21 points each)
+            if hand_results.multi_hand_landmarks and hand_results.multi_handedness:
+                for idx, hand_landmarks in enumerate(hand_results.multi_hand_landmarks):
+                    handedness = hand_results.multi_handedness[idx].classification[0].label.lower()
+                    if handedness == "left":
+                        keypoints["left_hand"] = landmarks_to_list(hand_landmarks)
+                    else:
+                        keypoints["right_hand"] = landmarks_to_list(hand_landmarks)
+
+            # In ra JSON (console)
+            print(json.dumps(keypoints))
+
+            # Vẽ landmarks lên frame
             if face_results.multi_face_landmarks:
                 for face_landmarks in face_results.multi_face_landmarks:
                     mp_drawing.draw_landmarks(
@@ -136,7 +101,6 @@ if __name__ == "__main__":
                         ),
                     )
 
-            # Draw the hand annotations on the image
             if hand_results.multi_hand_landmarks:
                 for hand_landmarks in hand_results.multi_hand_landmarks:
                     mp_drawing.draw_landmarks(
@@ -151,19 +115,16 @@ if __name__ == "__main__":
                         ),
                     )
 
-            # Convert back to BGR for display
+            # Hiển thị video
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-            # Display the image and prediction
             video_placeholder.image(image, channels="BGR", use_column_width=True)
             prediction_placeholder.markdown(
-                f"""<h2 class="big-font">{expression_handler.get_message_old()}</h2>""",
+                f"""<h3>Keypoints JSON is being printed in console</h3>""",
                 unsafe_allow_html=True,
             )
 
         except Exception as e:
             print(f"Error in main loop: {e}")
-            # Continue running instead of crashing
             continue
 
     cap.release()

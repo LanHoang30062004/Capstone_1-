@@ -25,7 +25,6 @@ class ExpressionHandler:
         "r": "r",
         "u": "u",
         "v": "v",
-        "ngay_phu_nu_vn": "Ngày phụ nữ Việt Nam 20/10",
         "ngay_thuong_binh_lietsi": "ngày thương bình liệt sĩ 27/7",
         "ngay_gio_to_hungvuong": "ngày giỗ tổ Hùng Vương (âm lịch 10/3)",
         "ngay_ngon_ngu_ki_hieu_quocte": "ngày Ngôn ngữ kí hiệu Quốc tế 23/9",
