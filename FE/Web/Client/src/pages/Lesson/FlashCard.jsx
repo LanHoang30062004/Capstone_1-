@@ -39,8 +39,6 @@ const FlashCard = () => {
     fetchDetailLesson();
   }, []);
 
-  console.log(data);
-
   return (
     <div className="flashcards">
       {/* Card */}
@@ -94,6 +92,7 @@ const FlashCard = () => {
       <LessonAnalyze
         lessonAnalyze={lessonAnalyze}
         setLessonAnalyze={setLessonAnalyze}
+        word={data[index]?.result}
       />
     </div>
   );

@@ -17,6 +17,8 @@ const Login = () => {
       toggleLoading(true);
       const response = await accountService.login(values);
 
+      console.log(response.data);
+
       if (response.status !== 200) {
         toast.error(response.message);
         return;
@@ -25,7 +27,7 @@ const Login = () => {
       toast.success(response.message);
       localStorage.setItem("accessToken", response.data);
 
-      navigate("/employee");
+      navigate("/topic");
     } catch (error) {
       console.log(error);
     } finally {
