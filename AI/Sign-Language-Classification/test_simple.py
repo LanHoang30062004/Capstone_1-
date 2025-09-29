@@ -177,11 +177,18 @@ async def process_video(
         for tmp_file_path in temp_files:
             background_tasks.add_task(cleanup_file, tmp_file_path)
 
+        seen = set()
+        filtered_sequence = []
+        for seq in combined_sequence:
+            if seq not in seen and seq != "Ngồi yên":
+                seen.add(seq)
+                filtered_sequence.append(seq)
+
         # Return response
         return JSONResponse(
             content={
                 "success": True,
-                "recognized_sequence": ", ".join(combined_sequence),
+                "recognized_sequence": ", ".join(filtered_sequence),
                 "results": results,
             }
         )
@@ -192,6 +199,7 @@ async def process_video(
                 if os.path.exists(tmp_file_path):
                     background_tasks.add_task(cleanup_file, tmp_file_path)
         raise HTTPException(500, f"Error processing video: {str(e)}")
+
 
 
 async def cleanup_file(file_path: str):

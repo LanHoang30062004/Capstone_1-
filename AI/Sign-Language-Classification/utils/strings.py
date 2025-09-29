@@ -1,8 +1,8 @@
 class ExpressionHandler:
     MAPPING = {
-        "bình_thường": "Ngồi yên",
+        "binh_thuong": "Ngồi yên",
         "cảm_ơn": "Cảm ơn",
-        "xin_chào": "Xin chào",
+        "xin_chao": "Xin chào",
         "yêu": "Yêu",
         "không": "Không",
         "toi": "Tôi",
@@ -172,4 +172,4 @@ class ExpressionHandler:
         self.current_message = message
 
     def get_message_old(self):
-        return ExpressionHandler.MAPPING[self.current_message]
+        return ExpressionHandler.MAPPING.get(self.current_message, self.current_message)
