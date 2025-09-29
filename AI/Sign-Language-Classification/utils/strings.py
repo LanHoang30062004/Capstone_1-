@@ -2,7 +2,6 @@ class ExpressionHandler:
     MAPPING = {
         "bình_thường": "Ngồi yên",
         "cảm_ơn": "Cảm ơn",
-        "cảm_ơn": "Cảm ơn",
         "xin_chào": "Xin chào",
         "yêu": "Yêu",
         "không": "Không",
@@ -26,7 +25,6 @@ class ExpressionHandler:
         "r": "r",
         "u": "u",
         "v": "v",
-        "ngay_phu_nu_vn": "Ngày phụ nữ Việt Nam 20/10",
         "ngay_thuong_binh_lietsi": "ngày thương bình liệt sĩ 27/7",
         "ngay_gio_to_hungvuong": "ngày giỗ tổ Hùng Vương (âm lịch 10/3)",
         "ngay_ngon_ngu_ki_hieu_quocte": "ngày Ngôn ngữ kí hiệu Quốc tế 23/9",
@@ -89,7 +87,7 @@ class ExpressionHandler:
         self.gesture_start_frame = 0
         self.min_frames_per_gesture = min_frames_per_gesture
         self.similarity_threshold = similarity_threshold
-        self.sequence = []  # Chuỗi cử chỉ đã nhận diện
+        self.sequence = []  # Chuỗi cử chỉ đã nhận diện (đã mapped)
 
     def receive(self, prediction):
         # Chuyển đổi prediction thành dạng chuẩn (lowercase) để so sánh
@@ -108,41 +106,58 @@ class ExpressionHandler:
                 and len(self.predictions) - self.gesture_start_frame
                 >= self.min_frames_per_gesture
             ):
+                # LUÔN mapping từ key sang value trước khi thêm vào sequence
                 mapped_gesture = self.MAPPING.get(
                     self.current_gesture, self.current_gesture
                 )
-
                 self.sequence.append(mapped_gesture)
 
             self.current_gesture = normalized_prediction
             self.gesture_start_frame = len(self.predictions)
 
     def get_sequence(self):
-        # Thêm cử chỉ cuối cùng nếu tồn tại đủ lâu (đã mapped)
+        # Thêm cử chỉ cuối cùng nếu tồn tại đủ lâu
         if (
             self.current_gesture
             and len(self.predictions) - self.gesture_start_frame
             >= self.min_frames_per_gesture
         ):
+            # LUÔN mapping từ key sang value
             mapped_gesture = self.MAPPING.get(
                 self.current_gesture, self.current_gesture
             )
             self.sequence.append(mapped_gesture)
 
-        # Loại bỏ cử chỉ trùng lặp liên tiếp và thêm khoảng trắng giữa các từ
-        cleaned_sequence = []
-        for gesture in self.sequence:
-            if not cleaned_sequence or gesture != cleaned_sequence[-1]:
-                # Thêm khoảng trắng nếu là từ mới (không phải ký tự đơn)
-                if (
-                    cleaned_sequence
-                    and len(gesture) > 1
-                    and len(cleaned_sequence[-1]) > 1
-                ):
-                    cleaned_sequence.append(" ")
-                cleaned_sequence.append(gesture)
+        if not self.sequence:
+            return ""
 
-        return "".join(cleaned_sequence)
+        # Loại bỏ trùng lặp liên tiếp
+        unique_sequence = []
+        for gesture in self.sequence:
+            if not unique_sequence or gesture != unique_sequence[-1]:
+                unique_sequence.append(gesture)
+
+        # Nhóm ký tự đơn và từ
+        result_parts = []
+        current_chars = []  # Các ký tự đơn đang ghép
+
+        for gesture in unique_sequence:
+            # Xử lý ký tự đơn (A-Z, 0-9, v.v.)
+            if len(gesture) == 1 and gesture.isalnum():
+                current_chars.append(gesture)
+            else:  # Từ đa ký tự hoặc ký tự đặc biệt
+                # Ghép các ký tự đơn trước đó thành từ
+                if current_chars:
+                    result_parts.append("".join(current_chars))
+                    current_chars = []
+                # Thêm từ đa ký tự
+                result_parts.append(gesture)
+
+        # Thêm phần còn lại
+        if current_chars:
+            result_parts.append("".join(current_chars))
+
+        return ", ".join(result_parts)
 
     def get_message(self):
         sequence = self.get_sequence()

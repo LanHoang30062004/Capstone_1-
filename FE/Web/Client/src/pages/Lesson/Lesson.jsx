@@ -38,8 +38,6 @@ const Lesson = () => {
     fetchFlashCard(searchObject);
   }, [searchParams]);
 
-  console.log(flashCards);
-
   return (
     <>
       <section className="lesson mt">

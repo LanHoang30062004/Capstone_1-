@@ -1,5 +1,4 @@
 import LayoutDefault from "~/components/LayoutDefault/LayoutDefault";
-import Test1 from "~/components/WebcamVideo/Test1";
 import Auth from "~/pages/Auth/Auth";
 import ForgotPassword from "~/pages/ForgotPassword/ForgotPassword";
 import Login from "~/pages/Auth/Login";
@@ -11,7 +10,6 @@ import LessonContent from "~/pages/Lesson/LessonContent";
 import Practise from "~/pages/Practise/Practise";
 import PractiseDetail from "~/pages/Practise/PractiseDetail";
 import Test from "~/pages/Practise/Test";
-
 import SignLanguage from "~/pages/SignLanguage/SignLanguage";
 import SendOtp from "~/pages/ForgotPassword/SendOtp";
 import FlashCard from "~/pages/Lesson/FlashCard";
@@ -109,11 +107,6 @@ const routes = [
         element: <ResetPassword />,
       },
     ],
-  },
-
-  {
-    path: "/test",
-    element: <Test1 />,
   },
 ];
 

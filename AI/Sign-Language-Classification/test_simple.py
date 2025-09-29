@@ -16,10 +16,12 @@ from pydantic import BaseModel
 from pydantic import BaseModel
 from typing import List, Optional
 from utils.conversion import convert_to_mp_face_results, convert_to_mp_hand_results
+from split_video import split_video_ffmpeg
 
 
 # Import utils
 from utils.feature_extraction import extract_features
+from utils.feature_extraction_api import extract_features_api
 from utils.strings import ExpressionHandler
 from utils.model import ASLClassificationModel
 from config import (
@@ -28,6 +30,7 @@ from config import (
     MAX_PROCESSING_TIME,
     TARGET_FPS,
     MIN_FRAME_COUNT,
+    MAX_CONCURRENT_VIDEOS,
 )
 
 # Initialize logging
@@ -81,13 +84,6 @@ except Exception as e:
     logger.error(f"❌ Error loading model: {e}")
     traceback.print_exc()
 
-    # Fallback to dummy model
-    class DummyModel:
-        def predict(self, feature):
-            return "A"  # Default prediction
-
-    model = DummyModel()
-
 
 @app.get("/")
 def read_root():
@@ -98,51 +94,103 @@ def read_root():
 async def process_video(
     background_tasks: BackgroundTasks, file: UploadFile = File(...)
 ):
-    """Process video and return ASL prediction"""
+    """Process single video: split into 5s chunks, process each, return results"""
     try:
-        # Validate file type
+        # Validate input
+        if not file:
+            raise HTTPException(400, "No file provided")
         if not file.content_type.startswith("video/"):
-            raise HTTPException(400, "Invalid file format. Please upload a video file.")
+            raise HTTPException(
+                400,
+                f"Invalid file format for {file.filename}. Please upload video file only.",
+            )
 
         # Save uploaded video to temporary file
+        temp_files = []
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
             content = await file.read()
             tmp_file.write(content)
             tmp_file_path = tmp_file.name
+            temp_files.append(tmp_file_path)
 
-        # Process the video in background with timeout
-        try:
-            # Use thread pool for CPU-intensive task
-            loop = asyncio.get_event_loop()
-            results = await asyncio.wait_for(
-                loop.run_in_executor(thread_pool, process_video_file, tmp_file_path),
-                timeout=MAX_PROCESSING_TIME,
-            )
-        except asyncio.TimeoutError:
-            raise HTTPException(408, "Video processing timeout")
-        finally:
-            # Clean up in background
+        # Split video into 5s chunks
+        chunk_folder = tempfile.mkdtemp()
+        chunks = split_video_ffmpeg(tmp_file_path, chunk_folder, chunk_length=5)
+        temp_files.extend(chunks)  # track for cleanup
+
+        results = []
+        combined_sequence = []
+        combined_details = {
+            "total_processing_time": 0,
+            "total_frames_processed": 0,
+            "total_original_duration": 0,
+            "chunks_processed": 0,
+        }
+
+        # Process each chunk
+        loop = asyncio.get_event_loop()
+        for chunk in chunks:
+            try:
+                video_result = await asyncio.wait_for(
+                    loop.run_in_executor(thread_pool, process_video_file, chunk),
+                    timeout=MAX_PROCESSING_TIME,
+                )
+
+                results.append(
+                    {
+                        "chunk": os.path.basename(chunk),
+                        "sequence": video_result["sequence"],
+                        "processing_time": video_result["processing_time"],
+                        "frames_processed": video_result["frames_processed"],
+                        "original_duration": video_result["original_duration"],
+                        "original_fps": video_result["original_fps"],
+                    }
+                )
+
+                # Update combined
+                combined_sequence.append(video_result["sequence"])
+                combined_details["total_processing_time"] += float(
+                    video_result["processing_time"].replace("s", "")
+                )
+                combined_details["total_frames_processed"] += video_result[
+                    "frames_processed"
+                ]
+                combined_details["total_original_duration"] += float(
+                    video_result["original_duration"].replace("s", "")
+                )
+                combined_details["chunks_processed"] += 1
+
+            except asyncio.TimeoutError:
+                results.append(
+                    {
+                        "chunk": os.path.basename(chunk),
+                        "error": "Processing timeout",
+                        "sequence": "",
+                    }
+                )
+            except Exception as e:
+                results.append(
+                    {"chunk": os.path.basename(chunk), "error": str(e), "sequence": ""}
+                )
+
+        # Cleanup all temporary files
+        for tmp_file_path in temp_files:
             background_tasks.add_task(cleanup_file, tmp_file_path)
 
+        # Return response
         return JSONResponse(
             content={
                 "success": True,
-                "recognized_sequence": results["sequence"],
-                "details": {
-                    "processing_time": results["processing_time"],
-                    "frames_processed": results["frames_processed"],
-                    "original_duration": results["original_duration"],
-                    "original_fps": results["original_fps"],
-                    "raw_predictions": results["raw_predictions"],  # For debugging
-                },
+                "recognized_sequence": ", ".join(combined_sequence),
+                "results": results,
             }
         )
 
     except Exception as e:
-        # Clean up on error
-        if "tmp_file_path" in locals() and os.path.exists(tmp_file_path):
-            background_tasks.add_task(cleanup_file, tmp_file_path)
-        logger.error(f"Error processing video: {str(e)}")
+        if "temp_files" in locals():
+            for tmp_file_path in temp_files:
+                if os.path.exists(tmp_file_path):
+                    background_tasks.add_task(cleanup_file, tmp_file_path)
         raise HTTPException(500, f"Error processing video: {str(e)}")
 
 
@@ -177,7 +225,7 @@ def process_video_file(video_path: str) -> Dict[str, Any]:
     )
 
     # Sử dụng ExpressionHandler mới với thời gian tối thiểu cho mỗi cử chỉ
-    expression_handler = ExpressionHandler(min_frames_per_gesture=2)
+    expression_handler = ExpressionHandler(min_frames_per_gesture=3)
     processed_frames = 0
 
     try:
@@ -282,40 +330,208 @@ def process_video_file(video_path: str) -> Dict[str, Any]:
         hands.close()
 
 
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy", "model_loaded": not isinstance(model, DummyModel)}
-
-
 @app.post("/predict")
 async def predict(request: PredictionRequest):
     try:
-        # Tái tạo cấu trúc MediaPipe results
-        face_results = convert_to_mp_face_results(request.face_landmarks)
-        hand_results = convert_to_mp_hand_results(request.hand_landmarks)
+        # Validate input
+        if not request.word or not request.word.strip():
+            return {"accuracy": 0.0, "message": "Word is required", "success": False}
+
+        # Validate: Face có thể rỗng, nhưng không được rỗng cả 2 tay
+        if not request.hand_landmarks or len(request.hand_landmarks) == 0:
+            return {
+                "accuracy": 0.0,
+                "message": "At least one hand must be provided",
+                "success": False,
+            }
+
+        # Validate landmarks structure
+        try:
+            face_results = (
+                convert_to_mp_face_results(request.face_landmarks)
+                if request.face_landmarks
+                else convert_to_mp_face_results([])
+            )
+            hand_results = convert_to_mp_hand_results(request.hand_landmarks)
+        except Exception as e:
+            return {
+                "accuracy": 0.0,
+                "message": f"Invalid landmarks format: {str(e)}",
+                "success": False,
+            }
 
         # Trích xuất features
-        feature = extract_features(mp_hands, face_results, hand_results)
-        if feature is None:
-            return {"accuracy": 0.0, "message": "No face/hands detected"}
+        try:
+            feature = extract_features_api(mp_hands, face_results, hand_results)
+            if feature is None or (hasattr(feature, "size") and feature.size == 0):
+                return {
+                    "accuracy": 0.0,
+                    "message": "No detectable features from landmarks",
+                    "success": False,
+                }
+
+            # Đảm bảo feature có shape phù hợp
+            if len(feature.shape) == 1:
+                feature = feature.reshape(1, -1)
+
+        except Exception as e:
+            return {
+                "accuracy": 0.0,
+                "message": f"Feature extraction error: {str(e)}",
+                "success": False,
+            }
 
         # Dự đoán
-        prediction = model.predict(feature)
-        predicted_word = prediction.lower().strip()
+        try:
+            prediction = model.predict(feature)
 
-        # Tính accuracy
-        accuracy = 1.0 if request.word.lower() == predicted_word else 0.0
+            if prediction is None or len(prediction) == 0:
+                return {
+                    "accuracy": 0.0,
+                    "message": "Model prediction failed",
+                    "success": False,
+                }
+
+            # Lấy predicted word và map với ExpressionHandler
+            raw_predicted = str(prediction[0]).lower().strip()
+
+            # Tìm predicted word trong mapping (ưu tiên khớp exact)
+            predicted_word = raw_predicted
+            if raw_predicted in ExpressionHandler.MAPPING:
+                predicted_word = ExpressionHandler.MAPPING[raw_predicted]
+            else:
+                # Tìm ngược: nếu giá trị mapping khớp với raw_predicted
+                for key, value in ExpressionHandler.MAPPING.items():
+                    if value.lower() == raw_predicted:
+                        predicted_word = value
+                        raw_predicted = key  # Dùng key để so sánh accuracy
+                        break
+
+        except Exception as e:
+            return {
+                "accuracy": 0.0,
+                "message": f"Prediction error: {str(e)}",
+                "success": False,
+            }
+
+        # Tính accuracy với mapping support
+        target_word = request.word.lower().strip()
+        accuracy = calculate_gesture_accuracy(
+            target_word, raw_predicted, predicted_word
+        )
 
         return {
             "input_word": request.word,
             "predicted_word": predicted_word,
+            "raw_predicted": raw_predicted,  # For debugging
             "accuracy": accuracy,
+            "confidence": get_prediction_confidence(model, feature),
             "success": True,
         }
 
     except Exception as e:
-        return {"error": str(e), "success": False}
+        logger.error(f"Predict error: {str(e)}")
+        return {"error": str(e), "success": False, "accuracy": 0.0}
+
+
+def calculate_gesture_accuracy(
+    target_word: str, raw_predicted: str, predicted_display: str
+) -> float:
+    """Tính độ chính xác với support mapping từ ExpressionHandler"""
+
+    # Chuẩn hóa
+    target_normalized = target_word.lower().strip()
+    raw_predicted_normalized = raw_predicted.lower().strip()
+
+    # 1. Trùng khớp trực tiếp
+    if target_normalized == raw_predicted_normalized:
+        return 1.0
+
+    # 2. Kiểm tra trong mapping (target là key)
+    if target_normalized in ExpressionHandler.MAPPING:
+        mapped_value = ExpressionHandler.MAPPING[target_normalized].lower()
+        # So sánh predicted với mapped value
+        if raw_predicted_normalized == mapped_value:
+            return 1.0
+
+        # So sánh similarity với mapped value
+        similarity_to_mapped = calculate_similarity(
+            raw_predicted_normalized, mapped_value
+        )
+        if similarity_to_mapped >= 0.9:
+            return 0.9
+
+    # 3. Kiểm tra ngược (target là value trong mapping)
+    for key, value in ExpressionHandler.MAPPING.items():
+        if value.lower() == target_normalized:
+            # So sánh predicted với key
+            if raw_predicted_normalized == key.lower():
+                return 1.0
+
+            # So sánh similarity với key
+            similarity_to_key = calculate_similarity(
+                raw_predicted_normalized, key.lower()
+            )
+            if similarity_to_key >= 0.9:
+                return 0.9
+            break
+
+    # 4. So sánh similarity trực tiếp
+    similarity = calculate_similarity(target_normalized, raw_predicted_normalized)
+
+    # 5. Ngưỡng chấp nhận cao hơn cho gesture recognition
+    if similarity >= 0.9:  # 90% trùng khớp
+        return 0.9
+    elif similarity >= 0.7:  # 70% trùng khớp
+        return 0.7
+    elif similarity >= 0.5:  # 50% trùng khớp
+        return 0.5
+    else:
+        return 0.0
+
+
+def calculate_similarity(word1: str, word2: str) -> float:
+    """Tính độ tương đồng giữa 2 từ"""
+    from difflib import SequenceMatcher
+
+    # Chuẩn hóa: thay thế khoảng trắng bằng gạch dưới để so sánh tốt hơn
+    word1_clean = word1.replace(" ", "_").replace("-", "_")
+    word2_clean = word2.replace(" ", "_").replace("-", "_")
+
+    return SequenceMatcher(None, word1_clean, word2_clean).ratio()
+
+
+# FIX: Sửa hàm get_prediction_confidence
+def get_prediction_confidence(model, feature) -> float:
+    """Lấy confidence score từ model (nếu supported)"""
+    try:
+        # Đảm bảo feature có shape phù hợp
+        if len(feature.shape) == 1:
+            feature = feature.reshape(1, -1)
+
+        # Thử lấy probability
+        if hasattr(model, "predict_proba"):
+            proba = model.predict_proba(feature)
+            if proba.size > 0:
+                return float(np.max(proba[0]))
+        elif hasattr(model, "decision_function"):
+            decision = model.decision_function(feature)
+            if decision.size > 0:
+                return float(np.max(decision[0]))
+    except Exception as e:
+        logger.error(f"Confidence score error: {str(e)}")
+        # Trả về confidence dựa trên accuracy nếu có lỗi
+        return 0.5
+
+    return 0.5  # Default confidence
+
+
+def calculate_similarity(word1: str, word2: str) -> float:
+    """Tính độ tương đồng giữa 2 từ"""
+    # Sử dụng sequence matching đơn giản
+    from difflib import SequenceMatcher
+
+    return SequenceMatcher(None, word1, word2).ratio()
 
 
 if __name__ == "__main__":

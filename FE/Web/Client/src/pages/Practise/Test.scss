@@ -35,7 +35,7 @@
       max-width: 650px;
       height: auto;
 
-      img {
+      video {
         width: 100%;
         height: 100%;
       }
@@ -43,6 +43,10 @@
   }
 
   &__navigator {
+    position: sticky;
+    right: 0;
+    top: 120px;
+
     &--title {
       margin-bottom: 10px;
     }
