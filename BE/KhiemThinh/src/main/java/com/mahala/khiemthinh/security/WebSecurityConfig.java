@@ -94,7 +94,8 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, path + "/translate/**").hasAnyRole("ADMIN", "USER")
 
 
-
+                        // login with Google
+                        .requestMatchers(HttpMethod.POST, path + "/auth/google").permitAll()
 
 
                         .anyRequest().authenticated()

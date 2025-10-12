@@ -14,6 +14,10 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 20MB
+  data:
+    google:
+      client:
+        id: ${GOOGLE_CLIENT_ID}
 
 api:
   prefix: /api/v1
