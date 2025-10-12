@@ -5,7 +5,7 @@ import 'changePassword.dart';
 import 'forgetPasswordMainPage.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'dart:io' show File; // Cho mobile
-
+import 'fileConfiguration.dart';
 
 class OtpScreen extends StatefulWidget {
   final String email;
@@ -37,7 +37,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse("http://localhost:8080/api/v1/password/check"),
+        Uri.parse("http://"+Fileconfiguration.ip+":8080/api/v1/password/check"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "code": otp,
@@ -53,13 +53,15 @@ class _OtpScreenState extends State<OtpScreen> {
         final data = jsonDecode(response.body);
 
         if (data["data"] == true) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ChangePasswordScreen(email: widget.email, otp: otp),
-            ),
-          );
+          Future.delayed(Duration.zero, () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ChangePasswordScreen(email: widget.email, otp: otp),
+              ),
+            );
+          });
         } else {
           setState(() {
             _otpError = "OTP sai, vui lòng kiểm tra lại";
@@ -135,16 +137,16 @@ class _OtpScreenState extends State<OtpScreen> {
                 keyboardType: TextInputType.number,
                 animationType: AnimationType.fade,
                 cursorColor: Colors.black,
-                obscureText: true, 
-                obscuringCharacter: "*", 
+                obscureText: true,
+                obscuringCharacter: "*",
                 pinTheme: PinTheme(
                   shape: PinCodeFieldShape.box,
                   borderRadius: BorderRadius.circular(8),
                   fieldHeight: 50,
                   fieldWidth: 45,
-                  inactiveColor: Colors.grey, 
-                  activeColor: Colors.teal, 
-                  selectedColor: Colors.blue, 
+                  inactiveColor: Colors.grey,
+                  activeColor: Colors.teal,
+                  selectedColor: Colors.blue,
                   activeFillColor: Colors.white,
                   inactiveFillColor: Colors.white,
                   selectedFillColor: Colors.white,
@@ -173,7 +175,7 @@ class _OtpScreenState extends State<OtpScreen> {
               const SizedBox(height: 15),
 
               const Text(
-                "Chúng tôi đã gửi mã đến Email của bạn, vui lòng kiểm tra Email \n Quá trình gửi sẽ mất 1-3 phút",
+                "Chúng tôi đã gửi mã đến Email của bạn, vui lòng kiểm tra Email \nQuá trình gửi sẽ mất 1-3 phút",
                 style: TextStyle(color: Colors.black, fontSize: 14),
               ),
 

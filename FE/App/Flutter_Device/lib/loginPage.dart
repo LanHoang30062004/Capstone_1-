@@ -5,6 +5,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'registerPage.dart';
 import 'introductionApp.dart';
+import 'searchSign.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'fileConfiguration.dart';
+import 'package:app_links/app_links.dart';
+
+import 'package:url_launcher/url_launcher.dart';
+
+import 'dart:async';
+
+
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    const String baseUrl = "http://192.168.1.9:8080/api/v1/user";
+     final String baseUrl = "http://"+Fileconfiguration.ip+":8080/api/v1/user";
 
     setState(() {
       _emailError = null;
@@ -62,15 +74,16 @@ class _LoginScreenState extends State<LoginScreen> {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString("token", token);
           await prefs.setString("email", email);
+          print("dang nhap ok");
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const introductionApp()),
+            MaterialPageRoute(builder: (context) => SearchSignScreen(token: token)),
           );
         } else {
           setState(() => _loginError = "Không lấy được token từ server");
         }
       } else {
-        setState(() => _loginError = body["message"] ?? "Email hoặc mật khẩu không đúng");
+        setState(() => _loginError =   "Email hoặc mật khẩu không đúng" ?? body["message"]);
       }
     } catch (e) {
       setState(() => _loginError = "Không thể kết nối đến server");
@@ -79,24 +92,55 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Future<void> _signInWithGoogle() async {
-  //   setState(() => _isLoading = true);
-  //   try {
-  //     final googleUser = await GoogleSignIn().signIn();
-  //     if (googleUser != null) {
-  //       final googleAuth = await googleUser.authentication;
-  //       print("Google AccessToken: ${googleAuth.accessToken}");
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(builder: (context) => const introductionApp()),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     setState(() => _loginError = "Đăng nhập Google thất bại");
-  //   } finally {
-  //     setState(() => _isLoading = false);
-  //   }
-  // }
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+      _loginError = null;
+    });
+
+    final String oauthUrl =
+      "http://192.168.1.7:8080/oauth2/authorization/google?state=app";
+
+    final appLinks = AppLinks();
+    StreamSubscription<Uri>? sub;
+
+    try {
+      sub = appLinks.uriLinkStream.listen((Uri uri) async {
+        print("📩 Deep link nhận được: $uri");
+
+        if (uri.scheme == 'myapp' && uri.host == 'callback') {
+          final token = uri.queryParameters['token'];
+          if (token != null && token.isNotEmpty) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString("token", token);
+            print("✅ Đăng nhập thành công, token: $token");
+
+            if (!mounted) return;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => SearchSignScreen(token: token)),
+            );
+          } else {
+            setState(() => _loginError = "Không nhận được token từ server");
+          }
+        }
+      });
+
+      final Uri url = Uri.parse(oauthUrl);
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw Exception('Không thể mở trình duyệt để đăng nhập');
+      }
+    } catch (e) {
+      print("❌ Lỗi đăng nhập Google: $e");
+      setState(() => _loginError = "Đăng nhập Google thất bại: $e");
+    } finally {
+      // Không cancel quá sớm, chỉ cancel khi rời khỏi màn hình hoặc timeout
+      Future.delayed(const Duration(seconds: 30), () {
+        sub?.cancel();
+      });
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // dang nhap voi goggle
-                  _socialButton("assets/img/google.png", onTap: (){}),
+                  _socialButton("assets/img/google.png", onTap: _signInWithGoogle),
                   const SizedBox(width: 16),
                   _socialButton("assets/img/facebook.png", onTap: () {}),
                   const SizedBox(width: 16),
@@ -247,5 +291,16 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Center(child: Image.asset(imagePath, width: 24, height: 24)),
       ),
     );
+  }
+}
+class GoogleAuthService {
+  final String backendGoogleLoginUrl = "http://"+Fileconfiguration.ip+"8080/api/v1/oauth2/google";
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  /// Đăng nhập với Google
+  
+  /// Lấy JWT token từ storage
+  Future<String?> getToken() async {
+    return await _storage.read(key: "jwt_token");
   }
 }
