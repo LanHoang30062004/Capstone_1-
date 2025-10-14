@@ -17,7 +17,8 @@ const EditWord = (props) => {
     if (fileUrl) value.videoUrl = fileUrl;
     else value.videoUrl = word.videoUrl;
 
-    value.userId = 1;
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    value.userId = userInfo.id;
 
     try {
       toggleLoading(true);

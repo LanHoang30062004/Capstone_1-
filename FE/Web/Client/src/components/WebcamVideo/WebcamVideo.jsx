@@ -158,7 +158,7 @@ const WebcamVideo = ({ word, setAccuracy }) => {
       setCapturing(false);
 
       const payload = {
-        word: word || "",
+        word: word | "",
         face_landmarks: (faceRef.current || []).map((lm) => ({
           x: lm.x,
           y: lm.y,
@@ -197,20 +197,6 @@ const WebcamVideo = ({ word, setAccuracy }) => {
               right: 0,
               textAlign: "center",
               zIndex: 9,
-              height: "auto",
-              width: "100%",
-            }}
-          />
-          <canvas
-            ref={canvasRef}
-            style={{
-              position: "absolute",
-              marginLeft: "auto",
-              marginRight: "auto",
-              left: 0,
-              right: 0,
-              textAlign: "center",
-              zIndex: 10,
               height: "auto",
               width: "100%",
             }}

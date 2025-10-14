@@ -11,7 +11,7 @@ const instance = axios.create({
 // Add a request interceptor
 instance.interceptors.request.use(function (config) {
   // Do something before request is sent
-  const accessToken = localStorage.getItem("accessToken");
+  const accessToken = localStorage.getItem("adminAccessToken");
 
 
   if (accessToken) {
