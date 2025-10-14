@@ -1,7 +1,9 @@
 package com.mahala.khiemthinh.controller;
 
 import com.mahala.khiemthinh.dto.response.ResponseData;
+import com.mahala.khiemthinh.model.Role;
 import com.mahala.khiemthinh.model.User;
+import com.mahala.khiemthinh.repository.RoleRepository;
 import com.mahala.khiemthinh.repository.UserRepository;
 import com.mahala.khiemthinh.service.GoogleTokenValidator;
 import com.mahala.khiemthinh.util.JWTToken;
@@ -22,15 +24,16 @@ public class AuthController {
     private final GoogleTokenValidator googleTokenValidator;
     private final UserRepository userRepository;
     private final JWTToken jwtToken;
+    private final RoleRepository roleRepository;
 
     @PostMapping("/google")
     public ResponseData<?> googleLogin(@RequestParam String token) {
         var payload = googleTokenValidator.verifyToken(token);
-
         if (payload != null) {
             String email = payload.getEmail();
+            Role role = this.roleRepository.findById(1L).get() ;
             User user = userRepository.findByEmail(email)
-                    .orElseGet(() -> userRepository.save(User.builder().email(email).build()));
+                    .orElseGet(() -> userRepository.save(User.builder().email(email).role(role).build()));
             String jwt = jwtToken.generateToken(user);
             return new ResponseData<>(HttpStatus.OK.value(), "Oauth2 with google successful", jwt);
         } else {
