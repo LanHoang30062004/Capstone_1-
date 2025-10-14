@@ -19,7 +19,7 @@ const AddAccount = (props) => {
       toggleLoading(true);
       value.dateOfBirth = dayjs(value.dateOfBirth).format("YYYY-MM-DD");
       await dispatch(fetchAccountAddAdmin(value));
-      toast.success("Thêm thành công!");
+      
     } catch (error) {
       toast.error(error);
     } finally {
