@@ -1,6 +1,9 @@
-import { Button, Card, Flex, Select, Tag } from "antd";
+import { Button, Card, Flex, Form, Select, Tag } from "antd";
+import { useEffect, useState } from "react";
 import { MdAccessTime } from "react-icons/md";
 import { MdOutlineQuiz } from "react-icons/md";
+import { useNavigate, useParams } from "react-router-dom";
+import * as topicService from "~/service/topicService";
 
 const options = Array.from({ length: 12 }, (_, i) => {
   const value = (i + 1) * 5;
@@ -11,6 +14,25 @@ const options = Array.from({ length: 12 }, (_, i) => {
 });
 
 const PractiseDetail = () => {
+  const { id } = useParams();
+  const [topic, setTopic] = useState(null);
+  const navigate = useNavigate();
+
+  const handleSubmit = (value) => {
+    navigate(`/test/${id}?time_limit=${value.time}`);
+    localStorage.setItem("time_limit", Date.now() + value.time * 60 * 1000);
+  };
+
+  useEffect(() => {
+    const fetchDetailTopic = async () => {
+      const response = await topicService.getDetailTopic(id);
+
+      setTopic(response);
+    };
+
+    fetchDetailTopic();
+  }, []);
+
   return (
     <>
       <section className="practise-detail mt">
@@ -18,10 +40,6 @@ const PractiseDetail = () => {
           <div className="practise-detail__inner">
             <Card className="practise-detail__card">
               <Flex vertical gap={20}>
-                <div className="practise-detail__tag">
-                  <Tag color="cyan">Động vật</Tag>'
-                </div>
-
                 <h2 className="practise-detail__title">Động vật</h2>
 
                 <div className="practise-detail__btn btn">
@@ -31,7 +49,8 @@ const PractiseDetail = () => {
                 <div className="practise-detail__info">
                   <div className="practise-detail__info">
                     <MdAccessTime className="practise-detail__info--icon" />{" "}
-                    Thời gian làm bài: 15 phút | 30 câu hỏi
+                    Thời gian làm bài: {topic?.durationMinutes} phút |{" "}
+                    {topic?.numberOfQuestion} câu hỏi
                   </div>
 
                   <div>
@@ -40,17 +59,17 @@ const PractiseDetail = () => {
                   </div>
                 </div>
 
-                <div className="practise-detail__time">
-                  <Select
-                    className="full-width"
-                    defaultValue={5}
-                    options={options}
-                  ></Select>
-                </div>
+                <Form onFinish={handleSubmit}>
+                  <Form.Item name="time" initialValue={5}>
+                    <Select className="full-width" options={options} />
+                  </Form.Item>
 
-                <div>
-                  <Button type="primary">Luyện tập</Button>
-                </div>
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit">
+                      Luyện tập
+                    </Button>
+                  </Form.Item>
+                </Form>
               </Flex>
             </Card>
           </div>

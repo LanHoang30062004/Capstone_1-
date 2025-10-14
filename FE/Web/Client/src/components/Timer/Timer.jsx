@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const Timer = ({ duration, type }) => {
-  const [time, setTime] = useState(duration);
+  const timeLocal = parseInt(localStorage.getItem("time_limit")) - Date.now();
+  const [time, setTime] = useState(timeLocal || duration);
+
   useEffect(() => {
     let timer;
 

@@ -1,6 +1,5 @@
 import cv2
 import mediapipe as mp
-import argparse
 import numpy as np
 
 from utils.feature_extraction import *

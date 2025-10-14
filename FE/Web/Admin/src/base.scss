@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lexend:wght@100..900&display=swap');
+
+:root {
+  --bg-green-dark: #49BBBD;
+  --bg-green-normal: #33EFA0;
+  --bg-green-light-one: rgba(255, 255, 255, 0.30);
+  --bg-green-light-two: rgba(73, 187, 189, 0.60);
+  --color-blue-dark: #2F327D;
+  --color-blue-normal: #23BDEE;
+  --color-blue-light: #9DCCFF;
+  --color-gray-one: #696984;
+  --color-white: #fff;
+  --color-green: #00CBB8;
+  --color-gray-two: #5B5B5B;
+  --color-gray-three: #B2B3CF;
+  --color-black-one: #000;
+  --color-black-two: #252641;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+.contain {
+  padding: 0 30px;
+}
+
+/* Table */
+.table {
+  overflow: auto;
+  margin-bottom: 20px;
+}
+
+.table__icon {
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+/* End Table */
+
+/* Input */
+.input {
+  width: 100%;
+}
+
+.input-otp {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* End Input */
+
+/* Modal */
+.modal__title {
+  text-align: center;
+  font-size: 4rem;
+  font-weight: 700;
+}
+
+.modal__label {
+  font-weight: 700;
+}
+
+a {
+  color: #000000;
+}
+
+/* End Modal */
+
+.none {
+  display: none;
+}

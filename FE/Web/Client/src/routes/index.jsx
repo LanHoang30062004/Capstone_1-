@@ -1,6 +1,6 @@
 import LayoutDefault from "~/components/LayoutDefault/LayoutDefault";
-import Test1 from "~/components/WebcamVideo/Test1";
 import Auth from "~/pages/Auth/Auth";
+import ForgotPassword from "~/pages/ForgotPassword/ForgotPassword";
 import Login from "~/pages/Auth/Login";
 import Register from "~/pages/Auth/Register";
 import Dictionary from "~/pages/Dictionary/Dictionary";
@@ -10,8 +10,12 @@ import LessonContent from "~/pages/Lesson/LessonContent";
 import Practise from "~/pages/Practise/Practise";
 import PractiseDetail from "~/pages/Practise/PractiseDetail";
 import Test from "~/pages/Practise/Test";
-
 import SignLanguage from "~/pages/SignLanguage/SignLanguage";
+import SendOtp from "~/pages/ForgotPassword/SendOtp";
+import FlashCard from "~/pages/Lesson/FlashCard";
+import CheckOtp from "~/pages/ForgotPassword/CheckOtp";
+import ResetPassword from "~/pages/ForgotPassword/ResetPassword";
+import LoginGoogle from "~/pages/Auth/LoginGoogle";
 
 const routes = [
   {
@@ -57,6 +61,11 @@ const routes = [
         path: "/test/:id",
         element: <Test />,
       },
+
+      {
+        path: "/flashcard/:id",
+        element: <FlashCard />,
+      },
     ],
   },
   {
@@ -72,12 +81,32 @@ const routes = [
         path: "/register",
         element: <Register />,
       },
+
+      {
+        path: "/callback",
+        element: <LoginGoogle />,
+      },
     ],
   },
 
   {
-    path: "/test",
-    element: <Test1 />,
+    path: "/",
+    element: <ForgotPassword />,
+    children: [
+      {
+        path: "/forgot-pass",
+        element: <SendOtp />,
+      },
+
+      {
+        path: "/check-pass/:email",
+        element: <CheckOtp />,
+      },
+      {
+        path: "/reset-password/:email/:code",
+        element: <ResetPassword />,
+      },
+    ],
   },
 ];
 

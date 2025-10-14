@@ -1,10 +1,12 @@
 import { Button, Card, Flex, Modal, Progress } from "antd";
 import "./LessonAnalyze.scss";
 import WebcamVideo from "~/components/WebcamVideo/WebcamVideo";
-import UserPose from "~/components/WebcamVideo/UserPose";
+import { useState } from "react";
 const { Meta } = Card;
 
-const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze }) => {
+const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze, word }) => {
+  const [accuracy, setAccuracy] = useState(0);
+
   return (
     <>
       <Modal
@@ -30,7 +32,7 @@ const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze }) => {
         <div className="lesson-analyze__body">
           <div className="lesson-analyze__grid">
             {/* <WebcamVideo /> */}
-            <UserPose />
+            <WebcamVideo setAccuracy={setAccuracy} word={word} />
 
             <div className="lesson-analyze__instruct">
               <div className="lesson-analyze__instruct--title">
@@ -57,10 +59,10 @@ const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze }) => {
                 <div className="lesson-analyze__result">
                   <Flex align="center" justify="space-between">
                     <p>Độ chính xác</p>
-                    <p>80%</p>
+                    <p>{accuracy * 100}%</p>
                   </Flex>
 
-                  <Progress percent={80} showInfo={false} />
+                  <Progress percent={accuracy * 100} showInfo={false} />
                 </div>
               </Card>
             </div>

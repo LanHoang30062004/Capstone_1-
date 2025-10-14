@@ -1,10 +1,20 @@
 import { Button, Form, Input } from "antd";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import * as userService from "~/service/userService";
 
 const Register = () => {
-  const handleSubmit = (value) => {
-    console.log(value);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (value) => {
+    const res = await userService.register(value);
+    if (res.status > 400) {
+      toast.error(res.message?.message || "Đăng ký thất bại!");
+    } else {
+      toast.success(res.message || "Đăng ký thành công!");
+      navigate("/login");
+    }
   };
 
   return (

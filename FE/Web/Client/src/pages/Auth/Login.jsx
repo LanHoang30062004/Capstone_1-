@@ -1,12 +1,28 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Divider } from "antd";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import * as userService from "~/service/userService";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = async (value) => {
+    const res = await userService.login(value);
+    if (res.status > 400) {
+      toast.error(res.message || "Đăng nhập thất bại!");
+    } else {
+      toast.success(res.message || "Đăng nhập thành công!");
+      localStorage.setItem("accessToken", res.data);
+      navigate("/");
+    }
+  };
+
   return (
     <>
       <div className="login">
-        <Form className="login__form" layout="vertical">
+        <Form className="login__form" layout="vertical" onFinish={handleLogin}>
           <Form.Item
             name="email"
             label="Email"
@@ -42,7 +58,9 @@ const Login = () => {
           </Form.Item>
 
           <Form.Item>
-            <Link className="login__forgot-pass">Quên mật khẩu?</Link>
+            <Link className="login__forgot-pass" to="/forgot-pass">
+              Quên mật khẩu?
+            </Link>
           </Form.Item>
 
           <Form.Item>
@@ -51,10 +69,20 @@ const Login = () => {
               size="large"
               shape="round"
               className="button__custome"
+              htmlType="submit"
             >
               Đăng nhập
             </Button>
           </Form.Item>
+
+          <Divider>Hoặc</Divider>
+
+          <a href="http://localhost:8080/oauth2/authorization/google?state=web">
+            <Button size="large" shape="round" className="google__login-button">
+              <FcGoogle style={{ fontSize: "3rem" }} />
+              Đăng nhập với Google
+            </Button>
+          </a>
         </Form>
       </div>
     </>

@@ -1,0 +1,132 @@
+.info-page-container {
+  padding: 24px 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.info-card {
+  background: var(--info-bg);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 900px;
+  box-shadow: 0 2px 16px 0 #00000022;
+  padding: 32px 24px 24px 24px;
+  transition: background 0.3s;
+}
+
+.info-card .ant-card-body {
+  background: transparent;
+  padding: 0;
+}
+
+.info-tabs {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+.info-tab {
+  font-size: 1.1rem;
+  color: var(--color-gray);
+  padding-bottom: 8px;
+  border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.info-tab.active {
+  color: var(--color-purple);
+  border-bottom: 2px solid var(--color-purple);
+  font-weight: 600;
+}
+.info-tab.disabled {
+  color: #bbb;
+  cursor: not-allowed;
+}
+
+.info-form .ant-form-item-label > label {
+  color: var(--color-gray);
+}
+.info-form .ant-input, .info-form .ant-select-selector, .info-form .ant-picker {
+  color: var(--info-input-color);
+  transition: background 0.3s, color 0.3s;
+}
+.info-form .ant-input::placeholder, .info-form .ant-select-selection-placeholder, .info-form .ant-picker-input > input::placeholder {
+  color: #666;
+}
+.info-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+.info-form-actions .ant-btn {
+  min-width: 60px;
+  height: 30px;
+}
+
+.info-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  gap: 16px;
+  position: relative;
+}
+
+.info-back-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 0;
+  font-size: 1rem;
+  order: -1;
+}
+
+.info-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.info-form-center {
+  margin: 0 auto;
+  max-width: 900px;
+}
+
+.info-avatar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  margin-top: 0;
+}
+
+.info-avatar {
+  margin-bottom: 8px;
+  background: #232135;
+}
+
+.info-upload-btn {
+  margin-top: 8px;
+  margin-bottom: 0;
+  width: 100%;
+  display: block;
+}
+
+/* Light/Dark mode variables */
+:root {
+  --info-bg: #fff;
+  --info-input-bg: #F6F6F7;
+  --info-input-color: #232135;
+}
+[data-theme='dark'] {
+  --info-bg: #181828;
+  --info-input-bg: #232135;
+  --info-input-color: #fff;
+}
+

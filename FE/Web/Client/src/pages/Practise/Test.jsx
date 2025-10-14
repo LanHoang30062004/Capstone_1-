@@ -2,35 +2,9 @@ import { Button, Card, Col, Flex, Radio, Row } from "antd";
 import Background from "~/assets/images/Bg1.png";
 import Timer from "~/components/Timer/Timer";
 import "./Test.scss";
-import { useState } from "react";
-
-const options = Array.from({ length: 12 }, (_, i) => {
-  return {
-    number: i + 1,
-    video: Background,
-    options: [
-      {
-        value: 1,
-        label: "B. Con chó",
-      },
-
-      {
-        value: 2,
-        label: "C. Con cừu",
-      },
-
-      {
-        value: 3,
-        label: "A. Con thỏ",
-      },
-
-      {
-        value: 4,
-        label: "D. Con lợn",
-      },
-    ],
-  };
-});
+import { useEffect, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import * as topicService from "~/service/topicService";
 
 const style = {
   display: "flex",
@@ -39,12 +13,45 @@ const style = {
 };
 
 const Test = () => {
-  const [answers, setAnswers] = useState({});
-  console.log(answers);
+  const answersLocal = JSON.parse(localStorage.getItem("answers"));
+  const [answers, setAnswers] = useState(answersLocal ? answersLocal : {});
+  const [topic, setTopic] = useState(null);
+  const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const handleSelect = (questionId, answer) => {
-    setAnswers({ ...answers, [questionId]: answer });
+    const newAnswers = { ...answers, [questionId]: answer };
+
+    setAnswers(newAnswers);
+    console.log(newAnswers);
+    localStorage.setItem("answers", JSON.stringify(newAnswers));
   };
+
+  const hanldeRedirect = (index) => {
+    const question = document.getElementById(`question-${index}`);
+    console.log(question);
+    question.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  useEffect(() => {
+    const fetchDetailTopic = async () => {
+      const response = await topicService.getDetailTopic(id);
+
+      setTopic(response);
+    };
+
+    fetchDetailTopic();
+
+    return () => {
+      const timeLocal =
+        parseInt(localStorage.getItem("time_limit")) - Date.now();
+      if (timeLocal < 0) {
+        localStorage.removeItem("answers");
+        localStorage.removeItem("time_limit");
+      }
+    };
+  }, [id]);
 
   return (
     <>
@@ -52,7 +59,7 @@ const Test = () => {
         <div className="container">
           <div className="test__inner">
             <div className="test__head">
-              <h2 className="test__title">Động vật</h2>
+              <h2 className="test__title">{topic?.content}</h2>
               <Button type="primary">Thoát</Button>
             </div>
 
@@ -60,26 +67,31 @@ const Test = () => {
               <Col lg={18} md={16} sm={24} xs={24}>
                 <div className="test__left">
                   <Card>
-                    {options.length > 0 &&
-                      options.map((item) => (
-                        <div className="test__question" key={item.number}>
+                    {topic?.questions?.length > 0 &&
+                      topic.questions.map((item, index) => (
+                        <div
+                          className="test__question"
+                          id={`question-${index + 1}`}
+                          key={index}
+                        >
                           <div className="test__question--number">
-                            {item.number}
+                            {index + 1}
                           </div>
 
                           <div className="test__question--video">
-                            <img src={item.video} alt="" />
+                            <video src={item.questionUrl} autoPlay loop />
                           </div>
 
                           <Radio.Group
                             style={style}
                             onChange={(e) =>
-                              handleSelect(item.number, e.target.value)
+                              handleSelect(index + 1, e.target.value)
                             }
+                            value={answers[index + 1]}
                           >
                             {item.options.map((option) => (
-                              <Radio key={option.value} value={option.value}>
-                                {option.label}
+                              <Radio key={option.option} value={option.option}>
+                                {option.option}
                               </Radio>
                             ))}
                           </Radio.Group>
@@ -108,15 +120,16 @@ const Test = () => {
                   </Button>
 
                   <Flex wrap={true} align="center">
-                    {options.length > 0 &&
-                      options.map((item) => (
+                    {topic?.questions?.length > 0 &&
+                      topic?.questions?.map((item, index) => (
                         <div
                           className={
                             "test__navigator--question" +
-                            (answers[item.number] ? " active" : "")
+                            (answers[index + 1] ? " active" : "")
                           }
+                          onClick={() => hanldeRedirect(index + 1)}
                         >
-                          {item.number}
+                          {index + 1}
                         </div>
                       ))}
                   </Flex>

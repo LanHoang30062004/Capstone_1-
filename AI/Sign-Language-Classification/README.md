@@ -33,16 +33,9 @@ python train.py --model_name=[NAME OF THE MODEL YOU WANT]
 streamlit run main.py
 ```
 
-## How to use the api translate video to text (Mobile) and Predict exactly
+## How to use the api translate video to text (Mobile) 
 
 - uvicorn test_simple:app (Test api example : http://localhost:8000/process-video)
 
-## Trained symbols
-
-The trained symbols of the project include:
-
-- Hello (ASL).
-- No (ASL).
-- Thank you (ASL).
-- Love (ASL).
-- Do nothing.
+## How to use the api validate-gesture (api_app.py)
+- python api_app.py (Test api : http://localhost:5000/api/validate-gesture)

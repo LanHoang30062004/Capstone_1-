@@ -53,27 +53,69 @@ def extract_single_hand(mp_hands, hand_landmarks):
         return np.array([landmark.x, landmark.y])
 
     # Extract each landmark individually
-    landmarks_array[0] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.WRIST])
-    landmarks_array[1] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_CMC])
-    landmarks_array[2] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_MCP])
-    landmarks_array[3] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_IP])
-    landmarks_array[4] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP])
-    landmarks_array[5] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP])
-    landmarks_array[6] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_PIP])
-    landmarks_array[7] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_DIP])
-    landmarks_array[8] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP])
-    landmarks_array[9] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_MCP])
-    landmarks_array[10] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_PIP])
-    landmarks_array[11] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_DIP])
-    landmarks_array[12] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP])
-    landmarks_array[13] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_MCP])
-    landmarks_array[14] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_PIP])
-    landmarks_array[15] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_DIP])
-    landmarks_array[16] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP])
-    landmarks_array[17] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_MCP])
-    landmarks_array[18] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_PIP])
-    landmarks_array[19] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_DIP])
-    landmarks_array[20] = get_landmark(hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP])
+    landmarks_array[0] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
+    )
+    landmarks_array[1] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_CMC]
+    )
+    landmarks_array[2] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_MCP]
+    )
+    landmarks_array[3] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_IP]
+    )
+    landmarks_array[4] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP]
+    )
+    landmarks_array[5] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP]
+    )
+    landmarks_array[6] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_PIP]
+    )
+    landmarks_array[7] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_DIP]
+    )
+    landmarks_array[8] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
+    )
+    landmarks_array[9] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
+    )
+    landmarks_array[10] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_PIP]
+    )
+    landmarks_array[11] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_DIP]
+    )
+    landmarks_array[12] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+    )
+    landmarks_array[13] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_MCP]
+    )
+    landmarks_array[14] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_PIP]
+    )
+    landmarks_array[15] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_DIP]
+    )
+    landmarks_array[16] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP]
+    )
+    landmarks_array[17] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_MCP]
+    )
+    landmarks_array[18] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_PIP]
+    )
+    landmarks_array[19] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_DIP]
+    )
+    landmarks_array[20] = get_landmark(
+        hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP]
+    )
 
     return landmarks_array
 
@@ -88,9 +130,7 @@ def extract_face_result(face_results):
     single_face = face_results.multi_face_landmarks[0]
 
     # Get all the landmark into a 2-d numpy array
-    face_array = np.array([
-        [lm.x, lm.y] for lm in single_face.landmark
-    ])
+    face_array = np.array([[lm.x, lm.y] for lm in single_face.landmark])
 
     # Get the mean
     return np.mean(face_array, axis=0)
@@ -107,3 +147,87 @@ def extract_features(mp_hands, face_results, hand_results):
     face_features = extract_face_result(face_results)
     hand_features = extract_hand_result(mp_hands, hand_results)
     return np.hstack((face_features, hand_features))
+
+
+# new for predict
+
+
+def extract_features_from_json(face_landmarks, hand_landmarks):
+    """
+    Extract features from JSON landmark data instead of MediaPipe results
+    """
+    try:
+        # Extract face features
+        face_features = extract_face_from_json(face_landmarks)
+
+        # Extract hand features
+        hand_features = extract_hands_from_json(hand_landmarks)
+
+        # Combine features
+        if face_features is not None and hand_features is not None:
+            return np.hstack((face_features, hand_features))
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error extracting features from JSON: {e}")
+        return None
+
+
+def extract_face_from_json(face_landmarks):
+    """
+    Extract face features from JSON data
+    """
+    if not face_landmarks or len(face_landmarks) == 0:
+        return np.zeros(2)  # Default face features
+
+    try:
+        # Convert to numpy array and take mean
+        face_array = np.array([[lm["x"], lm["y"]] for lm in face_landmarks])
+        return np.mean(face_array, axis=0)
+    except Exception as e:
+        print(f"Error extracting face features: {e}")
+        return np.zeros(2)
+
+
+def extract_hands_from_json(hand_landmarks):
+    """
+    Extract hand features from JSON data - FIXED VERSION
+    """
+    if not hand_landmarks:
+        return np.zeros(FEATURES_PER_HAND * 4)  # Default for 2 hands
+
+    try:
+        # Initialize arrays for both hands
+        left_hand_array = np.zeros((21, 2))
+        right_hand_array = np.zeros((21, 2))
+
+        # Process each hand data
+        for hand_data in hand_landmarks:
+            handedness = hand_data.get("handedness", "").lower()
+            landmarks = hand_data.get("landmarks", [])
+
+            if len(landmarks) < 21:  # Not enough landmarks
+                continue
+
+            # Extract landmarks for this hand
+            hand_array = np.zeros((21, 2))
+            for i, landmark in enumerate(landmarks[:21]):
+                hand_array[i] = [landmark["x"], landmark["y"]]
+
+            # QUAN TRỌNG: Đảm bảo thứ tự giống webcam version
+            if "right" in handedness:
+                right_hand_array = hand_array
+            elif "left" in handedness:
+                left_hand_array = hand_array
+
+        # QUAN TRỌNG: Luôn trả về theo thứ tự [left_hand, right_hand]
+        # giống hệt webcam version
+        combined_array = np.hstack(
+            (left_hand_array.flatten(), right_hand_array.flatten())
+        )
+        return combined_array
+
+    except Exception as e:
+        print(f"Error extracting hand features: {e}")
+        return np.zeros(FEATURES_PER_HAND * 4)

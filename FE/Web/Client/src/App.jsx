@@ -1,6 +1,7 @@
 import { ConfigProvider } from "antd";
 import "./base.scss";
 import AllRoute from "~/components/AllRoute/AllRoute";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
@@ -33,6 +34,14 @@ function App() {
         }}
       >
         <AllRoute />
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          closeOnClick={false}
+          pauseOnHover
+          theme="light"
+          style={{ fontSize: "1.6rem" }}
+        />
       </ConfigProvider>
     </>
   );

@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    private final JWTToken jwtToken ;
+    private final JWTToken jwtToken;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
@@ -28,28 +28,37 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String state = request.getParameter("state");
 
         String email = oAuth2User.getAttribute("email"); // Google có email
         if (email == null) {
             email = oAuth2User.getAttribute("login"); // GitHub có "login"
         }
+        Role role = this.roleRepository.findById(1L).orElse(null);
         User oldUser = this.userRepository.findByEmail(email).orElse(null);
         if (oldUser == null) {
-            Role role = this.roleRepository.findByRoleName("USER").orElse(null);
             User newUser = new User();
+            newUser.setRole(role);
             newUser.setEmail(email);
             newUser.setRole(role);
             userRepository.save(newUser);
             String token = jwtToken.generateToken(newUser);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"token\": \"" + token + "\"}");
-        }
-        else {
+            if ("app".equalsIgnoreCase(state)) {
+                response.sendRedirect("myapp://callback?token=" + token);
+            } else {
+                response.getWriter().write("{\"token\": \"" + token + "\"}");
+            }
+
+        } else {
             Optional<User> user = userRepository.findByEmail(email);
             String token = jwtToken.generateToken(user.get());
-            response.setContentType("application/json");
-            response.getWriter().write("{\"token\": \"" + token + "\"}");
+            if ("app".equalsIgnoreCase(state)) {
+                response.sendRedirect("myapp://callback?token=" + token);
+            } else {
+                response.getWriter().write("{\"token\": \"" + token + "\"}");
+            }
         }
     }
 }
+
 
