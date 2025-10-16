@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public class FlashCardDTO implements Serializable {
     private Long id ;
+    private Long userId ;
     private String content ;
     private List<CardDTO> cards;
 }

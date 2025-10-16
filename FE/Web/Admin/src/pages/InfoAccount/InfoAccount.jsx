@@ -1,11 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Card, Form, Input, Button, DatePicker, Row, Col } from "antd";
+import { Card, Form, Input, Button, Row, Col } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./Info.css";
 import { ThemeContext } from "~/context/themeContext";
 import EditAccount from "./EditAccount";
-import accountService from "~/services/accountService";
 
 const InfoAccount = () => {
   const [form] = Form.useForm();
@@ -13,7 +12,7 @@ const InfoAccount = () => {
   const [editMode, setEditMode] = useState(false);
   const navigate = useNavigate();
 
-  // Đảm bảo cập nhật data-theme cho body khi theme thay đổi
+  // Cập nhật data-theme cho body khi theme thay đổi
   useEffect(() => {
     document.body.setAttribute("data-theme", myTheme);
     return () => {
@@ -24,10 +23,20 @@ const InfoAccount = () => {
   // Fetch user profile khi vào trang
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const { userName } = JSON.parse(localStorage.getItem("userInfo"));
-      const employeeProfile = await accountService.getInfoEmployee(userName);
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
-      form.setFieldsValue(employeeProfile);
+      if (userInfo) {
+        // Map dữ liệu mới vào form
+        form.setFieldsValue({
+          fullName: userInfo.fullName || "",
+          email: userInfo.email || "",
+          address: userInfo.address || "",
+          phone: userInfo.phone || "",
+          gender: userInfo.gender || "",
+          dateOfBirth: userInfo.dateOfBirth || "",
+          password: userInfo.password || "",
+        });
+      }
     };
 
     fetchUserProfile();
@@ -66,44 +75,13 @@ const InfoAccount = () => {
             className="info-form info-form-center"
           >
             <Row gutter={32} justify="center">
-              <Col
-                span={24}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                }}
-              >
+              <Col span={24}>
                 {!editMode && (
                   <>
                     <Row gutter={16}>
                       <Col span={12}>
-                        <Form.Item name="employeeID" label="Mã nhân viên">
-                          <Input placeholder="Mã nhân viên" disabled />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
                         <Form.Item name="fullName" label="Họ và tên">
                           <Input placeholder="Họ và tên" disabled />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Item name="dateOfBirth" label="Ngày sinh">
-                          <Input placeholder="Ngày sinh" disabled />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="gender" label="Giới tính">
-                          <Input placeholder="Giới tính" disabled />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Item name="phoneNumber" label="Số điện thoại">
-                          <Input placeholder="Số điện thoại" disabled />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
@@ -114,25 +92,25 @@ const InfoAccount = () => {
                     </Row>
                     <Row gutter={16}>
                       <Col span={12}>
-                        <Form.Item name="hireDate" label="Ngày vào làm">
-                          <Input placeholder="Ngày vào làm" disabled />
+                        <Form.Item name="address" label="Địa chỉ">
+                          <Input placeholder="Địa chỉ" disabled />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="departmentName" label="Phòng ban">
-                          <Input placeholder="Phòng ban" disabled />
+                        <Form.Item name="phone" label="Số điện thoại">
+                          <Input placeholder="Số điện thoại" disabled />
                         </Form.Item>
                       </Col>
                     </Row>
                     <Row gutter={16}>
                       <Col span={12}>
-                        <Form.Item name="positionName" label="Mã vị trí">
-                          <Input placeholder="Mã vị trí" disabled />
+                        <Form.Item name="gender" label="Giới tính">
+                          <Input placeholder="Giới tính" disabled />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="status" label="Trạng thái">
-                          <Input placeholder="Trạng thái" disabled />
+                        <Form.Item name="dateOfBirth" label="Ngày sinh">
+                          <Input placeholder="Ngày sinh" disabled />
                         </Form.Item>
                       </Col>
                     </Row>

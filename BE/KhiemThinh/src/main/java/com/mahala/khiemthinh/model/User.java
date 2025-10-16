@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,6 +53,17 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users")
     private List<Word> words;
+
+    @OneToMany(fetch = FetchType.EAGER , mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<TopicFlashCard> flashCards;
+
+    public void addFlashCard(TopicFlashCard flashCard) {
+        if (flashCards == null) {
+            flashCards = new ArrayList<>();
+        }
+        flashCards.add(flashCard);
+        flashCard.setUser(this);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

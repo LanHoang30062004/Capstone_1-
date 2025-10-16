@@ -42,6 +42,15 @@ const Test = () => {
     };
 
     fetchDetailTopic();
+
+    return () => {
+      const timeLocal =
+        parseInt(localStorage.getItem("time_limit")) - Date.now();
+      if (timeLocal < 0) {
+        localStorage.removeItem("answers");
+        localStorage.removeItem("time_limit");
+      }
+    };
   }, [id]);
 
   return (

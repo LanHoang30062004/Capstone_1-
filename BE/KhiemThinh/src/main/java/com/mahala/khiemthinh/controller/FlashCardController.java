@@ -34,6 +34,22 @@ public class FlashCardController {
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Get all flash card failed : " + e.getMessage(), null);
         }
     }
+    @GetMapping("/user/{id}")
+    @Operation(summary = "Lay ra danh sach cac flash card co phan trang theo user id", description = "Danh sach cac topic flash card co phan trang va tim kiem (optional) theo user id")
+    public ResponseData<?> getAllFlashCardsByUserId(
+            @PathVariable Long id,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String search) {
+        try {
+            PageResponse result = this.flashCardService.getAllFlashCardByUserId(page, size , id, search);
+            log.info("Get all flash card by user id successfully");
+            return new ResponseData<>(HttpStatus.OK.value(), "Get all flash card by user id successfully", result);
+        } catch (Exception e) {
+            log.error("Get all flash card by user id failed : {}", e.getMessage());
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Get all flash card by user id failed : " + e.getMessage(), null);
+        }
+    }
 
     @GetMapping("/{id}")
     @Operation(summary = "Lay ra chi tiet flash card")

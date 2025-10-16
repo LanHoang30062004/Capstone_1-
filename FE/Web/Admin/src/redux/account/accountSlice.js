@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { data } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import instance from '~/api/intance'
 
@@ -59,7 +60,11 @@ export const accountSlice = createSlice({
     })
 
     builder.addCase(fetchAccountAddAdmin.fulfilled, (state, action) => {
-      state.accounts.items.push(action.payload.data)
+      if (action.payload.status > 400) toast.error(action.payload.message);
+      else {
+        state.accounts.items.push(action.payload.data)
+        toast.success("Thêm thành công!");
+      }
     })
 
     builder.addCase(fetchAccountEdit.fulfilled, (state, action) => {

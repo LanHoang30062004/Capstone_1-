@@ -21,7 +21,8 @@ const AddWord = (props) => {
     }
 
     value.videoUrl = fileUrl;
-    value.userId = 2;
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    value.userId = userInfo.id;
 
     try {
       toggleLoading(true);

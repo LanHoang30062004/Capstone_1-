@@ -25,6 +25,9 @@ public class TopicFlashCard {
     @OneToMany(fetch = FetchType.EAGER  , mappedBy = "topicFlashCard" , cascade = CascadeType.ALL , orphanRemoval = true)
     private List<FlashCard> flashCards ;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User user ;
+
     public void addFlashCard(FlashCard flashCard) {
         if (flashCards == null) {
             flashCards = new ArrayList<>();

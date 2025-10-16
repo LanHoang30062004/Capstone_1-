@@ -29,7 +29,6 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseData<?> googleLogin(@RequestParam String token) {
         var payload = googleTokenValidator.verifyToken(token);
-
         if (payload != null) {
             String email = payload.getEmail();
             Role role = this.roleRepository.findById(1L).get() ;

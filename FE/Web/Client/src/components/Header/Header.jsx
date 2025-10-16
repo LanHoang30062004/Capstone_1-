@@ -47,11 +47,11 @@ const Header = () => {
                       </Link>
 
                       <Link to="/lesson" className="header__link--item">
-                        Học
+                        FlashCard
                       </Link>
 
                       <Link to="/practise" className="header__link--item">
-                        Củng cố kiến thức
+                        Làm bài test
                       </Link>
                     </Flex>
                   </div>

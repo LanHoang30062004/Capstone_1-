@@ -17,7 +17,7 @@ const Login = () => {
       toggleLoading(true);
       const response = await accountService.login(values);
 
-      console.log(response.data);
+      const user = await accountService.getUser({ email: values.email });
 
       if (response.status !== 200) {
         toast.error(response.message);
@@ -25,7 +25,8 @@ const Login = () => {
       }
 
       toast.success(response.message);
-      localStorage.setItem("accessToken", response.data);
+      localStorage.setItem("adminAccessToken", response.data);
+      localStorage.setItem("userInfo", JSON.stringify(user.data));
 
       navigate("/topic");
     } catch (error) {
