@@ -85,9 +85,9 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, path + "/user/**").hasRole("ADMIN")
 
                         // flash card
-                        .requestMatchers(HttpMethod.POST, path + "/flash-card/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, path + "/flash-card/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, path + "/flash-card/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, path + "/flash-card/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, path + "/flash-card/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.DELETE, path + "/flash-card/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, path + "/flash-card/**").hasAnyRole("ADMIN", "USER")
 
                         // translate

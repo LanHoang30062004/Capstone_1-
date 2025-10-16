@@ -10,7 +10,7 @@ public interface FlashCardService {
     PageResponse<?> getAllFlashCard(int page , int size , String search) ;
 
     FlashCardDTO getFlashCardById(Long id) throws NotFoundException;
-    FlashCardDTO addNewFlashCard(FlashCardDTO flashCardDTO) ;
+    FlashCardDTO addNewFlashCard(FlashCardDTO flashCardDTO) throws NotFoundException;
 
     void updateFlashCard(Long id , FlashCardDTO flashCardDTO) throws NotFoundException;
 
