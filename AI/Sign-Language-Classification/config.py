@@ -2,7 +2,7 @@
 FEATURES_PER_HAND = 21
 
 # Name of the model
-MODEL_NAME = "simple_9_expression_model.pkl"
+MODEL_NAME = "simple_12_expression_model.pkl"
 MODEL_CONFIDENCE = 0.5
 
 # Processing parameters
@@ -16,4 +16,3 @@ MIN_FRAMES_PER_GESTURE = 8  # Số frame tối thiểu để xác nhận một c
 GESTURE_SIMILARITY_THRESHOLD = 0.7  # Ngưỡng similarity để gộp cử chỉ
 
 MAX_CONCURRENT_VIDEOS = 10
-
