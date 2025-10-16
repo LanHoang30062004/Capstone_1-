@@ -15,9 +15,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'dart:async';
 
-
-
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -40,7 +37,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-     final String baseUrl = "http://"+Fileconfiguration.ip+":8080/api/v1/user";
+    final String baseUrl =
+        "http://" + Fileconfiguration.ip + ":8080/api/v1/user";
 
     setState(() {
       _emailError = null;
@@ -77,13 +75,18 @@ class _LoginScreenState extends State<LoginScreen> {
           print("dang nhap ok");
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => SearchSignScreen(token: token)),
+            MaterialPageRoute(
+              builder: (context) => SearchSignScreen(token: token),
+            ),
           );
         } else {
           setState(() => _loginError = "Không lấy được token từ server");
         }
       } else {
-        setState(() => _loginError =   "Email hoặc mật khẩu không đúng" ?? body["message"]);
+        setState(
+          () =>
+              _loginError = "Email hoặc mật khẩu không đúng" ?? body["message"],
+        );
       }
     } catch (e) {
       setState(() => _loginError = "Không thể kết nối đến server");
@@ -92,6 +95,52 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  scopes: ['email', 'profile'],
+  serverClientId: '891153081600-rd86f3i1a8t10k6akkqps2crvjqj7t94.apps.googleusercontent.com',
+);
+
+  Future<void> signInAndSendToken() async {
+  print("Hàm log với Google được gọi");
+  try {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      print('Người dùng đã hủy đăng nhập Google.');
+      return;
+    }
+
+    // Bước 2: Lấy authentication object
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final String? idToken = googleAuth.idToken;
+
+    // Bước 3: Debug thông tin
+    print('Google user: ${googleUser.email}');
+    print('idToken: $idToken');
+
+    // Bước 4: Kiểm tra token
+    if (idToken == null || idToken.isEmpty) {
+      print('idToken chưa có, không thể gọi backend.');
+      return;
+    }
+
+    // Bước 5: Gọi backend với token
+    final ip = Fileconfiguration.ip;
+    final response = await http.post(
+      Uri.parse('http://$ip:8080/api/v1/auth/google?token=$idToken'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    // Bước 6: Kiểm tra kết quả backend
+    if (response.statusCode == 200) {
+      print('Backend validated successfully: ${response.body}');
+    } else {
+      print('Backend validation failed: ${response.statusCode} - ${response.body}');
+    }
+
+  } catch (e) {
+    print('Error: $e');
+  }
+}
   Future<void> _signInWithGoogle() async {
     setState(() {
       _isLoading = true;
@@ -99,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final String oauthUrl =
-      "http://192.168.1.7:8080/oauth2/authorization/google?state=app";
+        "http://192.168.1.7:8080/oauth2/authorization/google?state=app";
 
     final appLinks = AppLinks();
     StreamSubscription<Uri>? sub;
@@ -118,7 +167,9 @@ class _LoginScreenState extends State<LoginScreen> {
             if (!mounted) return;
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => SearchSignScreen(token: token)),
+              MaterialPageRoute(
+                builder: (context) => SearchSignScreen(token: token),
+              ),
             );
           } else {
             setState(() => _loginError = "Không nhận được token từ server");
@@ -158,7 +209,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => const introductionApp()),
+                        MaterialPageRoute(
+                          builder: (context) => const introductionApp(),
+                        ),
                         (route) => false,
                       );
                     },
@@ -166,7 +219,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const Text(
                     "Đăng nhập",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF262A3B)),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF262A3B),
+                    ),
                   ),
                 ],
               ),
@@ -174,7 +231,11 @@ class _LoginScreenState extends State<LoginScreen> {
               const Center(
                 child: Text(
                   "Chào mừng đến với DApp",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF49BBBD)),
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF49BBBD),
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -185,14 +246,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: "Email",
                   filled: true,
                   fillColor: const Color(0xFFF6F6F6),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               if (_emailError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 5, left: 8),
-                  child: Text(_emailError!, style: const TextStyle(color: Colors.red, fontSize: 14)),
+                  child: Text(
+                    _emailError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
                 ),
               const SizedBox(height: 16),
 
@@ -203,10 +273,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: "Mật khẩu",
                   filled: true,
                   fillColor: const Color(0xFFF6F6F6),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                   suffixIcon: IconButton(
-                    icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
+                    icon: Icon(
+                      _isObscure ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
+                    ),
                     onPressed: () => setState(() => _isObscure = !_isObscure),
                   ),
                 ),
@@ -214,12 +293,18 @@ class _LoginScreenState extends State<LoginScreen> {
               if (_passwordError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 5, left: 8),
-                  child: Text(_passwordError!, style: const TextStyle(color: Colors.red, fontSize: 14)),
+                  child: Text(
+                    _passwordError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
                 ),
               if (_loginError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 5, left: 8),
-                  child: Text(_loginError!, style: const TextStyle(color: Colors.red, fontSize: 14)),
+                  child: Text(
+                    _loginError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
                 ),
 
               const SizedBox(height: 8),
@@ -227,9 +312,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ForgetPasswordMainPage()));
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgetPasswordMainPage(),
+                      ),
+                    );
                   },
-                  child: const Text("Quên mật khẩu ?", style: TextStyle(fontSize: 14, color: Color(0xFF49BBBD), fontWeight: FontWeight.w500)),
+                  child: const Text(
+                    "Quên mật khẩu ?",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF49BBBD),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ),
 
@@ -241,11 +338,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF49BBBD),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Đăng nhập", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                      : const Text(
+                          "Đăng nhập",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
 
@@ -253,24 +359,57 @@ class _LoginScreenState extends State<LoginScreen> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterScreen(),
+                      ),
+                    );
                   },
-                  child: const Text("Tạo tài khoản", style: TextStyle(fontSize: 15, color: Color(0xFF262A3B), fontWeight: FontWeight.w500)),
+                  child: const Text(
+                    "Tạo tài khoản",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF262A3B),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ),
 
               const SizedBox(height: 24),
-              const Center(child: Text("Tiếp tục với", style: TextStyle(fontSize: 15, color: Color(0xFF49BBBD), fontWeight: FontWeight.w600))),
+              const Center(
+                child: Text(
+                  "Tiếp tục với",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF49BBBD),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // dang nhap voi goggle
-                  _socialButton("assets/img/google.png", onTap: _signInWithGoogle),
+                  _socialButton(
+                    "assets/img/google.png",
+                    onTap: signInAndSendToken,
+                  ),
                   const SizedBox(width: 16),
-                  _socialButton("assets/img/facebook.png", onTap: () {}),
+                  _socialButton(
+                    "assets/img/facebook.png",
+                    onTap: () async {
+                      print("Facebook login pressed");
+                    },
+                  ),
                   const SizedBox(width: 16),
-                  _socialButton("assets/img/github.png", onTap: () {}),
+                  _socialButton(
+                    "assets/img/github.png",
+                    onTap: () async {
+                      print("Github login pressed");
+                    },
+                  ),
                 ],
               ),
             ],
@@ -280,25 +419,36 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _socialButton(String imagePath, {VoidCallback? onTap}) {
+  Widget _socialButton(
+    String imagePath, {
+    required Future<void> Function() onTap,
+  }) {
     return InkWell(
-      onTap: onTap,
+      onTap: () async {
+        print("Button $imagePath pressed"); // log để chắc chắn bấm được
+        await onTap(); // gọi hàm async
+      },
       borderRadius: BorderRadius.circular(50),
       child: Container(
         width: 50,
         height: 50,
-        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade300, width: 1)),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey.shade300, width: 1),
+        ),
         child: Center(child: Image.asset(imagePath, width: 24, height: 24)),
       ),
     );
   }
 }
+
 class GoogleAuthService {
-  final String backendGoogleLoginUrl = "http://"+Fileconfiguration.ip+"8080/api/v1/oauth2/google";
+  final String backendGoogleLoginUrl =
+      "http://" + Fileconfiguration.ip + "8080/api/v1/oauth2/google";
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   /// Đăng nhập với Google
-  
+
   /// Lấy JWT token từ storage
   Future<String?> getToken() async {
     return await _storage.read(key: "jwt_token");
