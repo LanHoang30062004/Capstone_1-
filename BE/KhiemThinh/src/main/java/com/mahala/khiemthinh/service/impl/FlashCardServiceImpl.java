@@ -21,7 +21,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +46,34 @@ public class FlashCardServiceImpl implements FlashCardService {
             }
             return cb.conjunction();
         };
+        Page<TopicFlashCard> result = this.topicFlashCardRepository.findAll(specification, pageable);
+        List<FlashCardDTO> flashCards = result.getContent().stream().map(item -> FlashCardDTO.builder()
+                .content(item.getContent())
+                .id(item.getId())
+                .userId(item.getUser().getId())
+                .build()).collect(Collectors.toList());
+        return PageResponse.builder()
+                .pageSize(size)
+                .pageNo(page + 1)
+                .totalPages(result.getTotalPages())
+                .items(flashCards)
+                .build();
+    }
+
+    @Override
+    public PageResponse<?> getAllFlashCardByUserId(int page, int size, Long userID, String search) throws NotFoundException {
+        TopicFlashCard check = this.topicFlashCardRepository.findByUserId(userID).orElseThrow(() -> new NotFoundException("Can not find flashcard with user id :" + userID)) ;
+        page = page > 0 ? page - 1 : 0;
+        Pageable pageable = PageRequest.of(page, size);
+        Specification<TopicFlashCard> specification = (root , query , cb) -> {
+            if (search != null) {
+                String searchPattern = "%" + search.toLowerCase() + "%";
+                return cb.and(cb.equal(root.get("user").get("id"), userID), cb.like(cb.lower(root.get("content")), searchPattern));
+            }
+            else {
+                return cb.or(cb.equal(root.get("user").get("id"), userID)) ;
+            }
+        } ;
         Page<TopicFlashCard> result = this.topicFlashCardRepository.findAll(specification, pageable);
         List<FlashCardDTO> flashCards = result.getContent().stream().map(item -> FlashCardDTO.builder()
                 .content(item.getContent())
