@@ -3,7 +3,7 @@ FEATURES_PER_HAND = 21
 
 # Name of the model
 MODEL_NAME = "simple_12_expression_model.pkl"
-MODEL_CONFIDENCE = 0.5
+MODEL_CONFIDENCE = 0.7
 
 # Processing parameters
 MAX_PROCESSING_TIME = 30  # Maximum processing time in seconds
