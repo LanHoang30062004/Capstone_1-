@@ -55,13 +55,13 @@ public class User implements UserDetails {
     private List<Word> words;
 
     @OneToMany(fetch = FetchType.EAGER , mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
-    private List<TopicFlashCard> flashCards;
+    private List<TopicFlashCard> topicFlashCards;
 
     public void addFlashCard(TopicFlashCard flashCard) {
-        if (flashCards == null) {
-            flashCards = new ArrayList<>();
+        if (topicFlashCards == null) {
+            topicFlashCards = new ArrayList<>();
         }
-        flashCards.add(flashCard);
+        topicFlashCards.add(flashCard);
         flashCard.setUser(this);
     }
 
