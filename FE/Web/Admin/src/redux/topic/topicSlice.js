@@ -14,6 +14,7 @@ export const fetchTopic = createAsyncThunk(
       params: query
     })
 
+    console.log(response)
     return response.data
   },
 )
@@ -91,7 +92,7 @@ export const topicSlice = createSlice({
 
     builder.addCase(fetchTopicDelete.fulfilled, (state, action) => {
       const topicId = action.payload
-      state.topics = state.topics.filter(topic => topic.id !== topicId)
+      state.topics.items = state.topics?.items.filter(topic => topic?.id !== topicId)
     })
   },
 })

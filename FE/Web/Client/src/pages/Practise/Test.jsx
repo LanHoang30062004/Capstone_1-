@@ -1,9 +1,8 @@
 import { Button, Card, Col, Flex, Radio, Row } from "antd";
-import Background from "~/assets/images/Bg1.png";
 import Timer from "~/components/Timer/Timer";
 import "./Test.scss";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import * as topicService from "~/service/topicService";
 
 const style = {
@@ -17,14 +16,63 @@ const Test = () => {
   const [answers, setAnswers] = useState(answersLocal ? answersLocal : {});
   const [topic, setTopic] = useState(null);
   const { id } = useParams();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const handleSubmit = () => {
+    if (!topic?.questions) return;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let skippedCount = 0;
+
+    const details = topic.questions.map((q, index) => {
+      const userAnswer = answers[index + 1];
+      const correctOption = q.options.find((opt) => opt.correct)?.option;
+
+      let isCorrect = false;
+      if (!userAnswer) {
+        skippedCount++;
+      } else if (userAnswer === correctOption) {
+        correctCount++;
+        isCorrect = true;
+      } else {
+        wrongCount++;
+      }
+
+      return {
+        questionIndex: index + 1,
+        userAnswer: userAnswer || null,
+        correctAnswer: correctOption,
+        isCorrect,
+      };
+    });
+
+    const totalQuestions = topic.questions.length;
+    const accuracy = ((correctCount / totalQuestions) * 100).toFixed(1);
+
+    const result = {
+      topicId: topic.id,
+      topicName: topic.content,
+      totalQuestions,
+      correctCount,
+      wrongCount,
+      skippedCount,
+      accuracy,
+      createdAt: new Date().toISOString(),
+      details,
+    };
+
+    localStorage.setItem("test_result", JSON.stringify(result));
+    localStorage.removeItem("answers");
+    localStorage.removeItem("time_limit");
+
+    navigate(`/test-result/${topic.id}`);
+  };
 
   const handleSelect = (questionId, answer) => {
     const newAnswers = { ...answers, [questionId]: answer };
 
     setAnswers(newAnswers);
-    console.log(newAnswers);
     localStorage.setItem("answers", JSON.stringify(newAnswers));
   };
 
@@ -46,7 +94,8 @@ const Test = () => {
     return () => {
       const timeLocal =
         parseInt(localStorage.getItem("time_limit")) - Date.now();
-      if (timeLocal < 0) {
+
+      if (timeLocal <= 0) {
         localStorage.removeItem("answers");
         localStorage.removeItem("time_limit");
       }
@@ -108,13 +157,18 @@ const Test = () => {
                   </div>
 
                   <div className="test__navigator--timer">
-                    <Timer duration={10 * 60 * 1000} type="down" />
+                    <Timer
+                      duration={2 * 1000}
+                      type="down"
+                      submit={handleSubmit}
+                    />
                   </div>
 
                   <Button
                     className="test__navigator--submit full-width"
                     type="primary"
                     size="large"
+                    onClick={handleSubmit}
                   >
                     Nộp bài
                   </Button>

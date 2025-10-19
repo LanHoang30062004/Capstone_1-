@@ -9,8 +9,8 @@ const initialState = {
 
 export const fetchFlashCard = createAsyncThunk(
   'flash-card/fetchFlashCard',
-  async (query) => {
-    const response = await instance.get('/flash-card', {
+  async ({ userId, query }) => {
+    const response = await instance.get(`/flash-card/user/${userId}`, {
       params: query
     })
 
@@ -48,9 +48,8 @@ export const fetchFlashCardEdit = createAsyncThunk(
 export const fetchFlashCardDelete = createAsyncThunk(
   'flash-card/fetchFlashCardDelete',
   async (id) => {
-    const response = await instance.delete(`/flash-card/${id}`)
+    await instance.delete(`/flash-card/${id}`)
 
-    console.log(response)
     return id
   },
 )
@@ -89,11 +88,13 @@ export const wordSlice = createSlice({
       }
     })
 
+    builder.addCase(fetchFlashCardEdit.rejected, (state, action) => {
+      console.log(action.payload)
+    })
+
     builder.addCase(fetchFlashCardDelete.fulfilled, (state, action) => {
       const flashCardId = action.payload
-      console.log(state.flashCards)
-
-      // state.flashCards.items = state.words?.items?.filter(item => item.wordId !== flashCardId)
+      state.flashCards.items = state.words?.items?.filter(item => item.wordId !== flashCardId)
     })
   },
 })

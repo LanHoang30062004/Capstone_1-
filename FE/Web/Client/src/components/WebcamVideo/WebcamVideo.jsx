@@ -185,23 +185,26 @@ const WebcamVideo = ({ word, setAccuracy }) => {
 
   return (
     <div className="webcam">
-      <Space direction="vertical">
+      <Space
+        direction="vertical"
+        style={{
+          width: "100%",
+        }}
+      >
         <div className="webcam__camera">
           <Webcam
             ref={webcamRef}
             style={{
               position: "relative",
-              marginLeft: "auto",
-              marginRight: "auto",
               left: 0,
               right: 0,
               textAlign: "center",
-              zIndex: 9,
-              height: "auto",
+              height: "100%",
               width: "100%",
             }}
           />
         </div>
+
         <Button
           type="primary"
           onClick={startCapture}

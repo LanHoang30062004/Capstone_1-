@@ -10,11 +10,13 @@ const Login = () => {
 
   const handleLogin = async (value) => {
     const res = await userService.login(value);
+    const user = await userService.getUser({ email: value.email });
     if (res.status > 400) {
       toast.error(res.message || "Đăng nhập thất bại!");
     } else {
       toast.success(res.message || "Đăng nhập thành công!");
       localStorage.setItem("accessToken", res.data);
+      localStorage.setItem("userInfo", JSON.stringify(user.data));
       navigate("/");
     }
   };

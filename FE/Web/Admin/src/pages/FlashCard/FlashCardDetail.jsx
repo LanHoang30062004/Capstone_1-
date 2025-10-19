@@ -29,11 +29,9 @@ const FlashCardDetail = () => {
         cards: flashCard.cards.filter((item) => item.result !== value),
       };
 
-      await dispatch(fetchFlashCardEdit({ id: 1, data: data })).unwrap();
+      await dispatch(fetchFlashCardEdit({ id: id, data: data })).unwrap();
 
       dispatch(fetchFlashCardDetail(id));
-
-      toast.success("Xoá thành công!");
     } catch (error) {
       toast.error(error);
     } finally {
@@ -52,7 +50,11 @@ const FlashCardDetail = () => {
         <div className="flash-card__title">
           <Space>
             <h1>Flashcards: {flashCard?.content}</h1>
-            <Button type="primary" onClick={() => setOpenEditFlashCard(true)}>
+            <Button
+              loading={loading}
+              type="primary"
+              onClick={() => setOpenEditFlashCard(true)}
+            >
               Chỉnh sửa
             </Button>
           </Space>

@@ -67,8 +67,6 @@ const FlashCard = () => {
           ...searchObject,
           page: searchParams.get("page") - 1,
         });
-      } else {
-        await dispatch(fetchFlashCard(searchObject));
       }
 
       toast.success("Xoá thành công!");
@@ -95,6 +93,8 @@ const FlashCard = () => {
       size: pageSize,
     });
   };
+
+  console.log(flashCards);
 
   const dataSource = flashCards?.items?.map((flashCard) => {
     return {

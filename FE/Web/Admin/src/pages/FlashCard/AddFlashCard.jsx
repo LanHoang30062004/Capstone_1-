@@ -1,11 +1,9 @@
 import { Button, Form, Input, Modal, Space, Upload } from "antd";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
 import { LoadingContext } from "~/context/LoadingContext";
 import { fetchFlashCardAdd } from "~/redux/flashCard/flashCardSlice";
 import { CloseOutlined } from "@ant-design/icons";
-import UploadFileNotShow from "~/components/UploadFile/UploadFileNotShow";
 
 const AddFlashCard = (props) => {
   const { open, setOpen } = props;
@@ -17,6 +15,9 @@ const AddFlashCard = (props) => {
   const handleAdd = async (value) => {
     try {
       toggleLoading(true);
+      const userInfo = JSON.parse(localStorage.getItem("adminInfo"));
+      value.userId = parseInt(userInfo.id);
+
       await dispatch(fetchFlashCardAdd(value)).unwrap();
     } catch (error) {
       console.log(error);

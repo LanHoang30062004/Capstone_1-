@@ -56,9 +56,9 @@ instance.interceptors.response.use(function (response) {
     //     return Promise.reject(err);
     //   })
   }
+  console.log(error.response)
   if (error.response?.status !== 410) {
     toast.error(error.response?.data?.message || error.response?.message || error?.message);
-    // console.log(error.response)
   }
 
   return Promise.reject(error);

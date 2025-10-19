@@ -4,7 +4,6 @@ import "./Auth.css";
 import { Link, useNavigate } from "react-router-dom";
 import accountService from "~/services/accountService";
 import { toast } from "react-toastify";
-import { roles } from "~/configs/rbacConfig";
 import { LoadingContext } from "~/context/LoadingContext";
 import { useContext } from "react";
 
@@ -26,7 +25,7 @@ const Login = () => {
 
       toast.success(response.message);
       localStorage.setItem("adminAccessToken", response.data);
-      localStorage.setItem("userInfo", JSON.stringify(user.data));
+      localStorage.setItem("adminInfo", JSON.stringify(user.data));
 
       navigate("/topic");
     } catch (error) {
