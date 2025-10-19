@@ -75,6 +75,22 @@ class PredictionRequest(BaseModel):
     word: str
 
 
+def remove_duplicates_and_skip(text):
+    # Tách chuỗi thành danh sách, loại bỏ khoảng trắng thừa
+    parts = [p.strip() for p in text.split(",")]
+
+    seen = set()
+    result = []
+
+    for part in parts:
+        if part not in seen and part != "Ngồi yên":  # bỏ trùng và loại bỏ "Đứng yên"
+            seen.add(part)
+            result.append(part)
+
+    # Nối lại thành chuỗi
+    return ", ".join(result)
+
+
 # Load model globally
 logger.info("🔄 Loading model...")
 try:
@@ -185,7 +201,9 @@ async def process_video(
                 )
 
         # Get final combined sequence
-        final_sequence = sequence_processor.get_final_sequence()
+        final_sequence = remove_duplicates_and_skip(
+            sequence_processor.get_final_sequence()
+        )
 
         if debug:
             logger.info(f"Final combined sequence: {final_sequence}")
