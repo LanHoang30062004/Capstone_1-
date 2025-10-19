@@ -60,7 +60,10 @@ public class FlashCardServiceImpl implements FlashCardService {
 
     @Override
     public PageResponse<?> getAllFlashCardByUserId(int page, int size, Long userID, String search) throws NotFoundException {
-        TopicFlashCard check = this.topicFlashCardRepository.findByUserId(userID).orElseThrow(() -> new NotFoundException("Can not find flashcard with user id :" + userID));
+        List<TopicFlashCard> check = this.topicFlashCardRepository.findByUserId(userID);
+        if (check.isEmpty()) {
+            throw new NotFoundException("Can not find any flash card by user id :" + userID);
+        }
         page = page > 0 ? page - 1 : 0;
         Pageable pageable = PageRequest.of(page, size);
         Specification<TopicFlashCard> specification = (root, query, cb) -> {
