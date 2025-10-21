@@ -12,7 +12,6 @@ instance.interceptors.request.use(function (config) {
   // Do something before request is sent
   const accessToken = localStorage.getItem("accessToken");
 
-
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`
   }
@@ -35,28 +34,7 @@ instance.interceptors.response.use(function (response) {
   // if (error.response?.status === 401) {
   //   accountService.logout();
   // }
-  const originalRequest = error.config
 
-  if (error.response?.status === 410 && !originalRequest._retry) {
-    originalRequest._retry = true;
-
-    // return accountService.refreshToken(refreshToken)
-    //   .then((res) => {
-    //     // Lấy accessToken gắn lại localStorage
-    //     const { accessToken } = res.data;
-
-    //     localStorage.setItem("accessToken", accessToken);
-    //     instance.defaults.headers.Authorization = `Bearer ${accessToken}`;
-
-    //     return instance(originalRequest);
-    //   })
-    //   .catch((err) => {
-    //     accountService.logout();
-
-    //     return Promise.reject(err);
-    //   })
-  }
-  console.log(error.response)
   if (error.response?.status !== 410) {
     toast.error(error.response?.data?.message || error.response?.message || error?.message);
   }

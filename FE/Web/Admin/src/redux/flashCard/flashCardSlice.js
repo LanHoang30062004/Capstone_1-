@@ -49,8 +49,8 @@ export const fetchFlashCardDelete = createAsyncThunk(
   'flash-card/fetchFlashCardDelete',
   async (id) => {
     const response = await instance.delete(`/flash-card/${id}`)
+    if (response.data.status > 400) return toast.error(response.data.message)
 
-    console.log(response)
     return id
   },
 )
@@ -91,9 +91,8 @@ export const wordSlice = createSlice({
 
     builder.addCase(fetchFlashCardDelete.fulfilled, (state, action) => {
       const flashCardId = action.payload
-      console.log(state.flashCards)
 
-      // state.flashCards.items = state.words?.items?.filter(item => item.wordId !== flashCardId)
+      state.flashCards.items = state.flashCards?.items?.filter(item => item.id !== flashCardId)
     })
   },
 })

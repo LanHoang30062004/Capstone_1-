@@ -65,24 +65,6 @@ const AddWord = (props) => {
           </Form.Item>
 
           <Form.Item
-            name="wordID"
-            label="Mã kí hiệu"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập mã kí hiệu",
-              },
-
-              {
-                pattern: /^\d+$/,
-                message: "Mã kí hiệu chỉ được chứa số!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
             name="wordName"
             label="Tên kí hiệu"
             rules={[

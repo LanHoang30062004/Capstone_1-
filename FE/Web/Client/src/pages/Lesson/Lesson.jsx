@@ -1,4 +1,4 @@
-import { Button, Card, Col, Pagination, Row } from "antd";
+import { Button, Card, Col, Pagination, Popconfirm, Row } from "antd";
 import "./Lesson.scss";
 import { FaPlus } from "react-icons/fa6";
 import { Link, useSearchParams } from "react-router-dom";
@@ -7,6 +7,7 @@ import Loading from "~/components/Loading/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFlashCard } from "~/redux/flashCard/flashCardSlice";
 import AddFlashCard from "./AddFlashCard";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const Lesson = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -43,7 +44,7 @@ const Lesson = () => {
 
       dispatch(
         fetchFlashCard({
-          userId: userInfo.id,
+          userId: userInfo?.id,
           query: searchObject,
         })
       );
@@ -71,7 +72,7 @@ const Lesson = () => {
               <Loading />
             ) : (
               <Row gutter={[16, 16]}>
-                <Col xl={6} lg={8} md={12} sm={24} xs={24}>
+                <Col xl={6} lg={6} md={12} sm={12} xs={24}>
                   <Card
                     className="lesson__card lesson__card--add"
                     onClick={() => setOpenAddFlashCard(true)}
@@ -84,7 +85,7 @@ const Lesson = () => {
                 </Col>
                 {flashCards?.items?.length > 0 &&
                   flashCards?.items?.map((item) => (
-                    <Col xl={6} lg={8} md={12} sm={24} xs={24} key={item.id}>
+                    <Col xl={6} lg={6} md={12} sm={12} xs={24} key={item.id}>
                       <Card className="lesson__card">
                         <h3 className="lesson__card--title">{item.content}</h3>
 
@@ -94,7 +95,9 @@ const Lesson = () => {
                             color="primary"
                             size="large"
                           >
-                            <Link to={`/flashcard/${item.id}`}>Học ngay</Link>
+                            <Link to={`/flashcard/detail/${item.id}`}>
+                              Xem chi tiết
+                            </Link>
                           </Button>
                         </div>
                       </Card>

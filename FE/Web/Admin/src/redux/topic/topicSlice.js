@@ -33,6 +33,8 @@ export const fetchTopicAdd = createAsyncThunk(
   async (data) => {
     const response = await instance.post('/topic', data)
 
+    console.log(response)
+
     if (response.data.status > 400) toast.error(response.data.message)
 
     else toast.success(response.data.message)

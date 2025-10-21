@@ -94,8 +94,6 @@ const FlashCard = () => {
     });
   };
 
-  console.log(flashCards);
-
   const dataSource = flashCards?.items?.map((flashCard) => {
     return {
       key: flashCard?.id,

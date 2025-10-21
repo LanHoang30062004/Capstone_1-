@@ -7,7 +7,6 @@ const FlashCardResult = ({ onRetry, onNextLesson, onBack }) => {
   return (
     <div className="flashcard-result">
       <div className="flashcard-result__content">
-        {/* Bên trái: Tiến độ */}
         <div className="flashcard-result__progress">
           <div className="flashcard-result__circle">
             <CheckCircleOutlined className="flashcard-result__icon" />
