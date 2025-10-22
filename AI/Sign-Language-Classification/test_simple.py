@@ -31,6 +31,7 @@ from config import (
     TARGET_FPS,
     MIN_FRAME_COUNT,
     MAX_CONCURRENT_VIDEOS,
+    MODEL_CONSERVATION
 )
 
 # Initialize logging
@@ -95,6 +96,7 @@ def remove_duplicates_and_skip(text):
 logger.info("🔄 Loading model...")
 try:
     model = ASLClassificationModel.load_model(f"models/{MODEL_NAME}")
+    model_conservation = ASLClassificationModel.load_model(f"models/{MODEL_CONSERVATION}")
     logger.info("✅ Model loaded successfully")
 except Exception as e:
     logger.error(f"❌ Error loading model: {e}")
@@ -439,7 +441,7 @@ class SequenceProcessor:
         # Process từng frame trong extended sequence
         for i, feature in enumerate(extended_sequence):
             try:
-                prediction = model.predict(feature.reshape(1, -1))
+                prediction = model_conservation.predict(feature.reshape(1, -1))
 
                 # Convert số thành chữ cái nếu cần
                 if isinstance(prediction, (int, float, np.number)):
@@ -478,130 +480,6 @@ async def cleanup_file(file_path: str):
         except Exception as e:
             logger.warning(f"Failed to delete temp file: {e}")
             await asyncio.sleep(0.1)  # Wait a bit before retrying
-
-
-def process_video_file(video_path: str) -> Dict[str, Any]:
-    """Process video file with optimizations"""
-    start_time = time.time()
-
-    # Initialize MediaPipe
-    face_mesh = mp_face_mesh.FaceMesh(
-        max_num_faces=1,
-        refine_landmarks=True,
-        min_detection_confidence=MODEL_CONFIDENCE,
-        min_tracking_confidence=MODEL_CONFIDENCE,
-    )
-
-    hands = mp_hands.Hands(
-        max_num_hands=2,
-        min_detection_confidence=MODEL_CONFIDENCE,
-        min_tracking_confidence=MODEL_CONFIDENCE,
-    )
-
-    # Sử dụng ExpressionHandler mới với thời gian tối thiểu cho mỗi cử chỉ
-    expression_handler = ExpressionHandler(min_frames_per_gesture=3)
-    processed_frames = 0
-
-    try:
-        # Open video file
-        cap = cv2.VideoCapture(video_path)
-        if not cap.isOpened():
-            raise Exception("Cannot open video file")
-
-        # Get video properties
-        original_fps = cap.get(cv2.CAP_PROP_FPS)
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        duration = frame_count / original_fps if original_fps > 0 else 0
-
-        # Calculate frame sampling rate
-        sample_every_n_frames = max(1, int(original_fps / TARGET_FPS))
-        logger.info(
-            f"Original FPS: {original_fps}, Sampling every {sample_every_n_frames} frames"
-        )
-
-        # Process frames with sampling
-        frame_idx = 0
-        frame_predictions = []  # Lưu tất cả predictions để debug
-
-        while True:
-            success, image = cap.read()
-            if not success:
-                break
-
-            # Skip frames based on sampling rate
-            if frame_idx % sample_every_n_frames != 0:
-                frame_idx += 1
-                continue
-
-            # Check processing time limit
-            if time.time() - start_time > MAX_PROCESSING_TIME - 1:
-                logger.warning("Processing time limit reached, stopping early")
-                break
-
-            # Convert to RGB and resize
-            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            height, width = image_rgb.shape[:2]
-            if width > 640:
-                scale = 640 / width
-                new_width = 640
-                new_height = int(height * scale)
-                image_rgb = cv2.resize(image_rgb, (new_width, new_height))
-
-            # Process with MediaPipe
-            face_results = face_mesh.process(image_rgb)
-            hand_results = hands.process(image_rgb)
-
-            # Extract features and predict
-            try:
-                feature = extract_features(mp_hands, face_results, hand_results)
-                if feature is not None:
-                    # Chuyển đổi số thành chữ cái nếu cần
-                    prediction = model.predict(feature)
-                    if isinstance(prediction, (int, float, np.number)):
-                        # Mapping từ số sang chữ cái
-                        prediction = chr(65 + int(prediction))  # 0->A, 1->B, ...
-
-                    expression_handler.receive(prediction)
-                    frame_predictions.append(prediction)
-                else:
-                    expression_handler.receive("?")
-                    frame_predictions.append("?")
-            except Exception as e:
-                logger.warning(f"Error in frame {frame_idx}: {e}")
-                expression_handler.receive("!")
-                frame_predictions.append("!")
-
-            processed_frames += 1
-
-            # Break if we have enough frames
-            if processed_frames >= MIN_FRAME_COUNT and duration > 0:
-                break
-
-            frame_idx += 1
-
-        # Get final sequence
-        final_sequence = expression_handler.get_sequence()
-        processing_time = time.time() - start_time
-
-        logger.info(f"Processed {processed_frames} frames in {processing_time:.2f}s")
-        logger.info(f"Raw predictions: {''.join(frame_predictions)}")
-        logger.info(f"Final sequence: {final_sequence}")
-
-        return {
-            "sequence": final_sequence,
-            "raw_predictions": "".join(frame_predictions),
-            "processing_time": f"{processing_time:.2f}s",
-            "frames_processed": processed_frames,
-            "original_duration": f"{duration:.2f}s",
-            "original_fps": original_fps,
-        }
-
-    finally:
-        # Release resources
-        if "cap" in locals() and cap.isOpened():
-            cap.release()
-        face_mesh.close()
-        hands.close()
 
 
 @app.post("/predict")
