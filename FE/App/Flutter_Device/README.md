@@ -90,3 +90,134 @@ cd C:\Users\ASUS\.ollama\models
 ollama create grammarly -f grammarly.modelfile
 
 
+
+
+/////////////////olama
+✅ Bước 1. Xóa cấu hình portproxy gây lỗi
+
+Chạy CMD với quyền Administrator, nhập lệnh:
+
+netsh interface portproxy delete v4tov4 listenport=11434 listenaddress=0.0.0.0
+netsh interface portproxy delete v4tov4 listenport=11434 listenaddress=0.0.0.0
+
+
+Nếu bạn muốn chắc chắn xoá tất cả cấu hình portproxy (an toàn nếu bạn không dùng port forwarding đặc biệt nào khác), chạy thêm:
+
+netsh interface portproxy reset
+
+✅ Bước 2. Kiểm tra lại
+
+Xem lại cấu hình portproxy đã bị xoá chưa:
+
+netsh interface portproxy show all
+
+
+Kết quả mong muốn:
+
+Listen on ipv4:             Connect to ipv4:
+
+Address         Port        Address         Port
+--------------- ----------  --------------- ----------
+
+
+👉 tức là trống hoàn toàn.
+
+✅ Bước 3. Kiểm tra lại cổng 11434
+netstat -ano | findstr 11434
+
+
+Nếu không có dòng nào → cổng đã được giải phóng ✅
+
+✅ Bước 4. Khởi động lại Ollama
+
+Giờ bạn chỉ cần chạy:
+
+ollama serve
+
+
+Bạn sẽ thấy:
+
+Listening on 127.0.0.1:11434
+
+✅ Bước 5. Tạo lại model
+
+Khi server đã chạy ổn định:
+
+cd C:\Users\ASUS\.ollama\models
+ollama create grammarly -f grammarly.modelfile
+
+
+🎯 Tóm lại:
+Nguyên nhân = Windows portproxy đang chiếm cổng 11434
+Giải pháp = Xoá cấu hình portproxy → giải phóng cổng → chạy lại Ollama
+
+Sau khi bạn xoá xong, gửi mình kết quả của:
+
+netsh interface portproxy show all
+
+Giờ bạn chỉ cần mở lại Command Prompt (Administrator) và chạy:
+
+ollama serve
+
+
+Nếu mọi thứ ổn, bạn sẽ thấy:
+
+Listening on 127.0.0.1:11434
+
+💡 Sau đó kiểm tra thêm:
+
+Mở trình duyệt và vào:
+
+http://127.0.0.1:11434
+
+⚙️ Giờ bạn có thể kiểm tra lại model:
+ollama list
+
+
+hoặc chạy thử:
+
+ollama run grammarly
+
+
+Nếu bạn thấy dòng như:
+
+>>> 
+
+
+thì model đã sẵn sàng để bạn nhập prompt và nhận phản hồi.
+
+💡 Gợi ý sử dụng
+
+Ví dụ, bạn có thể thử:
+
+ollama run grammarly "Viết lại câu sau cho tự nhiên hơn: Tôi đang học tiếng Anh mỗi ngày để cải thiện kỹ năng giao tiếp."
+
+
+👉 Tóm lại:
+
+Trạng thái	Mô tả
+🧱 Portproxy lỗi	Đã xoá thành công
+⚙️ Ollama server	Đang chạy ổn định
+🧩 Model Grammarly	Đã tạo thành công
+🚀 Sẵn sàng sử dụng	Bạn có thể run hoặc pull, create thêm model khác
+
+Bạn có muốn mình hướng dẫn luôn cách tích hợp model grammarly này vào ứng dụng Python hoặc web local (để gọi API Ollama từ code) không?
+
+
+ở cmd run as admin
+1: netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=11434 connectaddress=127.0.0.1 connectport=11434
+Nếu chạy thành công → nó sẽ không báo lỗi gì cả (chỉ xuống dòng trống).
+2: netsh interface portproxy show all
+        Nếu thấy dòng như sau là OK:
+        Listen on ipv4:             Connect to ipv4:
+
+        Address         Port        Address         Port
+        --------------- ----------  --------------- ----------
+        0.0.0.0         11434       127.0.0.1       11434
+3: ollama serve        
+4: Chạy lệnh:
+cd C:\Users\ASUS\.ollama\models
+ollama create grammarly -f grammarly.modelfile// ********k cần create
+ollama run grammarly
+
+

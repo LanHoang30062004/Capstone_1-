@@ -2,8 +2,8 @@
 FEATURES_PER_HAND = 21
 
 # Name of the model
-MODEL_NAME = "simple_9_expression_model.pkl"
-MODEL_CONFIDENCE = 0.5
+MODEL_NAME = "simple_conservation_1_expression_model.pkl"
+MODEL_CONFIDENCE = 0.7
 
 # Processing parameters
 MAX_PROCESSING_TIME = 30  # Maximum processing time in seconds

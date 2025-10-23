@@ -21,18 +21,17 @@ import 'package:video_thumbnail/video_thumbnail.dart' as vt;
 import 'package:camera/camera.dart' as cam;
 import 'fileConfiguration.dart';
 
-
 import 'html_stub.dart' if (dart.library.html) 'html_web.dart';
 
 // ✅ Cấu hình backend - Thay đổi theo môi trường của bạn
 // ✅ Config backend riêng biệt
 class BackendConfig {
   static const String javaEmulatorUrl = "http://10.0.2.2:8080";
-  static final String javaDeviceUrl = "http://"+Fileconfiguration.ip+":8080";
-  
+  static final String javaDeviceUrl =
+      "http://" + Fileconfiguration.ip + ":8080";
 
   static const String pyEmulatorUrl = "http://10.0.2.2:8000";
-  static final String pyDeviceUrl = "http://"+Fileconfiguration.ip+":8000";
+  static final String pyDeviceUrl = "http://" + Fileconfiguration.ip + ":8000";
 
   static String get javaBaseUrl => javaDeviceUrl;
   static String get pyBaseUrl => pyDeviceUrl;
@@ -236,8 +235,8 @@ class _ChatScreenState extends State<ChatScreen> {
               displayText = await _ollama.generateText(rawText);
               print("Text sau khi Ollama format: $displayText");
             } catch (e) {
-              displayText = rawText; 
-              print("Lỗi Ollama: $e");  
+              displayText = rawText;
+              print("Lỗi Ollama: $e");
             }
           }
 
@@ -351,6 +350,51 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _sendTextMessage() async {
+
+    void _showCenterPopup(BuildContext context, String message) {
+        final overlay = Overlay.of(context);
+        final overlayEntry = OverlayEntry(
+          builder: (context) => Center(
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        overlay.insert(overlayEntry);
+
+        // ✅ Tự ẩn sau 3 giây
+        Future.delayed(const Duration(seconds: 3), () {
+          overlayEntry.remove();
+        });
+      }
+
     if (_controller.text.isEmpty) return;
 
     final inputText = _controller.text.trim();
@@ -394,19 +438,15 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           });
         } else {
-          setState(() {
-            _messages.add({
-              "type": "text",
-              "data": "Không tồn tại ngôn ngữ ký hiệu cho từ này.",
-              "isMe": false,
-              "group": groupId,
-            });
-          });
+          _showCenterPopup(
+            context,
+            "Không tồn tại ngôn ngữ ký hiệu cho từ này.",
+          );
         }
       } else {
         _showErrorSnackBar('Lỗi API (${response.statusCode})');
       }
-
+      
       _scrollToBottom();
     } catch (e) {
       debugPrint("Lỗi kết nối API: $e");
@@ -466,6 +506,10 @@ class _ChatScreenState extends State<ChatScreen> {
     Widget bubble;
 
     if (type == "text") {
+      final isWarning =
+          message["data"] ==
+          "Không tồn tại ngôn ngữ ký hiệu cho từ này."; // 👈 thêm dòng này
+
       bubble = Container(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.7,
@@ -485,20 +529,28 @@ class _ChatScreenState extends State<ChatScreen> {
                 softWrap: true,
                 overflow: TextOverflow.visible,
                 style: TextStyle(
-                  color: isMe ? Colors.white : Colors.black87,
+                  color: isWarning
+                      ? Colors
+                            .red // 🔴 đổi màu đỏ nếu là câu cảnh báo
+                      : (isMe ? Colors.white : Colors.black87),
                   fontSize: 16,
+                  fontWeight: isWarning
+                      ? FontWeight.bold
+                      : FontWeight.normal, // làm đậm hơn
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () => _speak(message["data"]),
-              child: Icon(
-                Icons.volume_up,
-                size: 20,
-                color: isMe ? Colors.white : Colors.black54,
+            if (!isWarning) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _speak(message["data"]),
+                child: Icon(
+                  Icons.volume_up,
+                  size: 20,
+                  color: isMe ? Colors.white : Colors.black54,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       );

@@ -103,36 +103,44 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> signInAndSendToken() async {
   print("Hàm log với Google được gọi");
   try {
+    // Bắt buộc hiển thị selector
+    await _googleSignIn.signOut();  
+
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
     if (googleUser == null) {
       print('Người dùng đã hủy đăng nhập Google.');
       return;
     }
 
-    // Bước 2: Lấy authentication object
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
     final String? idToken = googleAuth.idToken;
 
-    // Bước 3: Debug thông tin
     print('Google user: ${googleUser.email}');
     print('idToken: $idToken');
 
-    // Bước 4: Kiểm tra token
     if (idToken == null || idToken.isEmpty) {
       print('idToken chưa có, không thể gọi backend.');
       return;
     }
 
-    // Bước 5: Gọi backend với token
     final ip = Fileconfiguration.ip;
     final response = await http.post(
       Uri.parse('http://$ip:8080/api/v1/auth/google?token=$idToken'),
       headers: {'Content-Type': 'application/json'},
     );
 
-    // Bước 6: Kiểm tra kết quả backend
     if (response.statusCode == 200) {
       print('Backend validated successfully: ${response.body}');
+       final token = jsonDecode(response.body)['data'];
+
+      // Chuyển sang SearchSignScreen và truyền token
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SearchSignScreen(token: token),
+        ),
+      );
+
     } else {
       print('Backend validation failed: ${response.statusCode} - ${response.body}');
     }
@@ -141,57 +149,6 @@ class _LoginScreenState extends State<LoginScreen> {
     print('Error: $e');
   }
 }
-  Future<void> _signInWithGoogle() async {
-    setState(() {
-      _isLoading = true;
-      _loginError = null;
-    });
-
-    final String oauthUrl =
-        "http://192.168.1.7:8080/oauth2/authorization/google?state=app";
-
-    final appLinks = AppLinks();
-    StreamSubscription<Uri>? sub;
-
-    try {
-      sub = appLinks.uriLinkStream.listen((Uri uri) async {
-        print("📩 Deep link nhận được: $uri");
-
-        if (uri.scheme == 'myapp' && uri.host == 'callback') {
-          final token = uri.queryParameters['token'];
-          if (token != null && token.isNotEmpty) {
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString("token", token);
-            print("✅ Đăng nhập thành công, token: $token");
-
-            if (!mounted) return;
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SearchSignScreen(token: token),
-              ),
-            );
-          } else {
-            setState(() => _loginError = "Không nhận được token từ server");
-          }
-        }
-      });
-
-      final Uri url = Uri.parse(oauthUrl);
-      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-        throw Exception('Không thể mở trình duyệt để đăng nhập');
-      }
-    } catch (e) {
-      print("❌ Lỗi đăng nhập Google: $e");
-      setState(() => _loginError = "Đăng nhập Google thất bại: $e");
-    } finally {
-      // Không cancel quá sớm, chỉ cancel khi rời khỏi màn hình hoặc timeout
-      Future.delayed(const Duration(seconds: 30), () {
-        sub?.cancel();
-      });
-      setState(() => _isLoading = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
