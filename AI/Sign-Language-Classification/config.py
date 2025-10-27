@@ -2,7 +2,8 @@
 FEATURES_PER_HAND = 21
 
 # Name of the model
-MODEL_NAME = "simple_conservation_1_expression_model.pkl"
+MODEL_NAME = "simple_13_expression_model.pkl"
+MODEL_CONSERVATION = "simple_conservation_1_expression_model.pkl"
 MODEL_CONFIDENCE = 0.7
 
 # Processing parameters
@@ -16,4 +17,3 @@ MIN_FRAMES_PER_GESTURE = 8  # Số frame tối thiểu để xác nhận một c
 GESTURE_SIMILARITY_THRESHOLD = 0.7  # Ngưỡng similarity để gộp cử chỉ
 
 MAX_CONCURRENT_VIDEOS = 10
-

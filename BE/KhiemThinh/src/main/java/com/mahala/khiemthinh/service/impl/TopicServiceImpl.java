@@ -5,6 +5,7 @@ import com.mahala.khiemthinh.dto.request.QuestionDTO;
 import com.mahala.khiemthinh.dto.request.TopicDTO;
 import com.mahala.khiemthinh.dto.response.PageResponse;
 import com.mahala.khiemthinh.exception.NotFoundException;
+import com.mahala.khiemthinh.mapper.TopicMapper;
 import com.mahala.khiemthinh.model.Option;
 import com.mahala.khiemthinh.model.Question;
 import com.mahala.khiemthinh.model.Topic;
@@ -29,22 +30,23 @@ import java.util.stream.Collectors;
 public class TopicServiceImpl implements TopicService {
     private final TopicRepository topicRepository;
     private final WordRepository wordRepository;
+    private final TopicMapper topicMapper;
 
     @Override
-    public PageResponse<?> getAllTopics(int page , int size , String search , String content) {
-        page = page > 0 ? page - 1 : page ;
-        Pageable pageable = PageRequest.of(page , size) ;
+    public PageResponse<?> getAllTopics(int page, int size, String search, String content) {
+        page = page > 0 ? page - 1 : page;
+        Pageable pageable = PageRequest.of(page, size);
         Specification<Topic> specification = (root, query, criteriaBuilder) -> {
             if (search != null && !search.isEmpty()) {
-                String searchPattern = "%"+search+"%" ;
-                return criteriaBuilder.or(criteriaBuilder.like(root.get("content") , searchPattern)) ;
+                String searchPattern = "%" + search + "%";
+                return criteriaBuilder.or(criteriaBuilder.like(root.get("content"), searchPattern));
             }
             if (content != null && !content.isEmpty()) {
-                return criteriaBuilder.or(criteriaBuilder.equal(root.get("content"), content)) ;
+                return criteriaBuilder.or(criteriaBuilder.equal(root.get("content"), content));
             }
-            return criteriaBuilder.conjunction() ;
-        } ;
-        Page<Topic> topics = topicRepository.findAll(specification, pageable) ;
+            return criteriaBuilder.conjunction();
+        };
+        Page<Topic> topics = topicRepository.findAll(specification, pageable);
         List<TopicDTO> result = topics.getContent().stream().map((item) ->
                 TopicDTO.builder()
                         .id(item.getId())
@@ -53,13 +55,13 @@ public class TopicServiceImpl implements TopicService {
                         .content(item.getContent())
                         .build()
 
-        ).collect(Collectors.toList()) ;
+        ).collect(Collectors.toList());
         return PageResponse.builder()
                 .items(result)
                 .totalPages(topics.getTotalPages())
                 .pageNo(page + 1)
                 .pageSize(size)
-                .build() ;
+                .build();
     }
 
     @Override
@@ -76,17 +78,22 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public TopicDTO addNewTOPIC(TopicDTO topicDTO) throws NotFoundException  {
+    public TopicDTO addNewTOPIC(TopicDTO topicDTO) throws NotFoundException {
         Topic topic = new Topic();
         topic.setContent(topicDTO.getContent());
         topic.setDurationMinutes(topicDTO.getDurationMinutes());
         topic.setNumberOfQuestion(topicDTO.getNumberOfQuestion());
         topic.setQuestions(topicDTO.getQuestions().stream().map(item -> {
             Question question = new Question();
-            OptionDTO optionDTO = item.getOptions().stream().filter(o -> o.getCorrect()).findAny().orElse(null);
+            OptionDTO optionDTO = null;
+            try {
+                optionDTO = item.getOptions().stream().filter(o -> o.getCorrect()).findAny().orElseThrow(() -> new NotFoundException("Can not find correct option"));
+            } catch (NotFoundException e) {
+                throw new RuntimeException(e);
+            }
             Word word = new Word();
             try {
-                 word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).orElseThrow(() -> new NotFoundException("Can not find any right sign")) ;
+                word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).orElseThrow(() -> new NotFoundException("Can not find any right sign"));
             } catch (NotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -99,10 +106,10 @@ public class TopicServiceImpl implements TopicService {
                 return optionAnswer;
             }).collect(Collectors.toList()));
             topic.addQuestion(question);
-            return question ;
+            return question;
         }).collect(Collectors.toList()));
-        this.topicRepository.save(topic);
-        return topicDTO;
+        Topic newTopic = this.topicRepository.save(topic);
+        return this.topicMapper.toTopicDTO(newTopic);
     }
 
     @Override
@@ -149,7 +156,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public void deleteTopic(Long idTopic) throws NotFoundException {
-        Topic topic = this.topicRepository.findById(idTopic).orElseThrow(() -> new NotFoundException("Can not found topic with id " + idTopic)) ;
+        Topic topic = this.topicRepository.findById(idTopic).orElseThrow(() -> new NotFoundException("Can not found topic with id " + idTopic));
         this.topicRepository.delete(topic);
     }
 

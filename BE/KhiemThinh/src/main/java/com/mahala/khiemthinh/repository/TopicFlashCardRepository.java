@@ -8,13 +8,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface TopicFlashCardRepository extends JpaRepository<TopicFlashCard, Long>  , JpaSpecificationExecutor<TopicFlashCard> {
-  @Query(
-          "select t from TopicFlashCard  t " +
-          "where t.user.id = :user_id"
-  )
-   Optional<TopicFlashCard> findByUserId(@Param("user_id") Long userId);
+    List<TopicFlashCard> findByUserId(Long userId);
 }

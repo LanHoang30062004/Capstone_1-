@@ -48,6 +48,7 @@ public class WordServiceImpl implements WordService {
         Page<Word> words = wordRepository.findAll(spec, pageable);
         List<WordDTO> wordDTOList = words.getContent().stream().map(item -> {
             return WordDTO.builder()
+                    .wordId(item.getId())
                     .wordName(item.getWordName())
                     .wordMeaning(item.getWordMeaning())
                     .videoUrl(item.getVideoUrl())
@@ -77,7 +78,8 @@ public class WordServiceImpl implements WordService {
         result.setWordMeaning(word.getWordMeaning());
         result.setVideoUrl(word.getVideoUrl());
         result.addUser(user);
-        this.wordRepository.save(result);
+        Word newWord = this.wordRepository.save(result);
+        word.setWordId(newWord.getId());
         return word;
     }
 

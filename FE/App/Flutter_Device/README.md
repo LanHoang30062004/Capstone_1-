@@ -204,6 +204,10 @@ Trạng thái	Mô tả
 Bạn có muốn mình hướng dẫn luôn cách tích hợp model grammarly này vào ứng dụng Python hoặc web local (để gọi API Ollama từ code) không?
 
 
+
+
+
+
 ở cmd run as admin
 1: netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=11434 connectaddress=127.0.0.1 connectport=11434
 Nếu chạy thành công → nó sẽ không báo lỗi gì cả (chỉ xuống dòng trống).
@@ -221,3 +225,13 @@ ollama create grammarly -f grammarly.modelfile// ********k cần create
 ollama run grammarly
 
 
+nếu  gặp lỗi vì port 11434 đã bị chiếm bởi portproxy. Đây là cách khắc phục:netsh interface portproxy delete v4tov4 listenaddress=0.0.0.0 listenport=11434
+sau đó ollama serve
+rồi: ollama run grammarly
+
+
+
+Share màn điện thoại :
+D:
+cd scrcpy-win64-v3.3.3
+scrcpy.exe

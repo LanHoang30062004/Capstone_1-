@@ -185,18 +185,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addNewAdmin(AdminDTO adminDTO) throws Exception {
+        Role role = this.roleRepository.findByRoleName("ADMIN").orElseThrow(() -> new NotFoundException("Can not find role")) ;
         User admin = this.userRepository.findByEmail(adminDTO.getEmail()).orElse(null) ;
+        User newAdmin = new User() ;
         if (admin != null) {
             throw new Exception("Admin is exist with email :" + adminDTO.getEmail());
         }
-        admin.setEmail(adminDTO.getEmail());
-        admin.setFullName(adminDTO.getFullName());
-        admin.setDateOfBirth(adminDTO.getDateOfBirth());
-        admin.setGender(adminDTO.getGender());
-        admin.setPhone(adminDTO.getPhone());
-        admin.setAddress(adminDTO.getAddress());
-        String password = this.passwordEncoder.encode(generatePassword(adminDTO.getEmail())) ;
-        admin.setPassword(password);
+        newAdmin.setEmail(adminDTO.getEmail());
+        newAdmin.setFullName(adminDTO.getFullName());
+        newAdmin.setDateOfBirth(adminDTO.getDateOfBirth());
+        newAdmin.setGender(adminDTO.getGender());
+        newAdmin.setPhone(adminDTO.getPhone());
+        newAdmin.setAddress(adminDTO.getAddress());
+        newAdmin.setRole(role);
+        String password = generatePassword(adminDTO.getEmail());
+        newAdmin.setPassword(this.passwordEncoder.encode(password));
         this.sendSimpleEmail(adminDTO.getEmail(),password);
     }
 

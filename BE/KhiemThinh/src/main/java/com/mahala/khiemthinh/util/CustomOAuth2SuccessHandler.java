@@ -46,7 +46,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             if ("app".equalsIgnoreCase(state)) {
                 response.sendRedirect("myapp://callback?token=" + token);
             } else {
-                response.getWriter().write("{\"token\": \"" + token + "\"}");
+                response.sendRedirect("http://localhost:5173/callback?token=" + token);
             }
 
         } else {
@@ -55,7 +55,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             if ("app".equalsIgnoreCase(state)) {
                 response.sendRedirect("myapp://callback?token=" + token);
             } else {
-                response.getWriter().write("{\"token\": \"" + token + "\"}");
+                response.sendRedirect("http://localhost:5173/callback?token=" + token);
+
             }
         }
     }

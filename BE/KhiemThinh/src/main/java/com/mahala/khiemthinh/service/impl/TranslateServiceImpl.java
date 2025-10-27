@@ -48,11 +48,13 @@ public class TranslateServiceImpl implements TranslateService {
                 }
             }
             if (!matched) {
+                result.add(words[i]);
                 i++;
             }
         }
         return result;
     }
+
 
     @Override
     public String translate(String inputText) {
@@ -69,11 +71,25 @@ public class TranslateServiceImpl implements TranslateService {
             // B3: Lấy danh sách video url
             List<String> videoUrls = new ArrayList<>();
             for (String phrase : matchedPhrases) {
-                videoUrls.add(videoMap.get(phrase));
+                if (videoMap.containsKey(phrase)) {
+                    videoUrls.add(videoMap.get(phrase));
+                } else {
+                    // fallback: nếu phrase chứa số, tách từng ký tự
+                    boolean foundAny = false;
+                    for (char c : phrase.toCharArray()) {
+                        String letter = String.valueOf(c);
+                        if (videoMap.containsKey(letter)) {
+                            videoUrls.add(videoMap.get(letter));
+                            foundAny = true;
+                        }
+                    }
+                    // nếu vẫn chưa có video nào, nhưng phrase khác rỗng → giữ nguyên từ
+                    if (!foundAny && !phrase.isBlank() && videoMap.containsKey(phrase)) {
+                        videoUrls.add(videoMap.get(phrase));
+                    }
+                }
             }
-            if (videoUrls.isEmpty()) {
-                return null; // hoặc throw exception tùy bạn
-            }
+
 
             String uuid = UUID.randomUUID().toString();
             tempDir = new File(System.getProperty("java.io.tmpdir"), "translate_" + uuid);

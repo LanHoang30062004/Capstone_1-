@@ -21,9 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +31,7 @@ public class FlashCardServiceImpl implements FlashCardService {
     private final TopicFlashCardRepository topicFlashCardRepository;
     private final FlashCardRepository flashCardRepository;
     private final WordRepository wordRepository;
-    private final UserRepository userRepository ;
+    private final UserRepository userRepository;
 
     @Override
     public PageResponse<?> getAllFlashCard(int page, int size, String search) {
@@ -62,18 +60,20 @@ public class FlashCardServiceImpl implements FlashCardService {
 
     @Override
     public PageResponse<?> getAllFlashCardByUserId(int page, int size, Long userID, String search) throws NotFoundException {
-        TopicFlashCard check = this.topicFlashCardRepository.findByUserId(userID).orElseThrow(() -> new NotFoundException("Can not find flashcard with user id :" + userID)) ;
+        List<TopicFlashCard> check = this.topicFlashCardRepository.findByUserId(userID);
+        if (check.isEmpty()) {
+            throw new NotFoundException("Can not find any flash card by user id :" + userID);
+        }
         page = page > 0 ? page - 1 : 0;
         Pageable pageable = PageRequest.of(page, size);
-        Specification<TopicFlashCard> specification = (root , query , cb) -> {
+        Specification<TopicFlashCard> specification = (root, query, cb) -> {
             if (search != null) {
                 String searchPattern = "%" + search.toLowerCase() + "%";
                 return cb.and(cb.equal(root.get("user").get("id"), userID), cb.like(cb.lower(root.get("content")), searchPattern));
+            } else {
+                return cb.or(cb.equal(root.get("user").get("id"), userID));
             }
-            else {
-                return cb.or(cb.equal(root.get("user").get("id"), userID)) ;
-            }
-        } ;
+        };
         Page<TopicFlashCard> result = this.topicFlashCardRepository.findAll(specification, pageable);
         List<FlashCardDTO> flashCards = result.getContent().stream().map(item -> FlashCardDTO.builder()
                 .content(item.getContent())
@@ -101,7 +101,7 @@ public class FlashCardServiceImpl implements FlashCardService {
 
     @Override
     public FlashCardDTO addNewFlashCard(FlashCardDTO flashCardDTO) throws NotFoundException {
-        User user = this.userRepository.findById(flashCardDTO.getUserId()).orElseThrow(() -> new NotFoundException("Can not find user with id :" + flashCardDTO.getUserId())) ;
+        User user = this.userRepository.findById(flashCardDTO.getUserId()).orElseThrow(() -> new NotFoundException("Can not find user with id :" + flashCardDTO.getUserId()));
         TopicFlashCard topicFlashCard = new TopicFlashCard();
         topicFlashCard.setContent(flashCardDTO.getContent());
         topicFlashCard.setFlashCards(flashCardDTO.getCards().stream().map(item -> {
@@ -148,9 +148,21 @@ public class FlashCardServiceImpl implements FlashCardService {
     }
 
 
+    @Transactional
     @Override
     public void deleteFlashCard(Long id) throws NotFoundException {
-        TopicFlashCard topicFlashCard = this.topicFlashCardRepository.findById(id).orElseThrow(() -> new NotFoundException("Can not find this topic"));
-        this.topicFlashCardRepository.delete(topicFlashCard);
+        TopicFlashCard topicFlashCard = topicFlashCardRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Cannot find this topic"));
+
+        User user = topicFlashCard.getUser();
+        if (user != null) {
+            user.getTopicFlashCards().remove(topicFlashCard); 
+        }
+
+        topicFlashCardRepository.delete(topicFlashCard);
     }
+
+
+
+
 }
