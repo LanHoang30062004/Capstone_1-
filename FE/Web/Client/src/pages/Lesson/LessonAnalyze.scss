@@ -78,6 +78,47 @@
   &__btn {
     margin: 15px;
   }
+
+  &__title-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #141414;
+  }
+
+  &__compare {
+    margin-top: 10px;
+  }
+
+  &__word {
+    font-size: 16px;
+    font-weight: 500;
+
+    &--target {
+      color: #1677ff; // màu cho từ đúng cần thực hiện
+    }
+
+    &--correct {
+      color: #52c41a; // xanh lá nếu AI đoán đúng
+    }
+
+    &--wrong {
+      color: #ff4d4f; // đỏ nếu đoán sai
+    }
+  }
+
+  &__icon {
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+
+    &--correct {
+      color: #52c41a;
+    }
+
+    &--wrong {
+      color: #ff4d4f;
+    }
+  }
 }
 
 @media (max-width: 768px) {

@@ -33,6 +33,8 @@ const PractiseDetail = () => {
     fetchDetailTopic();
   }, []);
 
+  console.log(topic);
+
   return (
     <>
       <section className="practise-detail mt">
@@ -49,13 +51,10 @@ const PractiseDetail = () => {
                 <div className="practise-detail__info">
                   <div className="practise-detail__info">
                     <MdAccessTime className="practise-detail__info--icon" />{" "}
-                    Thời gian làm bài: {topic?.durationMinutes} phút |{" "}
-                    {topic?.numberOfQuestion} câu hỏi
-                  </div>
-
-                  <div>
-                    <MdOutlineQuiz className="practise-detail__info--icon" />{" "}
-                    12832123 người đã luyện tập đề này
+                    {/* Thời gian làm bài: {topic?.durationMinutes} phút |{" "} */}
+                    Số lượng câu hỏi:
+                    3 câu hỏi
+                    {/* {topic?.numberOfQuestion} câu hỏi */}
                   </div>
                 </div>
 

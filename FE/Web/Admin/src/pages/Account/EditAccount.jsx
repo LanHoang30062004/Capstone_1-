@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { LoadingContext } from "~/context/LoadingContext";
-import { fetchAccountEdit } from "~/redux/account/accountSlice";
+import { fetchAccount, fetchAccountEdit } from "~/redux/account/accountSlice";
 
 const EditAccount = (props) => {
   const { open, setOpen, account } = props;
@@ -17,7 +17,13 @@ const EditAccount = (props) => {
       toggleLoading(true);
       value.dateOfBirth = dayjs(value.dateOfBirth).format("YYYY-MM-DD");
       await dispatch(fetchAccountEdit(value));
-      toast.success("Chỉnh sửa thành công!");
+      const searchObject = {
+        page: 1,
+        size: 20,
+      };
+
+      dispatch(fetchAccount(searchObject));
+      await dispatch();
     } catch (error) {
       toast.error(error);
     } finally {
