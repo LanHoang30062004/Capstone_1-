@@ -570,6 +570,76 @@ class ExpressionHandler:
         "cau_truot": "Cầu trượt",
         "cau_vuot": "Cầu vượt",
         "cay_an_qua": "Cây ăn quả",
+        "bit_tat": "Bít tất",
+        "bof": "Bò",
+        "bo_sat": "Bò sát",
+        "bo_tot": "Bò tót",
+        "bo_hoang": "Bỏ hoang",
+        "bo_phieu": "Bỏ phiếu",
+        "bo_qua": "Bỏ qua",
+        "bo_roi": "Bỏ rơi",
+        "bo_dua": "Bó đũa",
+        "bo_hoa": "Bó hoa",
+        "boc_lot": "Bóc lột",
+        "boc_vo": "Bóc vỏ",
+        "boc_sach": "Bọc sách",
+        "bom_dan": "Bom đạn",
+        "bom_nguyen_tu": "Bom nguyên tử",
+        "bon_phan": "Bón phân",
+        "bong": "Bỏng",
+        "bong_ngo": "Bỏng ngô",
+        "bong_bay": "Bóng bay",
+        "boong_tau": "Boong tàu",
+        "bot_bien": "Bọt biển",
+        "bot_xa_phong": "Bọt xà phòng",
+        "bo_ket": "Bồ kết",
+        "bo_ich": "Bổ ích",
+        "bo_ngu": "Bổ ngữ",
+        "bo_tro": "Bổ trợ",
+        "bo_tri": "Bố trí",
+        "bo_truyen": "Bộ truyện",
+        "boc_vac": "Bốc vác",
+        "boos": "Bố",
+        "bo_duong": "Bố dượng",
+        "bo_me": "Bố mẹ",
+        "bo_doi": "Bộ đội",
+        "bo_sach": "Bộ sách",
+        "boc_hoi": "Bốc hơi",
+        "boc_tham": "Bốc thăm",
+        "boi_ban": "Bồi bàn",
+        "boi_thuong": "Bồi thường",
+        "bon_hoa": "Bồn hoa",
+        "bon_rua_bat": "Bồn rửa bát",
+        "bong_hoa": "Bông hoa",
+        "bot_canh_sat": "Bốt cảnh sát",
+        "bot_dien": "Bốt điện",
+        "bot_giat": "Bột giặt",
+        "bot_mau": "Bột màu",
+        "bot_ngot": "Bột ngọt",
+        "bo_bien": "Bờ biển",
+        "bo_rao": "Bờ rào",
+        "bo_ruong": "Bờ ruộng",
+        "boi": "Bơi",
+        "boi_loi": "Bơi lội",
+        "bom": "Bơm (cái bơm)",
+        "bom_nuoc": "Bơm nước",
+        "bom_xe": "Bơm xe",
+        "bom_toc": "Bờm tóc",
+        "bot": "Bớt",
+        "bot_di": "Bớt đi",
+        "bra_xin": "Nước Bra-xin",
+        "bru_nay": "Nước Bru-nây",
+        "co": "Cỏ",
+        "bui_doi": "Bụi đời",
+        "bui_phan": "Bụi phấn",
+        "bun_ga_ri": "Nước Bun-ga-ri",
+        "bun": "Bùn",
+        "bung": "Bụng",
+        "buoc_day": "Buộc dây",
+        "buoc_toc": "Buộc tóc",
+        "buoi_chieu": "Buổi chiều",
+        "buoi_dem": "Buổi đêm",
+        "buoi_sang": "Buổi sáng",
     }
 
     def __init__(self, min_frames_per_gesture=5, similarity_threshold=0.7):
@@ -579,52 +649,68 @@ class ExpressionHandler:
         self.min_frames_per_gesture = min_frames_per_gesture
         self.similarity_threshold = similarity_threshold
         self.sequence = []  # Chuỗi cử chỉ đã nhận diện
-    
+
     def receive(self, prediction):
         # Chuyển đổi prediction thành dạng chuẩn (lowercase) để so sánh
-        normalized_prediction = prediction.strip().lower() if isinstance(prediction, str) else str(prediction)
+        normalized_prediction = (
+            prediction.strip().lower()
+            if isinstance(prediction, str)
+            else str(prediction)
+        )
         self.predictions.append(normalized_prediction)
-        
+
         # Nếu cử chỉ thay đổi
         if self.current_gesture != normalized_prediction:
             # Nếu cử chỉ cũ tồn tại đủ lâu, thêm vào sequence (đã mapped)
-            if (self.current_gesture and 
-                len(self.predictions) - self.gesture_start_frame >= self.min_frames_per_gesture):
-                mapped_gesture = self.MAPPING.get(self.current_gesture, self.current_gesture)
+            if (
+                self.current_gesture
+                and len(self.predictions) - self.gesture_start_frame
+                >= self.min_frames_per_gesture
+            ):
+                mapped_gesture = self.MAPPING.get(
+                    self.current_gesture, self.current_gesture
+                )
                 self.sequence.append(mapped_gesture)
-            
+
             self.current_gesture = normalized_prediction
             self.gesture_start_frame = len(self.predictions)
-    
+
     def get_sequence(self):
         # Thêm cử chỉ cuối cùng nếu tồn tại đủ lâu (đã mapped)
-        if (self.current_gesture and 
-            len(self.predictions) - self.gesture_start_frame >= self.min_frames_per_gesture):
-            mapped_gesture = self.MAPPING.get(self.current_gesture, self.current_gesture)
+        if (
+            self.current_gesture
+            and len(self.predictions) - self.gesture_start_frame
+            >= self.min_frames_per_gesture
+        ):
+            mapped_gesture = self.MAPPING.get(
+                self.current_gesture, self.current_gesture
+            )
             self.sequence.append(mapped_gesture)
-        
+
         # Loại bỏ cử chỉ trùng lặp liên tiếp và thêm khoảng trắng giữa các từ
         cleaned_sequence = []
         for gesture in self.sequence:
             if not cleaned_sequence or gesture != cleaned_sequence[-1]:
                 # Thêm khoảng trắng nếu là từ mới (không phải ký tự đơn)
-                if (cleaned_sequence and 
-                    len(gesture) > 1 and 
-                    len(cleaned_sequence[-1]) > 1):
+                if (
+                    cleaned_sequence
+                    and len(gesture) > 1
+                    and len(cleaned_sequence[-1]) > 1
+                ):
                     cleaned_sequence.append(" ")
                 cleaned_sequence.append(gesture)
-        
+
         return "".join(cleaned_sequence)
-    
+
     def get_message(self):
         sequence = self.get_sequence()
         # Đảm bảo chuỗi kết quả được format đẹp
         return sequence.strip()
-    
+
     def get_raw_predictions(self):
         """Trả về chuỗi predictions gốc (cho debug)"""
         return "".join(self.predictions)
-    
+
     def receive_old(self, message):
         self.current_message = message
 
