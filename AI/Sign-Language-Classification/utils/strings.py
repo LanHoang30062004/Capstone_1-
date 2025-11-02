@@ -7,23 +7,6 @@ class ExpressionHandler:
         "khong": "Không",
         "toi": "Tôi",
         "ten_la": "Tên là",
-        "tuoi": "tuổi",
-        "rat_vui_duoc_gap_ban": "rất vui được gặp bạn",
-        "hen_gap_lai": "hẹn gặp lại",
-        "cau_hoi": "câu hỏi",
-        "khoe": "khỏe",
-        "ban": "bạn",
-        "den_tu": "đến từ",
-        "gia_dinh": "gia đình",
-        "ranh": "rảnh",
-        "ban": "bạn",
-        "an": "ăn",
-        "banj": "bận",
-        "di": "đi",
-        "lam": "làm",
-        "gio": "giờ",
-        "1": "1",
-        "2": "2",
         "a": "a",
         "b": "b",
         "c": "c",
@@ -88,6 +71,7 @@ class ExpressionHandler:
         "mu_chu": "Mù chữ",
         "vo_tinh": "Vô tình",
         "tet_han_thuc": "Tết Hàn Thực",
+        "gio": "Giỗ",
         "quoc_te_phu_nu": "ngày Quốc tế phụ nữ 8/3",
         "giai_phong_thu_do": "Ngày giải phóng thủ đô 10/10",
         "giai_phong_mien_nam": "Ngày giải phóng miền Nam 30/4",
@@ -95,358 +79,6 @@ class ExpressionHandler:
         "nguoi_khuyet_tat_the_gioi_3_12": "ngày Người khuyết tật Thế giới 3/12",
         "halloween": "lễ Halloween 31/10",
         "ngay_phu_nu_viet_nam": "ngày Phụ nữ Việt Nam 20/10",
-        "ban_yeu_toi": "Bạn yêu tôi",
-        "toi_yeu_ban_ay": "Tôi yêu bạn ấy",
-        "ban_ay_yeu_toi": "Bạn ấy yêu tôi",
-        "ban_yeu_ban_ay": "Bạn yêu bạn ấy",
-        "ban_ay_yeu_ban": "Bạn ấy yêu bạn",
-        "anh_hai_anh_ca": "Anh hai, anh cả",
-        "chi_hai_chi_ca": "Chị hai, chị cả",
-        "qua_bau_ho_lo": "Quả bầu hồ lô",
-        "mot_la": "Một là",
-        "hai_la": "Hai là",
-        "ba_la": "Ba là",
-        "bon_la": "Bốn là",
-        "nam_la": "Năm là",
-        "ong_ba": "Ông bà",
-        "em_ho": "Em họ",
-        "chau_ho": "Cháu họ",
-        "song_sot": "Sống sót",
-        "thuong_xuyen": "Thường xuyên",
-        "di_dao": "Đi dạo",
-        "ve_sai_gon": "Về (Sài Gòn)",
-        "phong_toa": "Phong toả",
-        "thung_lung": "Thung lũng",
-        "dia_hinh": "Địa hình",
-        "kim_dong": "Kim đồng",
-        "thanh_giong": "Thánh gióng",
-        "hoa_giay": "Hoa giấy",
-        "hoa_dam_but": "Hoa dâm bụt",
-        "ket_luan": "Kết luận",
-        "internet": "Internet",
-        "di_ve_sinh": "Đi vệ sinh",
-        "hoa_mai": "Hoa mai",
-        "aw": "ă",
-        "aa": "â",
-        "b": "b",
-        "c": "c",
-        "d": "d",
-        "dd": "đ",
-        "ow": "ơ",
-        "dau_huyen": "Dấu huyền",
-        "dau_sac": "Dấu sắc",
-        "dau_hoi": "Dấu hỏi",
-        "dau_nang": "Dấu nặng",
-        "khong_co": "Không có",
-        "khong_co_chi": "Không có chi",
-        "dan_chu": "Dân chủ",
-        "xu_ly": "Xử lý",
-        "dat_ruong": "Đất ruộng",
-        "tinh_mat": "Tinh mắt",
-        "cung_vay": "Cũng vậy",
-        "dung_khong": "Đúng không?",
-        "phai_khong": "Phải không?",
-        "con_ban": "Còn bạn?",
-        "can_khong": "Cần không?",
-        "nen_khong": "Nên không?",
-        "kia": "Kia",
-        "nong_tinh": "Nóng tính",
-        "so_khong": "Sợ không?",
-        "cam_thu": "Căm thù",
-        "dep_khong": "Đẹp không?",
-        "khong_dep": "Không đẹp",
-        "cac_ban": "Các bạn (2 người)",
-        "chung_toi_1": "Chúng tôi",
-        "chung_toi_2": "Chúng tôi (2 người)",
-        "chung_toi_3": "Chúng tôi (3 người)",
-        "chung_toi_4": "Chúng tôi (4 người)",
-        "chung_toi_5": "Chúng tôi (5 người)",
-        "ho_2": "Họ (2 người)",
-        "ho_1": "Họ",
-        "sinh_to": "Sinh tố",
-        "vat_chanh": "Vắt chanh",
-        "mia": "Mía",
-        "chanh_da": "Chanh đá",
-        "chanh_nong": "Chanh nóng",
-        "chanh_muoi": "Chanh muối",
-        "tra_da": "Trà đá",
-        "tra_nong": "Trà nóng",
-        "tra_sua": "Trà sữa",
-        "socola": "Socola",
-        "cocacola": "CocaCola",
-        "7up": "7up",
-        "mot_tiet_hoc": "Một tiết học",
-        "mot_tieng": "Một tiếng",
-        "chung_tay": "Chung tay",
-        "rua_chan": "Rửa chân",
-        "rua_mat": "Rửa mặt",
-        "danh_rang": "Đánh răng",
-        "tuan_nay": "Tuần này",
-        "tuan_sau": "Tuần sau",
-        "tuan_truoc": "Tuần trước",
-        "cuoi_tuan": "Cuối tuần",
-        "cuoi_thang": "Cuối tháng",
-        "cuoi_nam": "Cuối năm",
-        "muc_tieu": "Mục tiêu",
-        "sinh_doi": "Sinh đôi",
-        "doi": "Đôi",
-        "dang": "Đảng",
-        "mo_ta": "Mô tả",
-        "mum_mim": "Mũm mĩm",
-        "toc_dai": "Tóc dài",
-        "toc_ngan": "Tóc ngắn",
-        "tong_ket": "Tổng kết/bế giảng",
-        "loc_xoay": "Lốc xoáy",
-        "tay_chan_sach_se": "Tay chân sạch sẽ",
-        "nham_mat": "Nhắm mắt",
-        "so": "Sờ",
-        "cay_nen": "Cây nến",
-        "diu_dang": "Dịu dàng",
-        "dua": "Đùa",
-        "lam_duoc": "Làm được",
-        "dong_song_chay": "Dòng sông chảy",
-        "an_du": "Ăn đủ",
-        "an_vua": "Ăn vừa",
-        "an_it": "Ăn ít",
-        "do_uong": "Đồ uống",
-        "do_an": "Đồ ăn",
-        "trang_diem": "Trang điểm",
-        "dau_mat_do": "Đau mắt đỏ",
-        "cai_vot_ca": "Cái vợt cá",
-        "vot_cau_long": "Vợt câu lông",
-        "con_vuon": "Con vượn",
-        "thap_den": "Thắp đèn",
-        "gop_tien": "Góp tiền",
-        "hop_nhom": "Họp nhóm",
-        "nhut_nhat": "Nhút nhát",
-        "luoc_rau": "Luộc rau",
-        "muoi": "Muối",
-        "nuoc_mam": "Nước mắm",
-        "thoan_thoat": "Thoăn thoắt",
-        "dua_doi": "Đua đòi",
-        "binh_sua": "Bình sữa",
-        "doi": "Đòi",
-        "doi_hoi": "Đòi hỏi",
-        "tre_con": "Trẻ con",
-        "duy_nhat": "Duy nhất",
-        "canh_tranh": "Cạnh tranh",
-        "hoa_hau": "Hoa hậu",
-        "cai_neo": "Cái neo",
-        "phong_vien": "Phóng viên",
-        "nha_van_hoa": "Nhà văn hóa",
-        "chua_yen_tu": "Chùa Yên Tử",
-        "cho_xoi": "Chõ xôi",
-        "cay_co": "Cây cọ",
-        "khu_vuc_cach_ly": "Khu vực cách ly",
-        "ngay_thay_thuoc_VN": "Ngày Thầy thuốc VN",
-        "ngay_thanh_lap_QDNDVN": "Ngày thành lập Quân đội Nhân dân Việt Nam",
-        "con_ca_sau": "Con cá sấu",
-        "nham": "Nhầm",
-        "dong_bang_song_CL": "Đồng bằng sông Cửu Long",
-        "dong_bang_song_hong": "Đồng bằng sông Hồng",
-        "dong_bang_duyen_hai_mien_trung": "Đồng bằng duyên hải miền Trung",
-        "buon_tham": "Buồn thảm",
-        "mach": "Mách",
-        "vo_duyen": "Vô duyên",
-        "ti_hi_mat": "Ti hí mắt",
-        "kip_thoi": "Kịp thời",
-        "boi_roi": "Bối rối",
-        "hu_via": "Hú vía",
-        "suyts": "Suýt",
-        "suytj": "Suỵt",
-        "ca_voi": "Cá voi",
-        "ca_kiem": "Cá kiếm",
-        "duoi_ca": "Đuôi cá",
-        "duoi_chuot": "Đuôi chuột",
-        "bo_bit_tet": "Bò bít tết",
-        "sup": "Súp",
-        "sup_lo": "Súp lơ",
-        "mi_tom": "Mì tôm",
-        "ve_2": "về",
-        "ve_3": "về",
-        "ve_4": "về",
-        "ve_5": "về",
-        "hen": "hẹn",
-        "quyen_luyen": "quyến luyến",
-        "hua": "hứa",
-        "cung": "cùng",
-        "lau": "lâu",
-        "van": "vẫn",
-        "moi_ngay": "mỗi ngày",
-        "an_bang_thia": "ăn bằng thìa",
-        "an_vu_sua": "ăn vú sữa",
-        "hoi": "hỏi",
-        "trong_nha": "trông nhà",
-        "chay": "chạy",
-        "xe_container": "xe container",
-        "bay_nhanh": "bay nhanh",
-        "cham_chap": "chậm chạp",
-        "ngung_lai": "ngừng lại",
-        "cung_dien": "cung điện",
-        "dung_lai": "dừng lại",
-        "mot_chut": "một chút",
-        "bao_tang": "bảo tàng",
-        "bao_thu": "bảo thủ",
-        "ton_tai": "tồn tại",
-        "bao_ve_moi_truong": "bảo vệ môi trường",
-        "bao_conbao": "con báo ",
-        "bao_cao": "báo cáo",
-        "bao_dong": "báo động",
-        "bao_thu": "báo thù",
-        "bao": "bát",
-        "bat_huong": "bát hương",
-        "bat_ngat": "bát ngát",
-        "lang_gom_bat_trang": "làng gốm bát tràng",
-        "bay": "bay",
-        "bay_lieng": "bay liệng(bay lượn)",
-        "banh_gai": "bánh gai",
-        "banh_giay": "bánh giầy",
-        "banh_gio": "bánh giò",
-        "banh_goi": "bánh gối",
-        "banh_mi": "bánh mì",
-        "banh_pizza": "bánh pizza",
-        "banh_pia": "bánh pía",
-        "hang_tau_thuyen": "hãng tàu thuyền",
-        "banh_xe": "bánh xe",
-        "bao_gio": "bao giờ",
-        "bao_la": "bao la",
-        "bao_nhieu": "bao nhiêu",
-        "bao_tay": "bao tay  (dùng cho trẻ sơ sinh)",
-        "bao_dam": "bao đảm",
-        "bao_hiem": "bảo hiểm",
-        "luu": "lưu",
-        "bang_den": "bảng đen",
-        "hang_may_bay": "hãng máy bay",
-        "bang_mau": "bảng màu",
-        "bang_nhan": "bảng nhân",
-        "hang_xe_may": "hãng xe máy",
-        "bang_tru": "bảng trừ",
-        "bang_bot_loc": "bánh bột lọc",
-        "banh_com": "bánh cốm",
-        "banh_cuon": "bánh cuốn",
-        "banh_trung_thu": "bánh trung thu",
-        "banh_da": "bánh đa",
-        "banh_duc": "bánh đúc",
-        "ban_kinh": "bán kính",
-        "ban_gai": "bạn gái",
-        "ban_trai": "bạn trai",
-        "bang_hoc_sinh": "bảng học sinh",
-        "bang_chia": "bảng chia",
-        "bang_chi_dan": "bảng chỉ dẫn",
-        "bang_chu_cai_ngon_tay": "bảng chữ cái ngón tay",
-        "bang_cong": "bảng chữ cái ngón tay",
-        "bang_cuu_chuong": "bảng cửu chương",
-        "my_van_than": "mỳ vằn thắn",
-        "my_y": "mỳ ý",
-        "bun_mam": "bún mắm",
-        "bun_cha": "bún chả",
-        "bun_ngan": "bún ngan",
-        "bun_oc": "bún ốc",
-        "bun_dau": "bún đậu",
-        "xoi_gac": "xôi gấc",
-        "xoi_ga": "xôi gà",
-        "chao_suon": "cháo sườn",
-        "com_rang": "cơm răng",
-        "nhan_manh": "nhấn mạnh",
-        "dao_dien": "đạo diễn",
-        "thi_nghiem": "thí nghiệm",
-        "cam_trai": "cắm trại",
-        "kha_nang": "khả năng",
-        "ky_nang": "kỹ năng",
-        "co_khong": "có … không?",
-        "cung_cap": "cung cấp",
-        "kho_dai": "khờ dại",
-        "cuc_kho": "cực khổ",
-        "may_man": "may mắn",
-        "tu_choi": "từ chối",
-        "nau_nuong": "nấu nướng",
-        "xoa_dau": "xoa đầu",
-        "ruc_ro": "rực rỡ",
-        "thiep_sinh_nhat": "thiệp sinh nhật",
-        "khong_quen": "không quen",
-        "banh_trang": "bánh tráng",
-        "tuong_ot": "tương ớt",
-        "so_la_ma": "số la mã",
-        "long_vuong": "long vương",
-        "dang_hoang": "đàng hoàng",
-        "phan_van": "phân vân",
-        "lau_mieng": "lau miệng",
-        "cho_can": "chó cắn",
-        "meo_cao": "mèo cào",
-        "quan_he_tu": "quan hệ từ",
-        "yeu_nuoc_Viet_Nam": "yêu nước Việt Nam",
-        "quan": "chức vụ",
-        "di_tuan": "đi tuần",
-        "vo_ve": "vỗ về",
-        "hot_hoang": "hốt hoảng",
-        "chuyen_nho": "chuyện nhỏ",
-        "cai_gui": "cái gùi",
-        "bat_khuat": "bất khuất",
-        "nhung": "nhưng",
-        "hay_la": "hay là (hoặc là)",
-        "thang_long": "thăng long",
-        "day_nui_Hoang_Lien_Son": "dãy núi Hoàng Liên Sơn",
-        "quanh_nam ": "quanh_năm",
-        "gap_doi": "gấp đôi",
-        "gap_ba": "gấp ba",
-        "chia_doi": "chia đôi",
-        "chia_ba": "chia ba",
-        "di_lac": "đi lạc",
-        "mat": "mất (chết) (chỉ người)",
-        "dai_su": "đại sứ",
-        "canh_giac": "cảnh giác",
-        "giam_sat": "giám sát",
-        "quan_sat": "quan sát",
-        "an_vung": "ăn vụng",
-        "xay_ra": "xảy ra",
-        "du_an": "dự án",
-        "dau_tu": "đầu tư",
-        "nan_ni": "năn nỉ",
-        "hao_huc": "háo hức",
-        "rac_roi": "rắc rối",
-        "tai_ve": "tải về",
-        "nhong_nheo": "nhỏng nhẽo",
-        "hen": "hên",
-        "den_dui": "đen đủi",
-        "long_lanh": "long lanh",
-        "lanh_lung": "lạnh lùng",
-        "doi": "dỗi",
-        "liec_nhin": "liếc nhìn",
-        "nho_toc": "nhổ tóc",
-        "nho_rau": "nhổ râu",
-        "nho_long_may": "nhổ lông mày",
-        "cat_long_mui": "cắt lông mũi",
-        "nho_rang": "nhổ răng",
-        "rang_ho": "rang hô",
-        "rang_khenh": "rang khểnh",
-        "khau_khinh": "kháu khỉnh",
-        "moc_toc": "mọc tóc",
-        "moc_rau": "mọc râu",
-        "moc_ria_mep": "mọc ria mép",
-        "covid": "covid",
-        "co_do_hue": "Cố đô Huế",
-        "cach_ly": "cách ly",
-        "gian_cach_xa_hoi": "giản cách xã hội",
-        "tuong_lai": "tương lai",
-        "trong_khoang": "trong khoảng",
-        "tron_tim": "trốn tìm",
-        "nhay_bao_bo": "nhảy bao bố",
-        "nhay_lo_co": "nhảy lò cò",
-        "keo_co": "kéo co",
-        "hoi_thoai": "hội thoại",
-        "ly_do": "lý do",
-        "lon_hon_mot_toan_hoc": "lớn hơn 1 (Toán học)",
-        "lon_hon_hai_toan_hoc": "lớn hơn 2 (Toán học)",
-        "hai_nho_hon_nam_toan_hoc": "2 < 5 (Toán học)",
-        "tinh_tao": "tỉnh táo",
-        "nhon_nhip_dong_nguoi": "nhộn nhịp (đông người)",
-        "ao_ke_soc": "áo kẻ sọc",
-        "dat_nuoc_bi_chia_cat_viet_nam": "đất nước bị chia cắt (Việt Nam)",
-        "thong_nhat_dat_nuoc": "thống nhất đất nước",
-        "khoang_san": "khoáng sản",
-        "thuong_mai": "thương mại",
-        "cong_nghiep": "công nghiệp",
-        "hap_dan": "hấp dẫn",
     }
 
     def __init__(self, min_frames_per_gesture=5, similarity_threshold=0.7):
@@ -455,89 +87,55 @@ class ExpressionHandler:
         self.gesture_start_frame = 0
         self.min_frames_per_gesture = min_frames_per_gesture
         self.similarity_threshold = similarity_threshold
-        self.sequence = []  # Chuỗi cử chỉ đã nhận diện (đã mapped)
-
+        self.sequence = []  # Chuỗi cử chỉ đã nhận diện
+    
     def receive(self, prediction):
         # Chuyển đổi prediction thành dạng chuẩn (lowercase) để so sánh
-        normalized_prediction = (
-            prediction.strip().lower()
-            if isinstance(prediction, str)
-            else str(prediction)
-        )
+        normalized_prediction = prediction.strip().lower() if isinstance(prediction, str) else str(prediction)
         self.predictions.append(normalized_prediction)
-
+        
         # Nếu cử chỉ thay đổi
         if self.current_gesture != normalized_prediction:
             # Nếu cử chỉ cũ tồn tại đủ lâu, thêm vào sequence (đã mapped)
-            if (
-                self.current_gesture
-                and len(self.predictions) - self.gesture_start_frame
-                >= self.min_frames_per_gesture
-            ):
-                # LUÔN mapping từ key sang value trước khi thêm vào sequence
-                mapped_gesture = self.MAPPING.get(
-                    self.current_gesture, self.current_gesture
-                )
+            if (self.current_gesture and 
+                len(self.predictions) - self.gesture_start_frame >= self.min_frames_per_gesture):
+                mapped_gesture = self.MAPPING.get(self.current_gesture, self.current_gesture)
                 self.sequence.append(mapped_gesture)
-
+            
             self.current_gesture = normalized_prediction
             self.gesture_start_frame = len(self.predictions)
-
+    
     def get_sequence(self):
-        # Thêm cử chỉ cuối cùng nếu tồn tại đủ lâu
-        if (
-            self.current_gesture
-            and len(self.predictions) - self.gesture_start_frame
-            >= self.min_frames_per_gesture
-        ):
-            # LUÔN mapping từ key sang value
-            mapped_gesture = self.MAPPING.get(
-                self.current_gesture, self.current_gesture
-            )
+        # Thêm cử chỉ cuối cùng nếu tồn tại đủ lâu (đã mapped)
+        if (self.current_gesture and 
+            len(self.predictions) - self.gesture_start_frame >= self.min_frames_per_gesture):
+            mapped_gesture = self.MAPPING.get(self.current_gesture, self.current_gesture)
             self.sequence.append(mapped_gesture)
-
-        if not self.sequence:
-            return ""
-
-        # Loại bỏ trùng lặp liên tiếp
-        unique_sequence = []
+        
+        # Loại bỏ cử chỉ trùng lặp liên tiếp và thêm khoảng trắng giữa các từ
+        cleaned_sequence = []
         for gesture in self.sequence:
-            if not unique_sequence or gesture != unique_sequence[-1]:
-                unique_sequence.append(gesture)
-
-        # Nhóm ký tự đơn và từ
-        result_parts = []
-        current_chars = []  # Các ký tự đơn đang ghép
-
-        for gesture in unique_sequence:
-            # Xử lý ký tự đơn (A-Z, 0-9, v.v.)
-            if len(gesture) == 1 and gesture.isalnum():
-                current_chars.append(gesture)
-            else:  # Từ đa ký tự hoặc ký tự đặc biệt
-                # Ghép các ký tự đơn trước đó thành từ
-                if current_chars:
-                    result_parts.append("".join(current_chars))
-                    current_chars = []
-                # Thêm từ đa ký tự
-                result_parts.append(gesture)
-
-        # Thêm phần còn lại
-        if current_chars:
-            result_parts.append("".join(current_chars))
-
-        return ", ".join(result_parts)
-
+            if not cleaned_sequence or gesture != cleaned_sequence[-1]:
+                # Thêm khoảng trắng nếu là từ mới (không phải ký tự đơn)
+                if (cleaned_sequence and 
+                    len(gesture) > 1 and 
+                    len(cleaned_sequence[-1]) > 1):
+                    cleaned_sequence.append(" ")
+                cleaned_sequence.append(gesture)
+        
+        return "".join(cleaned_sequence)
+    
     def get_message(self):
         sequence = self.get_sequence()
         # Đảm bảo chuỗi kết quả được format đẹp
         return sequence.strip()
-
+    
     def get_raw_predictions(self):
         """Trả về chuỗi predictions gốc (cho debug)"""
         return "".join(self.predictions)
-
+    
     def receive_old(self, message):
         self.current_message = message
 
     def get_message_old(self):
-        return ExpressionHandler.MAPPING.get(self.current_message, self.current_message)
+        return ExpressionHandler.MAPPING[self.current_message]
