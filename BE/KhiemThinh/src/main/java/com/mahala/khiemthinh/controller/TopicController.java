@@ -47,7 +47,7 @@ public class TopicController {
             return new ResponseData<>(HttpStatus.OK.value(), "Get all topic content successful", result);
         } catch (Exception e) {
             log.error("Get all topic content failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.OK.value(), "Get all topic content failed", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Get all topic content failed :" + e.getMessage(), null);
         }
     }
 
@@ -60,7 +60,7 @@ public class TopicController {
             return new ResponseData<>(HttpStatus.OK.value(), "Add topic successful", result);
         } catch (Exception e) {
             log.error("Add topic failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.OK.value(), "Add topic failed", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Add topic failed :" + e.getMessage() , null);
         }
     }
 
@@ -70,10 +70,10 @@ public class TopicController {
         try {
             this.topicService.updateTopic(id, topicDTO);
             log.info("Update topic successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Update topic successful", null);
+            return new ResponseData<>(HttpStatus.OK.value(), "Update topic successful :" , null);
         } catch (Exception e) {
             log.error("Update topic failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.OK.value(), "Update topic failed", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Update topic failed :" + e.getMessage(), null);
         }
     }
 
@@ -86,7 +86,7 @@ public class TopicController {
             return new ResponseData<>(HttpStatus.OK.value(), "Delete topic successful", null);
         } catch (Exception e) {
             log.error("Delete topic failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.OK.value(), "Delete topic failed", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Delete topic failed :" + e.getMessage(), null);
         }
     }
 }

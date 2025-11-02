@@ -76,7 +76,7 @@ public class UserController {
         }
         catch (Exception e){
          log.error("Can not add admin : {}", e.getMessage());
-         return new ResponseData<>(HttpStatus.UNAUTHORIZED.value(),"Can not add admin : " + e.getMessage());
+         return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),"Can not add admin : " + e.getMessage());
         }
     }
 

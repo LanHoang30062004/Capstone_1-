@@ -26,11 +26,6 @@ public class GlobalException {
         return error;
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handleInvalidFormat(HttpMessageNotReadableException ex) {
-        return ResponseEntity.badRequest().body("Invalid date format. Please use dd/MM/yyyy");
-    }
-
     public ResponseError handleException(Exception e, WebRequest request) {
         ResponseError error = new ResponseError();
         String message = e.getMessage();

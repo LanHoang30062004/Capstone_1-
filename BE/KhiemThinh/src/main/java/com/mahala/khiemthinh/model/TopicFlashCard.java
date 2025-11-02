@@ -22,8 +22,11 @@ public class TopicFlashCard {
 
     private String content ;
 
-    @OneToMany(fetch = FetchType.EAGER  , mappedBy = "topicFlashCard" , cascade = CascadeType.ALL , orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY  , mappedBy = "topicFlashCard" , cascade = CascadeType.ALL , orphanRemoval = true)
     private List<FlashCard> flashCards ;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User user ;
 
     public void addFlashCard(FlashCard flashCard) {
         if (flashCards == null) {

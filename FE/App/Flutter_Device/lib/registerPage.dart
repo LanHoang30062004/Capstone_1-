@@ -3,7 +3,8 @@ import 'loginPage.dart';
 import 'introductionApp.dart';
 import 'dart:convert';
 import 'dart:io' show File; // Cho mobile
-
+import 'package:http/http.dart' as http;
+import 'fileConfiguration.dart';
 
 
 class RegisterScreen extends StatefulWidget {
@@ -30,65 +31,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isValidEmail(String email) {
     return RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(email);
   }
-// sua==========================================================================================
-//   Future<void> _handleRegister() async {
-//   final email = _emailController.text.trim();
-//   final password = _passwordController.text.trim();
-//   final confirmPassword = _confirmController.text.trim();
 
-//   setState(() {
-//     _emailError = null;
-//     _passwordError = null;
-//     _confirmError = null;
-//   });
+  Future<void> _handleRegister() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmController.text.trim();
 
-//   if (!_isValidEmail(email)) {
-//     setState(() {
-//       _emailError = "Email không hợp lệ";
-//     });
-//     return;
-//   }
-//   if (password.length < 6) {
-//     setState(() {
-//       _passwordError = "Mật khẩu phải có ít nhất 6 ký tự";
-//     });
-//     return;
-//   }
-//   if (password != confirmPassword) {
-//     setState(() {
-//       _confirmError = "Mật khẩu xác nhận không khớp";
-//     });
-//     return;
-//   }
+    setState(() {
+      _emailError = null;
+      _passwordError = null;
+      _confirmError = null;
+    });
 
-//   try {
-//     final String baseUrl = "http://localhost:8080/api/v1/user";
-//     final response = await http.post(
-//       Uri.parse("$baseUrl/register"),
-//       headers: {"Content-Type": "application/json"},
-//       body: jsonEncode({
-//         "email": email,
-//         "password": password,
-//       }),
-//     );
+    if (!_isValidEmail(email)) {
+      setState(() {
+        _emailError = "Email không hợp lệ";
+      });
+      return;
+    }
+    if (password.length < 6) {
+      setState(() {
+        _passwordError = "Mật khẩu phải có ít nhất 6 ký tự";
+      });
+      return;
+    }
+    if (password != confirmPassword) {
+      setState(() {
+        _confirmError = "Mật khẩu xác nhận không khớp";
+      });
+      return;
+    }
 
-//     print("Response status: ${response.statusCode}");
-//     print("Response body: ${response.body}");
+    try {
+      final String baseUrl = "http://"+Fileconfiguration.ip+":8080/api/v1/user";
+      final response = await http.post(
+        Uri.parse("$baseUrl/register"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
 
-//     if (response.statusCode == 200) {
-//       _showSuccessDialog(context);
-//     } else {
-//       // BE trả lỗi, show ra cho dễ debug
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text("Đăng ký thất bại: ${response.body}")),
-//       );
-//     }
-//   } catch (e) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text("Lỗi kết nối server: $e")),
-//     );
-//   }
-// }
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        _showSuccessDialog(context);
+      } else {
+        // BE trả lỗi, show ra cho dễ debug
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Đăng ký thất bại: ${response.body}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi kết nối server: $e")));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -258,8 +256,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  //suaa======================================
-                  onPressed: (){},
+                  onPressed: _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF49BBBD),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -322,11 +319,16 @@ void _showSuccessDialog(BuildContext context) {
     transitionDuration: const Duration(milliseconds: 400),
     pageBuilder: (context, anim1, anim2) {
       Future.delayed(const Duration(seconds: 2), () {
-        Navigator.of(context).pop(); // đóng dialog
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+        // Đóng dialog từ rootNavigator
+        Navigator.of(context, rootNavigator: true).pop();
+
+        // Push màn hình mới sau frame hiện tại
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        });
       });
 
       return Center(
@@ -347,7 +349,6 @@ void _showSuccessDialog(BuildContext context) {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon tròn
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
@@ -366,7 +367,6 @@ void _showSuccessDialog(BuildContext context) {
                 ),
               ),
               const SizedBox(height: 10),
-              
             ],
           ),
         ),

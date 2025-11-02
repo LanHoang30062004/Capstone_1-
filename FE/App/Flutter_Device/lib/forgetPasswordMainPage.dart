@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'OtpPage.dart';import 'fileConfiguration.dart';
+
+
+
 
 import 'dart:io' show File; // Cho mobile
 
@@ -19,100 +23,96 @@ class _ForgetPasswordMainPageState extends State<ForgetPasswordMainPage> {
   String? _emailError;
 
   Future<bool> _checkEmailExists(String email) async {
-  try {
-    final response = await http.get(
-      Uri.parse("http://localhost:8080/api/v1/user/email?email=$email"),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse("http://"+Fileconfiguration.ip+":8080/api/v1/user/email?email=$email"),
+      );
 
-    debugPrint("Status code: ${response.statusCode}");
-    debugPrint("Response body: ${response.body}");
+      debugPrint("Status code: ${response.statusCode}");
+      debugPrint("Response body: ${response.body}");
 
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
 
-      if (body["status"] == 200) {
-        return true;
+        if (body["status"] == 200) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
-        return false; 
+        return false;
       }
-    } else {
+    } catch (e) {
+      debugPrint("Lỗi kết nối khi check email: $e");
       return false;
     }
-  } catch (e) {
-    debugPrint("Lỗi kết nối khi check email: $e");
-    return false;
   }
-}
 
-Future<bool> _sendOtpToEmail(String email) async {
-  try {
-    final response = await http.post(
-      Uri.parse("http://localhost:8080/api/v1/password/forgot?email=$email"),
-    );
+  Future<bool> _sendOtpToEmail(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse("http://"+Fileconfiguration.ip+":8080/api/v1/password/forgot?email=$email"),
+      );
 
-    debugPrint("Send OTP - Status code: ${response.statusCode}");
-    debugPrint("Send OTP - Body: ${response.body}");
+      debugPrint("Send OTP - Status code: ${response.statusCode}");
+      debugPrint("Send OTP - Body: ${response.body}");
 
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
 
-      if (body["status"] == 200) {
-        return true; 
+        if (body["status"] == 200) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
-        return false; 
+        return false;
       }
-    } else {
+    } catch (e) {
+      debugPrint("Lỗi khi gửi OTP: $e");
       return false;
     }
-  } catch (e) {
-    debugPrint("Lỗi khi gửi OTP: $e");
-    return false;
   }
-}
-
 
   Future<void> _handleSend() async {
-  final email = _emailController.text.trim();
+    final email = _emailController.text.trim();
 
-  if (email.isEmpty) {
-    setState(() {
-      _emailError = "Vui lòng nhập email";
-    });
-    return;
-  }
-
-  setState(() {
-    _isLoading = true;
-    _emailError = null;
-  });
-
-  final exists = await _checkEmailExists(email);
-
-  if (!exists) {
-    setState(() {
-      _isLoading = false;
-      _emailError = "Email không tồn tại";
-    });
-    return;
-  }
-
-  setState(() => _isLoading = false);
-  //sssssssssssssssssssssssssssssssssssssssssssssssssssssssuaaaa
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //     builder: (context) => OtpScreen(email: email),
-  //   ),
-  // );
-
-  _sendOtpToEmail(email).then((sent) {
-    if (!sent) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Không thể gửi OTP, vui lòng thử lại.")),
-      );
+    if (email.isEmpty) {
+      setState(() {
+        _emailError = "Vui lòng nhập email";
+      });
+      return;
     }
-  });
-}
+
+    setState(() {
+      _isLoading = true;
+      _emailError = null;
+    });
+
+    final exists = await _checkEmailExists(email);
+
+    if (!exists) {
+      setState(() {
+        _isLoading = false;
+        _emailError = "Email không tồn tại";
+      });
+      return;
+    }
+
+    setState(() => _isLoading = false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => OtpScreen(email: email)),
+    );
+
+    _sendOtpToEmail(email).then((sent) {
+      if (!sent) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Không thể gửi OTP, vui lòng thử lại.")),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -201,10 +201,7 @@ Future<bool> _sendOtpToEmail(String email) async {
 
               const Text(
                 "Chúng tôi sẽ gửi mã xác minh đến email của bạn",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF262A3B),
-                ),
+                style: TextStyle(fontSize: 14, color: Color(0xFF262A3B)),
               ),
 
               const SizedBox(height: 24),
@@ -214,7 +211,11 @@ Future<bool> _sendOtpToEmail(String email) async {
                 width: double.infinity,
                 child: ElevatedButton(
                   //gui otp quen mk
-                  onPressed:(){},
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          await _handleSend();
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF49BBBD),
                     padding: const EdgeInsets.symmetric(vertical: 16),

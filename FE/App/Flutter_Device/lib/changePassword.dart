@@ -3,11 +3,17 @@ import 'package:app_nckh/changePasswordSuccess.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' show File; // Cho mobile
+import 'fileConfiguration.dart';
+
 
 class ChangePasswordScreen extends StatefulWidget {
   final String email;
   final String otp;
-  const ChangePasswordScreen({super.key, required this.email, required this.otp});
+  const ChangePasswordScreen({
+    super.key,
+    required this.email,
+    required this.otp,
+  });
 
   @override
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
@@ -15,7 +21,8 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   String? _errorMessage;
   bool _isLoading = false;
@@ -30,7 +37,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       return false;
     }
     if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) {
-      setState(() => _errorMessage = "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt");
+      setState(
+        () => _errorMessage = "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
+      );
       return false;
     }
     if (password != confirmPassword) {
@@ -46,7 +55,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       _isLoading = true;
     });
 
-    final url = Uri.parse("http://localhost:8080/api/v1/password/change");
+    final url = Uri.parse("http://"+Fileconfiguration.ip+":8080/api/v1/password/change");
 
     final body = jsonEncode({
       "code": widget.otp,
@@ -64,11 +73,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data["status"] == 200) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const ChangePasswordSuccess()),
-          (route) => false,
-        );
+        Future.delayed(Duration.zero, () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ChangePasswordSuccess(),
+            ),
+            (route) => false,
+          );
+        });
       } else {
         setState(() {
           _errorMessage = data["message"] ?? "Đổi mật khẩu thất bại";
@@ -173,7 +186,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                    _obscureConfirmPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                     color: Colors.grey,
                   ),
                   onPressed: () {
@@ -210,7 +225,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     ? null
                     : () {
                         final password = _passwordController.text.trim();
-                        final confirmPassword = _confirmPasswordController.text.trim();
+                        final confirmPassword = _confirmPasswordController.text
+                            .trim();
 
                         if (validatePassword(password, confirmPassword)) {
                           _changePassword(password);

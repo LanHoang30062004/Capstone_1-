@@ -35,6 +35,5 @@ public class UserDTO implements Serializable {
 
     private String gender ;
 
-
     private LocalDate dateOfBirth;
 }
