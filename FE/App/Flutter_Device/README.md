@@ -208,6 +208,8 @@ Bạn có muốn mình hướng dẫn luôn cách tích hợp model grammarly n�
 
 
 
+
+
 ở cmd run as admin
 1: netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=11434 connectaddress=127.0.0.1 connectport=11434
 Nếu chạy thành công → nó sẽ không báo lỗi gì cả (chỉ xuống dòng trống).
@@ -218,10 +220,11 @@ Nếu chạy thành công → nó sẽ không báo lỗi gì cả (chỉ xuống
         Address         Port        Address         Port
         --------------- ----------  --------------- ----------
         0.0.0.0         11434       127.0.0.1       11434
+mở cmd thường
 3: ollama serve        
 4: Chạy lệnh:
 cd C:\Users\ASUS\.ollama\models
-ollama create grammarly -f grammarly.modelfile// ********k cần create
+ollama create grammarly -f grammarly.modelfile          // ********k cần create nếu đã đưa về câu chuẩn
 ollama run grammarly
 
 

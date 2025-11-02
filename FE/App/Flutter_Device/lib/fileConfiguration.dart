@@ -1,4 +1,3 @@
-
 class Fileconfiguration {
-   static final String ip = "192.168.1.9";
+  static const String ip = "localhost";
 }

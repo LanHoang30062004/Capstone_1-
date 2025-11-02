@@ -53,6 +53,110 @@ class _ChatScreenState extends State<ChatScreen> {
   final _ollama = OllamaService();
   final ScrollController _scrollController = ScrollController();
   final FlutterTts _flutterTts = FlutterTts();
+  final List<String> _blacklist = [
+    'đm',
+    'vcl',
+    'clgt',
+    'mẹ mày',
+    'địt',
+    'lồn',
+    'cặc',
+    'chó chết',
+    'ngu',
+    'óc chó',
+    'mẹ kiếp',
+    'fuck',
+    'shit',
+    'bitch',
+    'đéo',
+    'đĩ',
+    'đụ',
+    'buồi',
+    'dái',
+    'mồm l*n',
+    'vãi lồn',
+    'l*n',
+    'c*c',
+    'd*t',
+    'd*t me',
+    'xoạc',
+    'fap',
+    'bú cu',
+    'ngu lồn',
+    'ngu cặc',
+    'bú lồn',
+    'đồ đĩ',
+    'đồ chó',
+    'củ lìn',
+    'lồn mẹ',
+    'lồn má',
+    'địt cha',
+    'địt mẹ',
+    'địt con mẹ',
+    'đụ má',
+    'đụ mẹ',
+    'đụ cha',
+    'lồn tổ ong',
+    'dcm',
+    'dkm',
+    'đcm',
+    'đkm',
+    'đklm',
+    'đclm',
+    'đê mờ',
+    'đít',
+    'cc',
+    'vc',
+    'vcc',
+    'vkl',
+    'clmn',
+    'cmm',
+    'dkm',
+    'dcm',
+    'clv',
+    'vcm',
+    'đmng',
+    'dmng',
+    'wtf',
+    'wth',
+    'ass',
+    'cai',
+    'kái',
+    'điên',
+    'khùng',
+    'mù',
+    'câm',
+    'điếc',
+    'tàn tật',
+    'thằng khốn',
+    'thằng ranh',
+    'thằng cha mày',
+    'súc vật',
+    'óc heo',
+    'óc lợn',
+    'óc bò',
+    'đồ ngu',
+    'ngu si',
+    'bệnh hoạn',
+    'vô học',
+    'mất dạy',
+    'tiểu nhân',
+    'rác rưởi',
+    'con hoang',
+    'ăn cứt',
+    'ăn cứt chó',
+    'chó đẻ',
+    'thằng mặt l*n',
+    'cút đi',
+    'câm mồm',
+    'im đi',
+    'biến đi',
+    'chết mẹ mày đi',
+    'chết cha mày đi',
+    'xéo',
+    'câm mồm',
+    'trâu bò',
+  ];
 
   bool useOllama = true;
 
@@ -172,7 +276,7 @@ class _ChatScreenState extends State<ChatScreen> {
           "data": videoUrl,
           "isMe": false,
           "group": groupId,
-        });
+                  });
       });
 
       _scrollToBottom();
@@ -189,17 +293,18 @@ class _ChatScreenState extends State<ChatScreen> {
     String groupId,
   ) async {
     try {
+      final isMp4 = fileName.toLowerCase().endsWith('.mp4');
       debugPrint("Upload video: $fileName, size: ${fileBytes.length} bytes");
 
       setState(() {
-      _messages.add({
-        "type": "video",
-        "data": getVideoUrl(fileBytes, fileName),
-        "isMe": false,
-        "group": groupId,
-        "isLoading": true, // Thêm trạng thái loading
+        final idx = _messages.indexWhere(
+          (m) => m["group"] == groupId && m["type"] == "video",
+        );
+        if (idx != -1&&isMp4) {
+          _messages[idx]["isLoading"] = true;
+        }
+        
       });
-    });
 
       // ✅ Sử dụng URL từ config
       final uri = Uri.parse("${BackendConfig.pyBaseUrl}/process-video");
@@ -225,8 +330,8 @@ class _ChatScreenState extends State<ChatScreen> {
       );
 
       setState(() {
-      _messages.last["isLoading"] = false; // Tắt loading
-    });
+        _messages.last["isLoading"] = false; // Tắt loading
+      });
 
       final respStr = await response.stream.bytesToString();
 
@@ -241,7 +346,7 @@ class _ChatScreenState extends State<ChatScreen> {
           print("vfc");
           String displayText = rawText;
           print("useOllama = $useOllama");
-
+          print("raw text trc khi gui cho ollama: " + rawText);
           if (useOllama) {
             print("olama duoc goi tai day");
             try {
@@ -275,103 +380,81 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e, stack) {
       debugPrint("Lỗi khi upload video: $e\n$stack");
       setState(() {
-      _messages.last["isLoading"] = false; // Tắt loading khi có lỗi
-    });
+        _messages.last["isLoading"] = false; // Tắt loading khi có lỗi
+      });
       _showErrorSnackBar('Lỗi kết nối: ${e.toString()}');
     }
   }
 
   Future<void> _uploadAndProcessVideo() async {
-    final pickedFile = await pickVideo();
-    if (pickedFile == null) return;
+  final pickedFile = await pickVideo();
+  if (pickedFile == null) return;
 
-    final groupId = DateTime.now().millisecondsSinceEpoch.toString();
+  final groupId = DateTime.now().millisecondsSinceEpoch.toString();
 
-    try {
-      final fileBytes = pickedFile["bytes"] as List<int>;
-      final fileName = pickedFile["name"] as String;
-      final filePath = pickedFile["path"] as String?;
+  try {
+    final fileBytes = pickedFile["bytes"] as List<int>;
+    final fileName = pickedFile["name"] as String;
+    final filePath = pickedFile["path"] as String?;
 
-      // ✅ Mobile: dùng path, Web: tạo blob URL
-      String videoUrl;
-      if (kIsWeb) {
-        videoUrl = getVideoUrl(fileBytes, "");
-      } else {
-        videoUrl = filePath ?? "";
-      }
-
-      setState(() {
-        _messages.add({
-          "type": "video",
-          "data": videoUrl,
-          "isMe": false,
-          "group": groupId,
-        });
+    // ✅ Add video vào UI
+    setState(() {
+      _messages.add({
+        "type": "video",
+        "data": filePath ?? "",
+        "isMe": false,
+        "group": groupId,
       });
+    });
 
-      _scrollToBottom();
-      // ✅ Gửi lên BE với URL đúng
-      final uri = Uri.parse("${BackendConfig.pyBaseUrl}/process-video");
-      final request = http.MultipartRequest("POST", uri);
+    _scrollToBottom();
 
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'file',
-          fileBytes,
-          filename: fileName,
-          contentType: MediaType('video', 'mp4'),
-        ),
-      );
+    /// ✅ DÙNG CHUNG LOGIC
+    await _sendVideoToBackend(fileBytes, fileName, groupId);
 
-      final response = await request.send().timeout(
-        const Duration(seconds: 60),
-      );
-
-      final respStr = await response.stream.bytesToString();
-
-      debugPrint("Response status: ${response.statusCode}");
-      debugPrint("Response body: $respStr");
-
-      if (response.statusCode == 200) {
-        final jsonResp = jsonDecode(respStr);
-
-        if (jsonResp["success"] == true) {
-          final rawText = jsonResp["recognized_sequence"] ?? "";
-
-          String displayText = rawText;
-          if (useOllama) {
-            displayText = await _ollama.generateText(rawText);
-          }
-
-          setState(() {
-            _messages.add({
-              "type": "text",
-              "data": displayText,
-              "isMe": false,
-              "group": groupId,
-            });
-          });
-
-          _scrollToBottom();
-        } else {
-          _showErrorSnackBar('Không nhận diện được video');
-        }
-      } else {
-        _showErrorSnackBar('Upload thất bại (${response.statusCode})');
-      }
-    } catch (e, stack) {
-      debugPrint("Lỗi khi upload video: $e\n$stack");
-      _showErrorSnackBar('Lỗi: ${e.toString()}');
-    }
+  } catch (e, stack) {
+    debugPrint("Lỗi khi upload video: $e\n$stack");
+    _showErrorSnackBar('Lỗi: ${e.toString()}');
   }
+}
 
   String? _errorMessage;
+
+  bool _containsBannedWords(String text) {
+    final normalized = text.toLowerCase();
+    for (var word in _blacklist) {
+      if (normalized.contains(word)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   // Cập nhật hàm _sendTextMessage
   Future<void> _sendTextMessage() async {
     FocusScope.of(context).unfocus();
 
     if (_controller.text.isEmpty) return;
+
+    if (_containsBannedWords(_controller.text)) {
+      setState(() {
+        _errorMessage =
+            "Tin nhắn chứa từ ngữ không phù hợp. Vui lòng nhập lại!";
+      });
+      _controller.clear();
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _errorMessage = null;
+          });
+        }
+      });
+      return;
+    }
+
+    setState(() {
+      _errorMessage = '';
+    });
 
     final inputText = _controller.text.trim();
     final groupId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -403,9 +486,9 @@ class _ChatScreenState extends State<ChatScreen> {
           )
           .timeout(const Duration(seconds: 30));
 
-          setState(() {
-      _messages.last["isLoading"] = false;
-    });
+      setState(() {
+        _messages.last["isLoading"] = false;
+      });
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
@@ -428,7 +511,7 @@ class _ChatScreenState extends State<ChatScreen> {
           });
 
           // Tự động ẩn sau 4 giây
-          Future.delayed(const Duration(seconds: 4), () {
+          Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
               setState(() {
                 _errorMessage = null;
@@ -441,7 +524,7 @@ class _ChatScreenState extends State<ChatScreen> {
           _errorMessage = "Không tồn tại ngôn ngữ ký hiệu này";
         });
 
-        Future.delayed(const Duration(seconds: 4), () {
+        Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             setState(() {
               _errorMessage = null;
@@ -455,7 +538,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _errorMessage = "Lỗi kết nối, vui lòng thử lại";
       });
 
-      Future.delayed(const Duration(seconds: 4), () {
+      Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           setState(() {
             _errorMessage = null;
@@ -514,7 +597,8 @@ class _ChatScreenState extends State<ChatScreen> {
     final bool isMe = message["isMe"];
     final String type = message["type"];
     final bool isError = message["isError"] ?? false;
-    final bool isLoading = message["isLoading"] ?? false; // Thêm trạng thái loading
+    final bool isLoading =
+        message["isLoading"] ?? false; // Thêm trạng thái loading
 
     Widget bubble;
 
@@ -593,30 +677,31 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     return Align(
-    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-    child: Column(
-      crossAxisAlignment:
-          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-          child: bubble,
-        ),
-        if (isLoading) // Hiển thị vòng quay loading
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF49BBBD)),
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+            child: bubble,
+          ),
+          if (isLoading) // Hiển thị vòng quay loading
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF49BBBD)),
+                ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
   }
 
   @override

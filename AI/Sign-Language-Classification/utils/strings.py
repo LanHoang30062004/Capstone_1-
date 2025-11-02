@@ -22,6 +22,8 @@ class ExpressionHandler:
         "di": "đi",
         "lam": "làm",
         "gio": "giờ",
+        "quang_binh": "Quảng Bình",
+        "thanh_pho_hue": "Thành phố Huế",
         "1": "1",
         "2": "2",
         "a": "a",
