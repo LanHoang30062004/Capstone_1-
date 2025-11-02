@@ -640,6 +640,23 @@ class ExpressionHandler:
         "buoi_chieu": "Buổi chiều",
         "buoi_dem": "Buổi đêm",
         "buoi_sang": "Buổi sáng",
+        "ban_bac": "bàn bạc",
+        "ban_chai_danh_rang": "bàn chải dánh răng",
+        "ban_chan": "bàn chân",
+        "ban_ghe": "bàn ghế",
+        "ban_la": "bàn là",
+        "ban_phim_may_vi_tinh": "bàn phím máy vi tính",
+        "ban_tay": "bàn tay",
+        "ban_tan": "bàn tán",
+        "ban_do_viet_nam": "bản đồ việt nam",
+        "ban_lang": "bản làng",
+        "ban_le": "bản lề",
+        "ban_nhac": "bản nhạc",
+        "ban_sao_chi_nguoi": "bản sao (chỉ người)",
+        "ban_than": "bản thân",
+        "ban_buon": "bản buôn",
+        "ban_dao": "bản đảo",
+        "ban_hang": "bán hàng",
     }
 
     def __init__(self, min_frames_per_gesture=5, similarity_threshold=0.7):
