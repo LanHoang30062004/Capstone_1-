@@ -5,7 +5,7 @@ import numpy as np
 from utils.feature_extraction import *
 from utils.strings import *
 from utils.model import ASLClassificationModel
-from config import MODEL_NAME, MODEL_CONFIDENCE
+from config import MODEL_NAME, MODEL_CONFIDENCE , MODEL_CONSERVATION
 
 import streamlit as st
 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # Load model
     try:
         print("Initialising model ...")
-        model = ASLClassificationModel.load_model(f"models/{MODEL_NAME}")
+        model = ASLClassificationModel.load_model(f"models/{MODEL_CONSERVATION}")
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")
         st.stop()
