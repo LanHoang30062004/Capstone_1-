@@ -88,3 +88,24 @@ body {
 .full-width {
   width: 100%;
 }
+
+/* Modal */
+.modal__title {
+  text-align: center;
+  font-size: 4rem;
+  font-weight: 700;
+}
+
+.modal__label {
+  font-weight: 700;
+}
+
+a {
+  color: #000000;
+}
+
+/* End Modal */
+
+.none {
+  display: none;
+}

@@ -22,6 +22,8 @@ const Dictionary = () => {
 
   const handleSearch = (value) => {
     const searchObject = Object.fromEntries(searchParams.entries());
+    if (!searchObject.size) searchObject.size = 10;
+
     setSearchParams({
       ...searchObject,
       page: 1,

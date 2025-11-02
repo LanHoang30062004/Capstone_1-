@@ -21,7 +21,7 @@ const AddWord = (props) => {
     }
 
     value.videoUrl = fileUrl;
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    const userInfo = JSON.parse(localStorage.getItem("adminInfo"));
     value.userId = userInfo.id;
 
     try {
@@ -62,24 +62,6 @@ const AddWord = (props) => {
         <Form form={form} onFinish={handleAdd} layout="vertical">
           <Form.Item label="Upload video">
             <UploadFile setFileUrl={setFileUrl} />
-          </Form.Item>
-
-          <Form.Item
-            name="wordID"
-            label="Mã kí hiệu"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập mã kí hiệu",
-              },
-
-              {
-                pattern: /^\d+$/,
-                message: "Mã kí hiệu chỉ được chứa số!",
-              },
-            ]}
-          >
-            <Input />
           </Form.Item>
 
           <Form.Item

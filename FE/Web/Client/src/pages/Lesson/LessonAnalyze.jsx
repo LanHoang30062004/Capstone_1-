@@ -1,4 +1,5 @@
 import { Button, Card, Flex, Modal, Progress } from "antd";
+import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 import "./LessonAnalyze.scss";
 import WebcamVideo from "~/components/WebcamVideo/WebcamVideo";
 import { useState } from "react";
@@ -6,6 +7,7 @@ const { Meta } = Card;
 
 const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze, word }) => {
   const [accuracy, setAccuracy] = useState(0);
+  const [predicWord, setPredicWord] = useState(null);
 
   return (
     <>
@@ -31,8 +33,11 @@ const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze, word }) => {
 
         <div className="lesson-analyze__body">
           <div className="lesson-analyze__grid">
-            {/* <WebcamVideo /> */}
-            <WebcamVideo setAccuracy={setAccuracy} word={word} />
+            <WebcamVideo
+              setAccuracy={setAccuracy}
+              word={word}
+              setPredicWord={setPredicWord}
+            />
 
             <div className="lesson-analyze__instruct">
               <div className="lesson-analyze__instruct--title">
@@ -54,14 +59,49 @@ const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze, word }) => {
               </div>
 
               <Card className="lesson-analyze__card">
-                <Meta title="Kết quả phân tích" />
+                <Meta
+                  title={
+                    <span className="lesson-analyze__title-text">
+                      Kết quả phân tích
+                    </span>
+                  }
+                />
+
+                <div className="lesson-analyze__compare">
+                  <Flex justify="space-between" align="center">
+                    <p>Từ cần thực hiện:</p>
+                    <strong className="lesson-analyze__word lesson-analyze__word--target">
+                      {word}
+                    </strong>
+                  </Flex>
+
+                  <Flex justify="space-between" align="center">
+                    <p>Từ AI dự đoán:</p>
+                    <Flex align="center" gap={6}>
+                      {predicWord &&
+                        (predicWord === word ? (
+                          <AiOutlineCheckCircle className="lesson-analyze__icon lesson-analyze__icon--correct" />
+                        ) : (
+                          <AiOutlineCloseCircle className="lesson-analyze__icon lesson-analyze__icon--wrong" />
+                        ))}
+                      <strong
+                        className={`lesson-analyze__word ${
+                          predicWord === word
+                            ? "lesson-analyze__word--correct"
+                            : "lesson-analyze__word--wrong"
+                        }`}
+                      >
+                        {predicWord || "—"}
+                      </strong>
+                    </Flex>
+                  </Flex>
+                </div>
 
                 <div className="lesson-analyze__result">
                   <Flex align="center" justify="space-between">
                     <p>Độ chính xác</p>
-                    <p>{accuracy * 100}%</p>
+                    <p>{(accuracy * 100).toFixed(1)}%</p>
                   </Flex>
-
                   <Progress percent={accuracy * 100} showInfo={false} />
                 </div>
               </Card>

@@ -20,8 +20,8 @@
   }
 
   &__left {
-    width: 90px;
-    height: 90px;
+    width: 180px;
+    height: 60px;
 
     img {
       width: 100%;
@@ -49,12 +49,16 @@
       color: var(--color-gray-two);
       background: conic-gradient(from 90deg at 50% 100%, #FFF 0deg, #FFF 360deg);
       box-shadow: 0 20px 24px 0 rgba(0, 0, 0, 0.03);
+      font-size: 1.8rem;
+      padding: 10px;
     }
 
     &--register,
     &--logout {
       background: var(--bg-green-light-one);
       color: var(--color-white);
+      font-size: 1.8rem;
+      padding: 10px;
     }
   }
 }

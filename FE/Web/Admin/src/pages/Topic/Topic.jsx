@@ -35,8 +35,6 @@ const Topic = () => {
   const topics = useSelector((state) => state.topic.topics);
   const navigate = useNavigate();
 
-  const words = useSelector((state) => state.word.words);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -165,10 +163,10 @@ const Topic = () => {
 
           <Pagination
             current={parseInt(searchParams.get("page")) || 1}
-            total={words?.totalPages * words?.pageSize}
+            total={topics?.totalPages * topics?.pageSize}
             align="end"
             onChange={handleChangePage}
-            pageSize={words?.pageSize || 10}
+            pageSize={topics?.pageSize || 10}
             pageSizeOptions={[5, 10, 20, 50]}
           />
         </Card>

@@ -56,6 +56,8 @@ const Practise = () => {
     fetchTopic(searchObject);
   }, [searchParams]);
 
+  console.log(topics);
+
   return (
     <>
       <section className="practise mt">

@@ -55,8 +55,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             if ("app".equalsIgnoreCase(state)) {
                 response.sendRedirect("myapp://callback?token=" + token);
             } else {
-                response.sendRedirect("http://localhost:5173/callback?token=" + token);
-
+                response.getWriter().write("{\"token\": \"" + token + "\"}");
             }
         }
     }

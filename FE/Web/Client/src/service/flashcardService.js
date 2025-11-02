@@ -1,7 +1,7 @@
 import instance from "~/api/intance"
 
-export const getFlashCard = async (query) => {
-  const response = await instance.get('/flash-card', {
+export const getFlashCard = async ({ userId, query }) => {
+  const response = await instance.get(`/flash-card/user/${userId}`, {
     params: query
   })
 
