@@ -20,7 +20,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart' as vt;
 import 'package:camera/camera.dart' as cam;
 import 'fileConfiguration.dart';
-
+import 'package:chewie/chewie.dart';
 
 import 'html_stub.dart' if (dart.library.html) 'html_web.dart';
 
@@ -28,11 +28,11 @@ import 'html_stub.dart' if (dart.library.html) 'html_web.dart';
 // ✅ Config backend riêng biệt
 class BackendConfig {
   static const String javaEmulatorUrl = "http://10.0.2.2:8080";
-  static final String javaDeviceUrl = "http://"+Fileconfiguration.ip+":8080";
-  
+  static final String javaDeviceUrl =
+      "http://" + Fileconfiguration.ip + ":8080";
 
   static const String pyEmulatorUrl = "http://10.0.2.2:8000";
-  static final String pyDeviceUrl = "http://"+Fileconfiguration.ip+":8000";
+  static final String pyDeviceUrl = "http://" + Fileconfiguration.ip + ":8000";
 
   static String get javaBaseUrl => javaDeviceUrl;
   static String get pyBaseUrl => pyDeviceUrl;
@@ -53,6 +53,110 @@ class _ChatScreenState extends State<ChatScreen> {
   final _ollama = OllamaService();
   final ScrollController _scrollController = ScrollController();
   final FlutterTts _flutterTts = FlutterTts();
+  final List<String> _blacklist = [
+    'đm',
+    'vcl',
+    'clgt',
+    'mẹ mày',
+    'địt',
+    'lồn',
+    'cặc',
+    'chó chết',
+    'ngu',
+    'óc chó',
+    'mẹ kiếp',
+    'fuck',
+    'shit',
+    'bitch',
+    'đéo',
+    'đĩ',
+    'đụ',
+    'buồi',
+    'dái',
+    'mồm l*n',
+    'vãi lồn',
+    'l*n',
+    'c*c',
+    'd*t',
+    'd*t me',
+    'xoạc',
+    'fap',
+    'bú cu',
+    'ngu lồn',
+    'ngu cặc',
+    'bú lồn',
+    'đồ đĩ',
+    'đồ chó',
+    'củ lìn',
+    'lồn mẹ',
+    'lồn má',
+    'địt cha',
+    'địt mẹ',
+    'địt con mẹ',
+    'đụ má',
+    'đụ mẹ',
+    'đụ cha',
+    'lồn tổ ong',
+    'dcm',
+    'dkm',
+    'đcm',
+    'đkm',
+    'đklm',
+    'đclm',
+    'đê mờ',
+    'đít',
+    'cc',
+    'vc',
+    'vcc',
+    'vkl',
+    'clmn',
+    'cmm',
+    'dkm',
+    'dcm',
+    'clv',
+    'vcm',
+    'đmng',
+    'dmng',
+    'wtf',
+    'wth',
+    'ass',
+    'cai',
+    'kái',
+    'điên',
+    'khùng',
+    'mù',
+    'câm',
+    'điếc',
+    'tàn tật',
+    'thằng khốn',
+    'thằng ranh',
+    'thằng cha mày',
+    'súc vật',
+    'óc heo',
+    'óc lợn',
+    'óc bò',
+    'đồ ngu',
+    'ngu si',
+    'bệnh hoạn',
+    'vô học',
+    'mất dạy',
+    'tiểu nhân',
+    'rác rưởi',
+    'con hoang',
+    'ăn cứt',
+    'ăn cứt chó',
+    'chó đẻ',
+    'thằng mặt l*n',
+    'cút đi',
+    'câm mồm',
+    'im đi',
+    'biến đi',
+    'chết mẹ mày đi',
+    'chết cha mày đi',
+    'xéo',
+    'câm mồm',
+    'trâu bò',
+  ];
 
   bool useOllama = true;
 
@@ -76,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 600),
           curve: Curves.easeOut,
         );
       }
@@ -144,7 +248,6 @@ class _ChatScreenState extends State<ChatScreen> {
       });
 
       _scrollToBottom();
-
       await _sendVideoToBackend(bytes, "recorded_$groupId.mp4", groupId);
     } catch (e, st) {
       debugPrint('Lỗi xử lý video quay xong: $e\n$st');
@@ -173,11 +276,10 @@ class _ChatScreenState extends State<ChatScreen> {
           "data": videoUrl,
           "isMe": false,
           "group": groupId,
-        });
+                  });
       });
 
       _scrollToBottom();
-
       await _sendVideoToBackend(fileBytes, "recorded_video.mp4", groupId);
     } catch (e, stack) {
       debugPrint("Lỗi khi quay video: $e\n$stack");
@@ -191,7 +293,18 @@ class _ChatScreenState extends State<ChatScreen> {
     String groupId,
   ) async {
     try {
+      final isMp4 = fileName.toLowerCase().endsWith('.mp4');
       debugPrint("Upload video: $fileName, size: ${fileBytes.length} bytes");
+
+      setState(() {
+        final idx = _messages.indexWhere(
+          (m) => m["group"] == groupId && m["type"] == "video",
+        );
+        if (idx != -1&&isMp4) {
+          _messages[idx]["isLoading"] = true;
+        }
+        
+      });
 
       // ✅ Sử dụng URL từ config
       final uri = Uri.parse("${BackendConfig.pyBaseUrl}/process-video");
@@ -216,6 +329,10 @@ class _ChatScreenState extends State<ChatScreen> {
         },
       );
 
+      setState(() {
+        _messages.last["isLoading"] = false; // Tắt loading
+      });
+
       final respStr = await response.stream.bytesToString();
 
       debugPrint("Response status: ${response.statusCode}");
@@ -229,15 +346,15 @@ class _ChatScreenState extends State<ChatScreen> {
           print("vfc");
           String displayText = rawText;
           print("useOllama = $useOllama");
-
+          print("raw text trc khi gui cho ollama: " + rawText);
           if (useOllama) {
             print("olama duoc goi tai day");
             try {
               displayText = await _ollama.generateText(rawText);
               print("Text sau khi Ollama format: $displayText");
             } catch (e) {
-              displayText = rawText; 
-              print("Lỗi Ollama: $e");  
+              displayText = rawText;
+              print("Lỗi Ollama: $e");
             }
           }
 
@@ -247,6 +364,7 @@ class _ChatScreenState extends State<ChatScreen> {
               "data": displayText,
               "isMe": false,
               "group": groupId,
+              "isLoading": false,
             });
           });
 
@@ -261,97 +379,82 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e, stack) {
       debugPrint("Lỗi khi upload video: $e\n$stack");
+      setState(() {
+        _messages.last["isLoading"] = false; // Tắt loading khi có lỗi
+      });
       _showErrorSnackBar('Lỗi kết nối: ${e.toString()}');
     }
   }
 
   Future<void> _uploadAndProcessVideo() async {
-    final pickedFile = await pickVideo();
-    if (pickedFile == null) return;
+  final pickedFile = await pickVideo();
+  if (pickedFile == null) return;
 
-    final groupId = DateTime.now().millisecondsSinceEpoch.toString();
+  final groupId = DateTime.now().millisecondsSinceEpoch.toString();
 
-    try {
-      final fileBytes = pickedFile["bytes"] as List<int>;
-      final fileName = pickedFile["name"] as String;
-      final filePath = pickedFile["path"] as String?;
+  try {
+    final fileBytes = pickedFile["bytes"] as List<int>;
+    final fileName = pickedFile["name"] as String;
+    final filePath = pickedFile["path"] as String?;
 
-      // ✅ Mobile: dùng path, Web: tạo blob URL
-      String videoUrl;
-      if (kIsWeb) {
-        videoUrl = getVideoUrl(fileBytes, "");
-      } else {
-        videoUrl = filePath ?? "";
-      }
-
-      setState(() {
-        _messages.add({
-          "type": "video",
-          "data": videoUrl,
-          "isMe": false,
-          "group": groupId,
-        });
+    // ✅ Add video vào UI
+    setState(() {
+      _messages.add({
+        "type": "video",
+        "data": filePath ?? "",
+        "isMe": false,
+        "group": groupId,
       });
+    });
 
-      _scrollToBottom();
+    _scrollToBottom();
 
-      // ✅ Gửi lên BE với URL đúng
-      final uri = Uri.parse("${BackendConfig.pyBaseUrl}/process-video");
-      final request = http.MultipartRequest("POST", uri);
+    /// ✅ DÙNG CHUNG LOGIC
+    await _sendVideoToBackend(fileBytes, fileName, groupId);
 
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'file',
-          fileBytes,
-          filename: fileName,
-          contentType: MediaType('video', 'mp4'),
-        ),
-      );
+  } catch (e, stack) {
+    debugPrint("Lỗi khi upload video: $e\n$stack");
+    _showErrorSnackBar('Lỗi: ${e.toString()}');
+  }
+}
 
-      final response = await request.send().timeout(
-        const Duration(seconds: 60),
-      );
+  String? _errorMessage;
 
-      final respStr = await response.stream.bytesToString();
-
-      debugPrint("Response status: ${response.statusCode}");
-      debugPrint("Response body: $respStr");
-
-      if (response.statusCode == 200) {
-        final jsonResp = jsonDecode(respStr);
-
-        if (jsonResp["success"] == true) {
-          final rawText = jsonResp["recognized_sequence"] ?? "";
-
-          String displayText = rawText;
-          if (useOllama) {
-            displayText = await _ollama.generateText(rawText);
-          }
-
-          setState(() {
-            _messages.add({
-              "type": "text",
-              "data": displayText,
-              "isMe": false,
-              "group": groupId,
-            });
-          });
-
-          _scrollToBottom();
-        } else {
-          _showErrorSnackBar('Không nhận diện được video');
-        }
-      } else {
-        _showErrorSnackBar('Upload thất bại (${response.statusCode})');
+  bool _containsBannedWords(String text) {
+    final normalized = text.toLowerCase();
+    for (var word in _blacklist) {
+      if (normalized.contains(word)) {
+        return true;
       }
-    } catch (e, stack) {
-      debugPrint("Lỗi khi upload video: $e\n$stack");
-      _showErrorSnackBar('Lỗi: ${e.toString()}');
     }
+    return false;
   }
 
+  // Cập nhật hàm _sendTextMessage
   Future<void> _sendTextMessage() async {
+    FocusScope.of(context).unfocus();
+
     if (_controller.text.isEmpty) return;
+
+    if (_containsBannedWords(_controller.text)) {
+      setState(() {
+        _errorMessage =
+            "Tin nhắn chứa từ ngữ không phù hợp. Vui lòng nhập lại!";
+      });
+      _controller.clear();
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _errorMessage = null;
+          });
+        }
+      });
+      return;
+    }
+
+    setState(() {
+      _errorMessage = '';
+    });
 
     final inputText = _controller.text.trim();
     final groupId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -362,8 +465,11 @@ class _ChatScreenState extends State<ChatScreen> {
         "data": inputText,
         "isMe": true,
         "group": groupId,
+        "isLoading": true, // Thêm trạng thái loading
       });
+      _errorMessage = null; // Xóa lỗi cũ khi gửi tin nhắn mới
     });
+
     _scrollToBottom();
     _controller.clear();
 
@@ -380,6 +486,10 @@ class _ChatScreenState extends State<ChatScreen> {
           )
           .timeout(const Duration(seconds: 30));
 
+      setState(() {
+        _messages.last["isLoading"] = false;
+      });
+
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
         final videoUrl = body["data"];
@@ -391,26 +501,50 @@ class _ChatScreenState extends State<ChatScreen> {
               "data": videoUrl,
               "isMe": true,
               "group": groupId,
+              "isLoading": false,
             });
           });
         } else {
+          // ✅ Hiển thị lỗi ở phía dưới
           setState(() {
-            _messages.add({
-              "type": "text",
-              "data": "Không tồn tại ngôn ngữ ký hiệu cho từ này.",
-              "isMe": false,
-              "group": groupId,
-            });
+            _errorMessage = "Không tồn tại ngôn ngữ ký hiệu cho từ này";
+          });
+
+          // Tự động ẩn sau 4 giây
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              setState(() {
+                _errorMessage = null;
+              });
+            }
           });
         }
       } else {
-        _showErrorSnackBar('Lỗi API (${response.statusCode})');
-      }
+        setState(() {
+          _errorMessage = "Không tồn tại ngôn ngữ ký hiệu này";
+        });
 
-      _scrollToBottom();
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            setState(() {
+              _errorMessage = null;
+            });
+          }
+        });
+      }
     } catch (e) {
       debugPrint("Lỗi kết nối API: $e");
-      _showErrorSnackBar('Lỗi kết nối');
+      setState(() {
+        _errorMessage = "Lỗi kết nối, vui lòng thử lại";
+      });
+
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _errorMessage = null;
+          });
+        }
+      });
     }
   }
 
@@ -462,10 +596,17 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessage(Map<String, dynamic> message, int index) {
     final bool isMe = message["isMe"];
     final String type = message["type"];
+    final bool isError = message["isError"] ?? false;
+    final bool isLoading =
+        message["isLoading"] ?? false; // Thêm trạng thái loading
 
     Widget bubble;
 
     if (type == "text") {
+      final isWarning =
+          message["data"] ==
+          "Không tồn tại ngôn ngữ ký hiệu cho từ này."; // 👈 thêm dòng này
+
       bubble = Container(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.7,
@@ -485,20 +626,28 @@ class _ChatScreenState extends State<ChatScreen> {
                 softWrap: true,
                 overflow: TextOverflow.visible,
                 style: TextStyle(
-                  color: isMe ? Colors.white : Colors.black87,
+                  color: isWarning
+                      ? Colors
+                            .red // 🔴 đổi màu đỏ nếu là câu cảnh báo
+                      : (isMe ? Colors.white : Colors.black87),
                   fontSize: 16,
+                  fontWeight: isWarning
+                      ? FontWeight.bold
+                      : FontWeight.normal, // làm đậm hơn
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () => _speak(message["data"]),
-              child: Icon(
-                Icons.volume_up,
-                size: 20,
-                color: isMe ? Colors.white : Colors.black54,
+            if (!isWarning) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _speak(message["data"]),
+                child: Icon(
+                  Icons.volume_up,
+                  size: 20,
+                  color: isMe ? Colors.white : Colors.black54,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       );
@@ -529,9 +678,28 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-        child: bubble,
+      child: Column(
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+            child: bubble,
+          ),
+          if (isLoading) // Hiển thị vòng quay loading
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF49BBBD)),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -569,6 +737,87 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+
+          // ✅ Hiển thị thông báo lỗi phía trên input
+          if (_errorMessage != null)
+            TweenAnimationBuilder(
+              duration: const Duration(milliseconds: 300),
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              builder: (context, double value, child) {
+                return Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: Opacity(
+                    opacity: value,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.red.shade400, Colors.red.shade600],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.error_outline,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _errorMessage = null;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
           SafeArea(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -746,6 +995,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   }
 }
 
+// Thay thế class FullScreenVideoPage cũ bằng code này:
 class FullScreenVideoPage extends StatefulWidget {
   final String url;
   const FullScreenVideoPage({Key? key, required this.url}) : super(key: key);
@@ -755,35 +1005,102 @@ class FullScreenVideoPage extends StatefulWidget {
 }
 
 class _FullScreenVideoPageState extends State<FullScreenVideoPage> {
-  late VideoPlayerController _controller;
+  late VideoPlayerController _videoController;
+  ChewieController? _chewieController;
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    if (kIsWeb ||
-        widget.url.startsWith('http') ||
-        widget.url.startsWith('blob:')) {
-      _controller = VideoPlayerController.network(widget.url)
-        ..initialize().then((_) {
-          if (mounted) {
-            setState(() {});
-            _controller.play();
-          }
+    _initializePlayer();
+  }
+
+  Future<void> _initializePlayer() async {
+    try {
+      // Xác định loại video (network, file, hoặc blob)
+      if (kIsWeb ||
+          widget.url.startsWith('http') ||
+          widget.url.startsWith('blob:')) {
+        _videoController = VideoPlayerController.network(widget.url);
+      } else {
+        _videoController = VideoPlayerController.file(io.File(widget.url));
+      }
+
+      await _videoController.initialize();
+
+      // Tạo Chewie controller với đầy đủ controls
+      _chewieController = ChewieController(
+        videoPlayerController: _videoController,
+        autoPlay: true,
+        looping: true, // Lặp lại video
+        showControls: true, // Hiển thị controls đầy đủ
+        aspectRatio: _videoController.value.aspectRatio,
+
+        // ✅ Thêm các options nâng cao
+        allowFullScreen: true,
+        allowMuting: true,
+        allowPlaybackSpeedChanging: true, // Cho phép thay đổi tốc độ
+        showControlsOnInitialize: true,
+
+        // Tuỳ chỉnh UI
+        materialProgressColors: ChewieProgressColors(
+          playedColor: const Color(0xFF49BBBD),
+          handleColor: const Color(0xFF49BBBD),
+          backgroundColor: Colors.grey,
+          bufferedColor: Colors.white38,
+        ),
+
+        placeholder: Container(
+          color: Colors.black,
+          child: const Center(
+            child: CircularProgressIndicator(color: Color(0xFF49BBBD)),
+          ),
+        ),
+
+        errorBuilder: (context, errorMessage) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                const SizedBox(height: 16),
+                Text(
+                  'Không thể phát video',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  errorMessage,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
         });
-    } else {
-      _controller = VideoPlayerController.file(io.File(widget.url))
-        ..initialize().then((_) {
-          if (mounted) {
-            setState(() {});
-            _controller.play();
-          }
+      }
+    } catch (e) {
+      debugPrint('Lỗi khởi tạo video: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
         });
+      }
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _videoController.dispose();
+    _chewieController?.dispose();
     super.dispose();
   }
 
@@ -793,54 +1110,44 @@ class _FullScreenVideoPageState extends State<FullScreenVideoPage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        title: const Text('Xem Video', style: TextStyle(color: Colors.white)),
       ),
-      body: _controller.value.isInitialized
-          ? Column(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: _controller.value.aspectRatio,
-                      child: VideoPlayer(_controller),
-                    ),
+      body: Center(
+        child: _isLoading
+            ? const CircularProgressIndicator(color: Color(0xFF49BBBD))
+            : _errorMessage != null
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Không thể phát video',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
-                ),
-                VideoProgressIndicator(
-                  _controller,
-                  allowScrubbing: true,
-                  colors: const VideoProgressColors(
-                    playedColor: Colors.red,
-                    bufferedColor: Colors.white38,
-                    backgroundColor: Colors.white24,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        _controller.value.isPlaying
-                            ? Icons.pause
-                            : Icons.play_arrow,
-                        color: Colors.white,
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _controller.value.isPlaying
-                              ? _controller.pause()
-                              : _controller.play();
-                        });
-                      },
+                      textAlign: TextAlign.center,
                     ),
-                  ],
-                ),
-              ],
-            )
-          : const Center(child: CircularProgressIndicator(color: Colors.white)),
+                  ),
+                ],
+              )
+            : _chewieController != null
+            ? Chewie(controller: _chewieController!)
+            : const SizedBox.shrink(),
+      ),
     );
   }
 }

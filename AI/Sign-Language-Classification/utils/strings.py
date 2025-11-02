@@ -715,4 +715,4 @@ class ExpressionHandler:
         self.current_message = message
 
     def get_message_old(self):
-        return ExpressionHandler.MAPPING[self.current_message]
+        return ExpressionHandler.MAPPING.get(self.current_message, self.current_message)

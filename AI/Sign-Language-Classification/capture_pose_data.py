@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("--confidence", help="Confidence of the model",
                         type=float, default=0.6)
     parser.add_argument("--duration", help="Duration to capture pose data",
-                        type=int, default=60)
+                        type=int, default=3)
     args = parser.parse_args()
 
     # Initialize the webcam
