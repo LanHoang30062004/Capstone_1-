@@ -14,12 +14,10 @@ const AddAccount = (props) => {
   const { loading, toggleLoading } = useContext(LoadingContext);
 
   const handleAdd = async (value) => {
-    console.log(value);
     try {
       toggleLoading(true);
       value.dateOfBirth = dayjs(value.dateOfBirth).format("YYYY-MM-DD");
       await dispatch(fetchAccountAddAdmin(value));
-      
     } catch (error) {
       toast.error(error);
     } finally {
@@ -132,6 +130,7 @@ const AddAccount = (props) => {
                 { value: "Nam", label: "Nam" },
                 { value: "Nữ", label: "Nữ" },
               ]}
+              defaultValue={"Nam"}
             />
           </Form.Item>
         </Form>

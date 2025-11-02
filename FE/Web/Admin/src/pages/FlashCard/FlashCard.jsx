@@ -67,8 +67,6 @@ const FlashCard = () => {
           ...searchObject,
           page: searchParams.get("page") - 1,
         });
-      } else {
-        await dispatch(fetchFlashCard(searchObject));
       }
 
       toast.success("Xoá thành công!");

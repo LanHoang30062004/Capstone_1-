@@ -14,6 +14,7 @@ export const fetchTopic = createAsyncThunk(
       params: query
     })
 
+    console.log(response)
     return response.data
   },
 )
@@ -31,6 +32,8 @@ export const fetchTopicAdd = createAsyncThunk(
   'topic/fetchTopicAdd',
   async (data) => {
     const response = await instance.post('/topic', data)
+
+    console.log(response)
 
     if (response.data.status > 400) toast.error(response.data.message)
 
@@ -91,7 +94,7 @@ export const topicSlice = createSlice({
 
     builder.addCase(fetchTopicDelete.fulfilled, (state, action) => {
       const topicId = action.payload
-      state.topics = state.topics.filter(topic => topic.id !== topicId)
+      state.topics.items = state.topics?.items.filter(topic => topic?.id !== topicId)
     })
   },
 })

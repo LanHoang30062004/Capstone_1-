@@ -19,6 +19,12 @@
     margin-bottom: 20px;
   }
 
+  &__list {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
   &__body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -33,10 +39,44 @@
     box-shadow: 0 18.83px 47.08px 0 rgba(47, 50, 125, 0.10);
     text-align: center;
 
+    .ant-card-body {
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &--add {
+      cursor: pointer;
+    }
+
+    &--icon {
+      margin: auto;
+      color: var(--color-blue-dark);
+
+      svg {
+        font-size: 3.6rem;
+      }
+
+      p {
+        font-size: 2rem;
+        font-weight: 600;
+      }
+    }
+
+    &--footer {
+      margin: auto;
+      margin-bottom: 0;
+      max-width: max-content;
+    }
+
+
+
     &--title {
       color: var(--color-black-two);
       font-size: 3rem;
       font-weight: 500;
+      max-width: max-content;
+      margin: 0 auto;
     }
 
     &--description,

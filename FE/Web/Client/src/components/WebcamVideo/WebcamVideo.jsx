@@ -8,7 +8,7 @@ import vision from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3"
 const { HandLandmarker, FaceLandmarker, FilesetResolver, DrawingUtils } =
   vision;
 
-const WebcamVideo = ({ word, setAccuracy }) => {
+const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -16,11 +16,9 @@ const WebcamVideo = ({ word, setAccuracy }) => {
   const [faceLandmarker, setFaceLandmarker] = useState(null);
   const [capturing, setCapturing] = useState(false);
 
-  // Lưu landmark mới nhất (không bị delay như state)
   const handRef = useRef([]);
   const faceRef = useRef([]);
 
-  // Load model khi component mount
   useEffect(() => {
     const initModels = async () => {
       const filesetResolver = await FilesetResolver.forVisionTasks(
@@ -55,7 +53,6 @@ const WebcamVideo = ({ word, setAccuracy }) => {
     initModels();
   }, []);
 
-  // Hàm loop predict realtime
   useEffect(() => {
     let lastVideoTime = -1;
     let animationId;
@@ -91,7 +88,6 @@ const WebcamVideo = ({ word, setAccuracy }) => {
 
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       // Draw hands
       if (handResult.landmarks && handResult.landmarks.length > 0) {
@@ -111,7 +107,6 @@ const WebcamVideo = ({ word, setAccuracy }) => {
 
           hands.push({ handedness, landmarks });
         }
-
         handRef.current = hands;
       } else {
         handRef.current = [];
@@ -149,7 +144,6 @@ const WebcamVideo = ({ word, setAccuracy }) => {
     return () => cancelAnimationFrame(animationId);
   }, [handLandmarker, faceLandmarker]);
 
-  // Hàm quay và gửi sau 5s
   const startCapture = () => {
     if (!webcamRef.current) return;
     setCapturing(true);
@@ -158,7 +152,7 @@ const WebcamVideo = ({ word, setAccuracy }) => {
       setCapturing(false);
 
       const payload = {
-        word: word | "",
+        word: word || "",
         face_landmarks: (faceRef.current || []).map((lm) => ({
           x: lm.x,
           y: lm.y,
@@ -176,7 +170,9 @@ const WebcamVideo = ({ word, setAccuracy }) => {
 
       try {
         const res = await axios.post("http://localhost:8000/predict", payload);
+        console.log(res);
         setAccuracy(res.data.accuracy);
+        setPredicWord(res.data.predicted_word);
       } catch (err) {
         console.error("Error:", err.response?.data || err.message);
       }
@@ -185,27 +181,37 @@ const WebcamVideo = ({ word, setAccuracy }) => {
 
   return (
     <div className="webcam">
-      <Space direction="vertical">
-        <div className="webcam__camera">
+      <Space direction="vertical" style={{ width: "100%" }}>
+        <div className="webcam__camera" style={{ position: "relative" }}>
           <Webcam
             ref={webcamRef}
+            mirrored={false}
+            videoConstraints={{ facingMode: "user" }}
             style={{
-              position: "relative",
-              marginLeft: "auto",
-              marginRight: "auto",
-              left: 0,
-              right: 0,
-              textAlign: "center",
-              zIndex: 9,
-              height: "auto",
               width: "100%",
+              height: "100%",
+              borderRadius: "10px",
+            }}
+          />
+          {/* Canvas overlay */}
+          <canvas
+            ref={canvasRef}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+              display: "none",
             }}
           />
         </div>
+
         <Button
           type="primary"
           onClick={startCapture}
-          disabled={capturing}
+          disabled={!handLandmarker || !faceLandmarker || capturing}
           block
           size="large"
         >

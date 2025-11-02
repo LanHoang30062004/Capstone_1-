@@ -5,10 +5,12 @@ import "./FlashCard.scss";
 import { useParams } from "react-router-dom";
 import * as flashcardService from "~/service/flashcardService";
 import LessonAnalyze from "./LessonAnalyze";
+import Loading from "~/components/Loading/Loading";
 
 const FlashCard = () => {
   const [data, setData] = useState([]);
   const [lessonAnalyze, setLessonAnalyze] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const params = useParams();
 
@@ -31,13 +33,20 @@ const FlashCard = () => {
 
   useEffect(() => {
     const fetchDetailLesson = async () => {
-      const response = await flashcardService.getDetailFlashCard(params.id);
+      try {
+        setLoading(true);
+        const response = await flashcardService.getDetailFlashCard(params.id);
 
-      setData(response.cards);
+        setData(response.cards);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchDetailLesson();
   }, []);
+
+  if (loading) return <Loading />;
 
   return (
     <div className="flashcards">

@@ -3,7 +3,8 @@ import { Upload, message, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 const UploadFile = ({ setFileUrl }) => {
-  const accessToken = localStorage.getItem("accessToken");
+  const accessToken = localStorage.getItem("adminAccessToken");
+  console.log(accessToken);
   const config = {
     name: "file",
     action: "http://localhost:8080/api/v1/word/upload",
@@ -16,6 +17,7 @@ const UploadFile = ({ setFileUrl }) => {
         setFileUrl(info.file.response.data);
         message.success(`${info.file.name} upload thành công.`);
       } else if (info.file.status === "error") {
+        console.log(info.file.response);
         message.error(`${info.file.name} upload thất bại`);
       }
     },

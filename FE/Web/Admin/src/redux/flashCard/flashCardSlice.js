@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, isRejectedWithValue } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify'
 import instance from '~/api/intance'
 
@@ -41,8 +41,6 @@ export const fetchFlashCardEdit = createAsyncThunk(
   async ({ id, data }) => {
     const response = await instance.put(`/flash-card/${id}`, data)
 
-    console.log(response)
-
     return response.data
   },
 )
@@ -50,7 +48,8 @@ export const fetchFlashCardEdit = createAsyncThunk(
 export const fetchFlashCardDelete = createAsyncThunk(
   'flash-card/fetchFlashCardDelete',
   async (id) => {
-    await instance.delete(`/flash-card/${id}`)
+    const response = await instance.delete(`/flash-card/${id}`)
+    if (response.data.status > 400) return toast.error(response.data.message)
 
     return id
   },
@@ -83,19 +82,17 @@ export const wordSlice = createSlice({
     })
 
     builder.addCase(fetchFlashCardEdit.fulfilled, (state, action) => {
-      const updatedWord = action.payload
-      const index = state.flashCards?.items?.findIndex(item => item.wordId === updatedWord.wordId);
-
-      // state.flashCards.items[index] = updatedWord
-    })
-
-    builder.addCase(fetchFlashCardEdit.rejected, (state, action) => {
-      console.log(action.payload)
+      if (action.payload.status > 400)
+        toast.error(action.payload.message)
+      else {
+        toast.success(action.payload.message)
+      }
     })
 
     builder.addCase(fetchFlashCardDelete.fulfilled, (state, action) => {
       const flashCardId = action.payload
-      state.flashCards.items = state.words?.items?.filter(item => item.wordId !== flashCardId)
+
+      state.flashCards.items = state.flashCards?.items?.filter(item => item.id !== flashCardId)
     })
   },
 })

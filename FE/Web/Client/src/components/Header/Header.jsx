@@ -11,6 +11,7 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("userInfo");
     navigate("/login");
   };
 
@@ -100,12 +101,12 @@ const Header = () => {
               Từ điển
             </Link>
 
-            <Link to="/learn" className="header__link--item">
-              Học
+            <Link to="/lesson" className="header__link--item">
+              FlashCard
             </Link>
 
             <Link to="/practise" className="header__link--item">
-              Củng cố kiến thức
+              Làm bài test
             </Link>
           </Flex>
         </Drawer>

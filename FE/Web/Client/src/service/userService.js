@@ -36,3 +36,18 @@ export const loginGoogle = async () => {
 
   return response.data
 }
+
+export const logout = () => {
+  localStorage.removeItem('adminAccessToken')
+  localStorage.removeItem('adminInfo')
+
+  location.href = '/login'
+};
+
+export const getUser = async (query) => {
+  const response = await instance.get(`/user/email`, {
+    params: query
+  });
+
+  return response.data;
+};

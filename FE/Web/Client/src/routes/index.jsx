@@ -16,6 +16,8 @@ import FlashCard from "~/pages/Lesson/FlashCard";
 import CheckOtp from "~/pages/ForgotPassword/CheckOtp";
 import ResetPassword from "~/pages/ForgotPassword/ResetPassword";
 import LoginGoogle from "~/pages/Auth/LoginGoogle";
+import TestResult from "~/pages/Practise/TestResult";
+import FlashCardDetail from "~/pages/Lesson/FlashCardDetail";
 
 const routes = [
   {
@@ -63,8 +65,18 @@ const routes = [
       },
 
       {
+        path: "/flashcard/detail/:id",
+        element: <FlashCardDetail />,
+      },
+
+      {
         path: "/flashcard/:id",
         element: <FlashCard />,
+      },
+
+      {
+        path: "/test-result/:id",
+        element: <TestResult />,
       },
     ],
   },

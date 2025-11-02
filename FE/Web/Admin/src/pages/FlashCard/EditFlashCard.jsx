@@ -23,12 +23,12 @@ const EditFlashCard = (props) => {
   const handleEdit = async (value) => {
     try {
       toggleLoading(true);
+      const userInfo = JSON.parse(localStorage.getItem("adminInfo"));
+      value.userId = parseInt(userInfo.id);
 
       await dispatch(fetchFlashCardEdit({ id: id, data: value })).unwrap();
 
       await dispatch(fetchFlashCardDetail(flashCard.id));
-
-      toast.success("Chỉnh sửa thành công!");
     } catch (error) {
       console.log(error);
       toast.error(error.message);

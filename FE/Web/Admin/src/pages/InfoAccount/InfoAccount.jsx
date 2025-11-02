@@ -23,7 +23,7 @@ const InfoAccount = () => {
   // Fetch user profile khi vào trang
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      const userInfo = JSON.parse(localStorage.getItem("adminInfo"));
 
       if (userInfo) {
         // Map dữ liệu mới vào form

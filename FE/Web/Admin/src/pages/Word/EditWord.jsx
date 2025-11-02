@@ -17,7 +17,7 @@ const EditWord = (props) => {
     if (fileUrl) value.videoUrl = fileUrl;
     else value.videoUrl = word.videoUrl;
 
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    const userInfo = JSON.parse(localStorage.getItem("adminInfo"));
     value.userId = userInfo.id;
 
     try {
@@ -66,24 +66,6 @@ const EditWord = (props) => {
           </Form.Item>
 
           {word.videoUrl && <video src={word.videoUrl} controls width={150} />}
-
-          <Form.Item
-            name="wordId"
-            label="Mã kí hiệu"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập mã kí hiệu",
-              },
-
-              {
-                pattern: /^\d+$/,
-                message: "Mã kí hiệu chỉ được chứa số!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
 
           <Form.Item
             name="wordName"
