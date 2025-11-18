@@ -82,56 +82,68 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
-      const startTimeMs = performance.now();
-      const handResult = handLandmarker.detectForVideo(video, startTimeMs);
-      const faceResult = faceLandmarker.detectForVideo(video, startTimeMs);
+      const timestamp = performance.now();
+      const handResult = handLandmarker.detectForVideo(video, timestamp);
+      const faceResult = faceLandmarker.detectForVideo(video, timestamp);
 
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw hands
+      /** ---------------- HANDS ---------------- */
       if (handResult.landmarks && handResult.landmarks.length > 0) {
         const hands = [];
         for (let i = 0; i < handResult.landmarks.length; i++) {
           const landmarks = handResult.landmarks[i];
-          const handedness = handResult.handednesses[i][0].categoryName;
 
-          drawingUtils.drawConnectors(landmarks, vision.HAND_CONNECTIONS, {
-            color: "#00FF00",
-            lineWidth: 3,
-          });
+          // ⭐ Draw connections
+          drawingUtils.drawConnectors(
+            landmarks,
+            HandLandmarker.HAND_CONNECTIONS,
+            {
+              color: "#ff0000",
+              lineWidth: 2,
+            }
+          );
+
+          // ⭐ Draw landmarks
           drawingUtils.drawLandmarks(landmarks, {
-            color: "#FF0000",
+            color: "#00ff00",
             lineWidth: 2,
           });
 
-          hands.push({ handedness, landmarks });
+          hands.push({
+            handedness: handResult.handednesses[i][0].categoryName,
+            landmarks,
+          });
         }
         handRef.current = hands;
       } else {
         handRef.current = [];
       }
 
-      // Draw face
+      /** ---------------- FACE ---------------- */
       if (faceResult.faceLandmarks && faceResult.faceLandmarks.length > 0) {
-        const firstFace = faceResult.faceLandmarks[0];
+        const points = faceResult.faceLandmarks[0];
+
         drawingUtils.drawConnectors(
-          firstFace,
+          points,
           FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-          { color: "#C0C0C070", lineWidth: 1 }
-        );
-        drawingUtils.drawConnectors(
-          firstFace,
-          FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
-          { color: "#E0E0E0" }
-        );
-        drawingUtils.drawConnectors(
-          firstFace,
-          FaceLandmarker.FACE_LANDMARKS_LIPS,
-          { color: "#FF3030" }
+          { color: "#ffffff60", lineWidth: 1 }
         );
 
-        faceRef.current = firstFace;
+        drawingUtils.drawConnectors(
+          points,
+          FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
+          { color: "#00ff00", lineWidth: 1 }
+        );
+
+        drawingUtils.drawConnectors(
+          points,
+          FaceLandmarker.FACE_LANDMARKS_LIPS,
+          { color: "#ff0000", lineWidth: 2 }
+        );
+
+        faceRef.current = points;
       } else {
         faceRef.current = [];
       }
@@ -156,25 +168,24 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         face_landmarks: (faceRef.current || []).map((lm) => ({
           x: lm.x,
           y: lm.y,
-          z: lm.z || 0.0,
+          z: lm.z || 0,
         })),
         hand_landmarks: (handRef.current || []).map((h) => ({
           handedness: h.handedness,
           landmarks: h.landmarks.map((lm) => ({
             x: lm.x,
             y: lm.y,
-            z: lm.z || 0.0,
+            z: lm.z || 0,
           })),
         })),
       };
 
       try {
         const res = await axios.post("http://localhost:8000/predict", payload);
-        console.log(res);
         setAccuracy(res.data.accuracy);
         setPredicWord(res.data.predicted_word);
       } catch (err) {
-        console.error("Error:", err.response?.data || err.message);
+        console.error(err);
       }
     }, 5000);
   };
@@ -182,7 +193,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
   return (
     <div className="webcam">
       <Space direction="vertical" style={{ width: "100%" }}>
-        <div className="webcam__camera" style={{ position: "relative" }}>
+        <div style={{ position: "relative" }}>
           <Webcam
             ref={webcamRef}
             mirrored={false}
@@ -193,7 +204,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
               borderRadius: "10px",
             }}
           />
-          {/* Canvas overlay */}
+
           <canvas
             ref={canvasRef}
             style={{
