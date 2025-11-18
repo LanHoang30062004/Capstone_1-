@@ -32,7 +32,6 @@ python train.py --model_name=[NAME OF THE MODEL YOU WANT]
 ```
 streamlit run main.py
 ```
-
 ## How to use the api translate video to text (Mobile) 
 
 - uvicorn test_simple:app (Test api example : http://localhost:8000/process-video)
