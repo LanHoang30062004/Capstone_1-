@@ -25,6 +25,8 @@ class ExpressionHandler:
         "quang_binh": "Quảng Bình",
         "thanh_pho_hue": "Thành phố Huế",
         "hoc_tap": "học tập",
+        "giup_do": "giúp đỡ",
+        "ngur" : "ngủ",
         "1": "1",
         "2": "2",
         "3": "3",
@@ -693,31 +695,18 @@ class ExpressionHandler:
             self.gesture_start_frame = len(self.predictions)
 
     def get_sequence(self):
-        # Thêm cử chỉ cuối cùng nếu tồn tại đủ lâu (đã mapped)
         if (
             self.current_gesture
-            and len(self.predictions) - self.gesture_start_frame
-            >= self.min_frames_per_gesture
+            and len(self.predictions) - self.gesture_start_frame >= self.min_frames_per_gesture
         ):
-            mapped_gesture = self.MAPPING.get(
-                self.current_gesture, self.current_gesture
-            )
+            mapped_gesture = self.MAPPING.get(self.current_gesture, self.current_gesture)
             self.sequence.append(mapped_gesture)
 
-        # Loại bỏ cử chỉ trùng lặp liên tiếp và thêm khoảng trắng giữa các từ
-        cleaned_sequence = []
-        for gesture in self.sequence:
-            if not cleaned_sequence or gesture != cleaned_sequence[-1]:
-                # Thêm khoảng trắng nếu là từ mới (không phải ký tự đơn)
-                if (
-                    cleaned_sequence
-                    and len(gesture) > 1
-                    and len(cleaned_sequence[-1]) > 1
-                ):
-                    cleaned_sequence.append(" ")
-                cleaned_sequence.append(gesture)
+        # Chỉ join bằng dấu phẩy, không ghép ký tự đơn
+        return ", ".join([g.strip() for g in self.sequence])
 
-        return "".join(cleaned_sequence)
+
+
 
     def get_message(self):
         sequence = self.get_sequence()

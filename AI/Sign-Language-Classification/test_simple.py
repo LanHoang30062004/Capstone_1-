@@ -75,35 +75,59 @@ class PredictionRequest(BaseModel):
     hand_landmarks: List[HandLandmarks]
     word: str
 
+
 def remove_duplicates_and_skip(text):
-    # Tách chuỗi thành danh sách, loại bỏ khoảng trắng thừa
     parts = [p.strip() for p in text.split(",")]
 
     seen = set()
     result = []
+    buffer_word = ""  # dùng để gom ký tự đơn liên tiếp
 
     for part in parts:
-        if part not in seen and part != "Ngồi yên":  # bỏ trùng và loại bỏ "Đứng yên"
-            seen.add(part)
-            result.append(part)
+        part_clean = part.strip().lower()
 
-    # Nối lại thành chuỗi
+        # Skip các trạng thái không mong muốn
+        if part_clean in ["đứng yên", "ngồi yên"]:
+            continue
+
+        # Nếu là ký tự đơn alphabet
+        chars = part.split(",")  # nếu có dạng ký tự đơn
+        if all(len(c.strip()) == 1 and c.strip().isalpha() for c in chars):
+            buffer_word += "".join(c.strip() for c in chars)
+            continue
+        else:
+            # Flush buffer_word trước khi thêm từ nhiều ký tự
+            if buffer_word:
+                # Loại duplicate ký tự liên tiếp
+                deduped = "".join(
+                    buffer_word[i] for i in range(len(buffer_word))
+                    if i == 0 or buffer_word[i] != buffer_word[i-1]
+                )
+                word = deduped.capitalize()
+                if word.lower() not in seen:
+                    seen.add(word.lower())
+                    result.append(word)
+                buffer_word = ""
+
+            # Thêm từ nhiều ký tự (nếu chưa tồn tại)
+            if part_clean not in seen:
+                seen.add(part_clean)
+                result.append(part.strip())
+
+    # Flush cuối nếu còn buffer
+    if buffer_word:
+        deduped = "".join(
+            buffer_word[i] for i in range(len(buffer_word))
+            if i == 0 or buffer_word[i] != buffer_word[i-1]
+        )
+        word = deduped.capitalize()
+        if word.lower() not in seen:
+            result.append(word)
+
     return ", ".join(result)
 
-def remove_duplicates_and_skip(text):
-    # Tách chuỗi thành danh sách, loại bỏ khoảng trắng thừa
-    parts = [p.strip() for p in text.split(",")]
 
-    seen = set()
-    result = []
 
-    for part in parts:
-        if part not in seen and part != "Ngồi yên":  # bỏ trùng và loại bỏ "Đứng yên"
-            seen.add(part)
-            result.append(part)
-
-    # Nối lại thành chuỗi
-    return ", ".join(result)
 
 
 # Load model globally

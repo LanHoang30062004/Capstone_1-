@@ -3,15 +3,8 @@ from config import *
 
 
 def extract_hand_result_api(mp_hands, hand_results):
-    """
-    Extract features from hand result
-    """
-    if (
-        not hand_results.multi_hand_landmarks
-        or len(hand_results.multi_hand_landmarks) == 0
-    ):
-        # không có tay nào → full zero
-        return np.zeros(FEATURES_PER_HAND * 4)
+    if not hand_results.multi_hand_landmarks:
+        return np.zeros(42 * 2)  # 84 nếu không có tay
 
     num_hands = len(hand_results.multi_hand_landmarks)
     handedness = hand_results.multi_handedness
@@ -19,11 +12,10 @@ def extract_hand_result_api(mp_hands, hand_results):
     if num_hands == 1:
         hand_array = extract_single_hand_api(mp_hands, hand_results.multi_hand_landmarks[0])
         if handedness[0].classification[0].label == "Right":
-            return np.hstack((hand_array.flatten(), np.zeros(FEATURES_PER_HAND * 2)))
+            return np.hstack((hand_array, np.zeros(42)))   # Right | Zero Left
         else:
-            return np.hstack((np.zeros(FEATURES_PER_HAND * 2), hand_array.flatten()))
+            return np.hstack((np.zeros(42), hand_array))   # Zero Right | Left
     else:
-        # hai tay → cần xác định đúng trái/phải
         if handedness[0].classification[0].label == "Right":
             right_hand = hand_results.multi_hand_landmarks[0]
             left_hand = hand_results.multi_hand_landmarks[1]
@@ -33,23 +25,30 @@ def extract_hand_result_api(mp_hands, hand_results):
 
         left_hand_array = extract_single_hand_api(mp_hands, left_hand)
         right_hand_array = extract_single_hand_api(mp_hands, right_hand)
-        return np.hstack((left_hand_array, right_hand_array)).flatten()
+
+        return np.hstack((left_hand_array, right_hand_array))  # 84 features
+
 
 
 def extract_single_hand_api(mp_hands, hand_landmarks):
-    """Trích xuất 21 điểm từ 1 bàn tay, pad zeros nếu thiếu."""
-    landmarks_array = np.zeros((21, 2))
+    """
+    Trích xuất 21 landmark với 2 giá trị (x, y) cho 1 bàn tay.
+    Flatten thành vector 42 chiều.
+    """
+    landmarks_array = np.zeros((21, 2))  # x, y
 
     def safe_get(i):
         if hand_landmarks and i < len(hand_landmarks.landmark):
             lm = hand_landmarks.landmark[i]
-            return np.array([getattr(lm, "x", 0.0), getattr(lm, "y", 0.0)])
+            return np.array([lm.x, lm.y])
         return np.array([0.0, 0.0])
 
     for idx, landmark_enum in enumerate(mp_hands.HandLandmark):
         landmarks_array[idx] = safe_get(landmark_enum.value)
 
-    return landmarks_array
+    return landmarks_array.flatten()  # 42 phần tử
+
+
 
 
 def extract_face_result_api(face_results):
