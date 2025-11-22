@@ -73,6 +73,15 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
       const ctx = canvas.getContext("2d");
       const drawingUtils = new DrawingUtils(ctx);
 
+      if (
+        video.videoWidth === 0 ||
+        video.videoHeight === 0 ||
+        video.readyState < 2
+      ) {
+        animationId = requestAnimationFrame(predictWebcam);
+        return;
+      }
+
       if (video.currentTime === lastVideoTime) {
         animationId = requestAnimationFrame(predictWebcam);
         return;
@@ -163,29 +172,42 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
     setTimeout(async () => {
       setCapturing(false);
 
+      // Lấy video dimensions để normalize
+      const video = webcamRef.current.video;
+      const videoWidth = video.videoWidth;
+      const videoHeight = video.videoHeight;
+
+      // ⭐ FIX: Chuẩn bị payload theo đúng format BE mong đợi
       const payload = {
         word: word || "",
-        face_landmarks: (faceRef.current || []).map((lm) => ({
-          x: lm.x,
-          y: lm.y,
-          z: lm.z || 0,
-        })),
+        face_landmarks: [], // ⭐ QUAN TRỌNG: BE mới chỉ dùng 2 features mean
         hand_landmarks: (handRef.current || []).map((h) => ({
-          handedness: h.handedness,
-          landmarks: h.landmarks.map((lm) => ({
-            x: lm.x,
+          handedness: h.handedness, // ⭐ QUAN TRỌNG: Phải có handedness
+          landmarks: (h.landmarks || []).slice(0, 21).map((lm) => ({
+            x: lm.x, // Đã normalized [0,1] từ MediaPipe
             y: lm.y,
-            z: lm.z || 0,
           })),
         })),
       };
 
+      console.log("✅ IMPROVED Payload:", {
+        word: payload.word,
+        hand_landmarks_count: payload.hand_landmarks.length,
+        handedness: payload.hand_landmarks.map((h) => h.handedness),
+        landmarks_per_hand: payload.hand_landmarks[0]?.landmarks?.length || 0,
+      });
+      console.log(payload);
+
       try {
-        const res = await axios.post("http://localhost:8000/predict", payload);
-        setAccuracy(res.data.accuracy);
+        const res = await axios.post(
+          "http://localhost:8000/predict-improved",
+          payload
+        );
+        setAccuracy(res.data.confidence);
         setPredicWord(res.data.predicted_word);
+        console.log("✅ Kết quả từ BE:", res.data);
       } catch (err) {
-        console.error(err);
+        console.error("❌ Lỗi khi gửi request:", err);
       }
     }, 5000);
   };
@@ -196,12 +218,13 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         <div style={{ position: "relative" }}>
           <Webcam
             ref={webcamRef}
-            mirrored={false}
+            mirrored={true}
             videoConstraints={{ facingMode: "user" }}
             style={{
               width: "100%",
               height: "100%",
               borderRadius: "10px",
+              transform: "scaleX(-1)"
             }}
           />
 
@@ -214,7 +237,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
               width: "100%",
               height: "100%",
               pointerEvents: "none",
-              display: "none",
+              // display: "h",
             }}
           />
         </div>

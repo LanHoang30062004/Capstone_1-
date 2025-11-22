@@ -722,3 +722,8 @@ class ExpressionHandler:
 
     def get_message_old(self):
         return ExpressionHandler.MAPPING.get(self.current_message, self.current_message)
+    
+    @classmethod
+    def get_display_text(cls, key: str) -> str:
+        """Lấy value từ key, nếu không có thì trả về key gốc"""
+        return cls.MAPPING.get(key, key)

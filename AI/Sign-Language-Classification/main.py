@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # Load model
     try:
         print("Initialising model ...")
-        model = ASLClassificationModel.load_model(f"models/{MODEL_CONSERVATION}")
+        model = ASLClassificationModel.load_model(f"models/{MODEL_NAME}")
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")
         st.stop()
