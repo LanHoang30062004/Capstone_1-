@@ -98,11 +98,13 @@ const FlashCard = () => {
         Phân tích
       </Button>
 
-      <LessonAnalyze
-        lessonAnalyze={lessonAnalyze}
-        setLessonAnalyze={setLessonAnalyze}
-        word={data[index]?.result}
-      />
+      {lessonAnalyze && (
+        <LessonAnalyze
+          lessonAnalyze={lessonAnalyze}
+          setLessonAnalyze={setLessonAnalyze}
+          word={data[index]?.result}
+        />
+      )}
     </div>
   );
 };

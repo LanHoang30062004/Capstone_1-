@@ -73,6 +73,15 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
       const ctx = canvas.getContext("2d");
       const drawingUtils = new DrawingUtils(ctx);
 
+      if (
+        video.videoWidth === 0 ||
+        video.videoHeight === 0 ||
+        video.readyState < 2
+      ) {
+        animationId = requestAnimationFrame(predictWebcam);
+        return;
+      }
+
       if (video.currentTime === lastVideoTime) {
         animationId = requestAnimationFrame(predictWebcam);
         return;
@@ -163,29 +172,40 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
     setTimeout(async () => {
       setCapturing(false);
 
+      // Lấy video dimensions để normalize
+      const video = webcamRef.current.video;
+      const videoWidth = video.videoWidth;
+      const videoHeight = video.videoHeight;
+
       const payload = {
         word: word || "",
         face_landmarks: (faceRef.current || []).map((lm) => ({
-          x: lm.x,
+          x: lm.x, // MediaPipe face landmarks đã normalized [0,1]
           y: lm.y,
-          z: lm.z || 0,
         })),
         hand_landmarks: (handRef.current || []).map((h) => ({
           handedness: h.handedness,
           landmarks: h.landmarks.map((lm) => ({
             x: lm.x,
             y: lm.y,
-            z: lm.z || 0,
           })),
         })),
       };
 
+      console.log("Payload gửi đến BE:", {
+        word: payload.word,
+        face_landmarks_count: payload.face_landmarks.length,
+        hand_landmarks_count: payload.hand_landmarks.length,
+        sample_hand_landmark: payload.hand_landmarks[0]?.landmarks[0],
+      });
+
       try {
         const res = await axios.post("http://localhost:8000/predict", payload);
-        setAccuracy(res.data.accuracy);
+        setAccuracy(res.data.confidence);
         setPredicWord(res.data.predicted_word);
+        console.log("Kết quả từ BE:", res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Lỗi khi gửi request:", err);
       }
     }, 5000);
   };
@@ -214,7 +234,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
               width: "100%",
               height: "100%",
               pointerEvents: "none",
-              display: "none",
+              // display: "h",
             }}
           />
         </div>

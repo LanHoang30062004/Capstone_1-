@@ -48,6 +48,7 @@ const CheckOtp = () => {
 
         <Form.Item
           name="email"
+          normalize={(value) => value.trim()}
           rules={[
             {
               required: true,

@@ -80,19 +80,31 @@ const InfoAccount = () => {
                   <>
                     <Row gutter={16}>
                       <Col span={12}>
-                        <Form.Item name="fullName" label="Họ và tên">
+                        <Form.Item
+                          name="fullName"
+                          label="Họ và tên"
+                          normalize={(value) => value.trim()}
+                        >
                           <Input placeholder="Họ và tên" disabled />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="email" label="Email">
+                        <Form.Item
+                          name="email"
+                          label="Email"
+                          normalize={(value) => value.trim()}
+                        >
                           <Input placeholder="Email" disabled />
                         </Form.Item>
                       </Col>
                     </Row>
                     <Row gutter={16}>
                       <Col span={12}>
-                        <Form.Item name="address" label="Địa chỉ">
+                        <Form.Item
+                          name="address"
+                          label="Địa chỉ"
+                          normalize={(value) => value.trim()}
+                        >
                           <Input placeholder="Địa chỉ" disabled />
                         </Form.Item>
                       </Col>
