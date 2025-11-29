@@ -4,6 +4,8 @@ import axios from "axios";
 import { Button, Space } from "antd";
 import "./WebcamVideo.scss";
 import vision from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const { HandLandmarker, FaceLandmarker, FilesetResolver, DrawingUtils } =
   vision;
@@ -15,9 +17,11 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
   const [handLandmarker, setHandLandmarker] = useState(null);
   const [faceLandmarker, setFaceLandmarker] = useState(null);
   const [capturing, setCapturing] = useState(false);
+  const [faceCount, setFaceCount] = useState(0);
 
   const handRef = useRef([]);
   const faceRef = useRef([]);
+  const faceResultsRef = useRef(null); // ⭐ THÊM: Lưu toàn bộ face results
 
   useEffect(() => {
     const initModels = async () => {
@@ -43,7 +47,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         },
         runningMode: "VIDEO",
         outputFaceBlendshapes: false,
-        numFaces: 1,
+        numFaces: 2, // ⭐ THAY ĐỔI: Cho phép phát hiện tối đa 2 mặt
       });
 
       setHandLandmarker(handLm);
@@ -95,6 +99,11 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
       const handResult = handLandmarker.detectForVideo(video, timestamp);
       const faceResult = faceLandmarker.detectForVideo(video, timestamp);
 
+      // ⭐ THÊM: Cập nhật số lượng mặt phát hiện
+      const currentFaceCount = faceResult.faceLandmarks ? faceResult.faceLandmarks.length : 0;
+      setFaceCount(currentFaceCount);
+      faceResultsRef.current = faceResult; // ⭐ Lưu lại để sử dụng trong startCapture
+
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -132,27 +141,42 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
 
       /** ---------------- FACE ---------------- */
       if (faceResult.faceLandmarks && faceResult.faceLandmarks.length > 0) {
-        const points = faceResult.faceLandmarks[0];
+        // ⭐ THAY ĐỔI: Vẽ tất cả các mặt phát hiện được
+        for (let i = 0; i < faceResult.faceLandmarks.length; i++) {
+          const points = faceResult.faceLandmarks[i];
+          
+          // Vẽ mỗi mặt với màu khác nhau để phân biệt
+          const colors = ["#00ff00", "#ff00ff", "#ffff00"]; // Xanh, Hồng, Vàng
+          const color = colors[i] || "#ffffff";
 
-        drawingUtils.drawConnectors(
-          points,
-          FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-          { color: "#ffffff60", lineWidth: 1 }
-        );
+          drawingUtils.drawConnectors(
+            points,
+            FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+            { color: color + "60", lineWidth: 1 }
+          );
 
-        drawingUtils.drawConnectors(
-          points,
-          FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
-          { color: "#00ff00", lineWidth: 1 }
-        );
+          drawingUtils.drawConnectors(
+            points,
+            FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
+            { color: color, lineWidth: 2 }
+          );
 
-        drawingUtils.drawConnectors(
-          points,
-          FaceLandmarker.FACE_LANDMARKS_LIPS,
-          { color: "#ff0000", lineWidth: 2 }
-        );
+          drawingUtils.drawConnectors(
+            points,
+            FaceLandmarker.FACE_LANDMARKS_LIPS,
+            { color: "#ff0000", lineWidth: 2 }
+          );
 
-        faceRef.current = points;
+          // ⭐ THÊM: Hiển thị số thứ tự mặt
+          if (points && points[0]) {
+            ctx.fillStyle = color;
+            ctx.font = "20px Arial";
+            ctx.fillText(`Mặt ${i + 1}`, points[0].x * canvas.width, points[0].y * canvas.height - 10);
+          }
+        }
+
+        // ⭐ Lưu mặt đầu tiên cho prediction (như cũ)
+        faceRef.current = faceResult.faceLandmarks[0];
       } else {
         faceRef.current = [];
       }
@@ -167,47 +191,90 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
 
   const startCapture = () => {
     if (!webcamRef.current) return;
+
+    // ⭐ THÊM: Kiểm tra số lượng mặt trước khi quay
+    if (faceCount > 1) {
+      toast.warning(`⚠️ Phát hiện ${faceCount} mặt trong khung hình! Hãy đảm bảo chỉ có 1 mặt để kết quả chính xác.`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return; // ⭐ DỪNG LẠI nếu có nhiều hơn 1 mặt
+    }
+
+    if (faceCount === 0) {
+      toast.error("❌ Không phát hiện mặt nào! Hãy điều chỉnh vị trí.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     setCapturing(true);
+
+    // ⭐ THÊM: Toast thông báo bắt đầu quay
+    toast.info("📸 Đang quay video trong 5 giây...", {
+      position: "top-right",
+      autoClose: 3000,
+    });
 
     setTimeout(async () => {
       setCapturing(false);
 
-      // Lấy video dimensions để normalize
       const video = webcamRef.current.video;
-      const videoWidth = video.videoWidth;
-      const videoHeight = video.videoHeight;
 
-      // ⭐ FIX: Chuẩn bị payload theo đúng format BE mong đợi
+      // THÊM DEBUG CHI TIẾT
+      console.log("🔍 DEBUG FACE LANDMARKS:");
+      console.log(`   Số lượng face landmarks: ${faceRef.current?.length || 0}`);
+      console.log(`   Số lượng hand landmarks: ${handRef.current?.length || 0}`);
+      console.log(`   Số lượng mặt phát hiện: ${faceCount}`);
+
+      if (faceRef.current && faceRef.current.length > 0) {
+        console.log(`   Face landmark đầu tiên:`, faceRef.current[0]);
+      }
+
+      // ⭐ FIX: THÊM FACE LANDMARKS
       const payload = {
         word: word || "",
-        face_landmarks: [], // ⭐ QUAN TRỌNG: BE mới chỉ dùng 2 features mean
+        face_landmarks: (faceRef.current || []).slice(0, 468).map((lm) => ({
+          x: lm.x,
+          y: lm.y,
+        })),
         hand_landmarks: (handRef.current || []).map((h) => ({
-          handedness: h.handedness, // ⭐ QUAN TRỌNG: Phải có handedness
+          handedness: h.handedness,
           landmarks: (h.landmarks || []).slice(0, 21).map((lm) => ({
-            x: lm.x, // Đã normalized [0,1] từ MediaPipe
+            x: lm.x,
             y: lm.y,
           })),
         })),
       };
 
-      console.log("✅ IMPROVED Payload:", {
+      console.log("✅ FIXED Payload:", {
         word: payload.word,
+        face_landmarks_count: payload.face_landmarks.length,
         hand_landmarks_count: payload.hand_landmarks.length,
         handedness: payload.hand_landmarks.map((h) => h.handedness),
-        landmarks_per_hand: payload.hand_landmarks[0]?.landmarks?.length || 0,
       });
-      console.log(payload);
 
       try {
         const res = await axios.post(
-          "http://localhost:8000/predict-improved",
+          "http://localhost:8001/predict-improved",
           payload
         );
         setAccuracy(res.data.confidence);
         setPredicWord(res.data.predicted_word);
+      
+        
         console.log("✅ Kết quả từ BE:", res.data);
       } catch (err) {
         console.error("❌ Lỗi khi gửi request:", err);
+        toast.error("❌ Lỗi kết nối đến server!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
       }
     }, 5000);
   };
@@ -224,7 +291,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
               width: "100%",
               height: "100%",
               borderRadius: "10px",
-              transform: "scaleX(-1)"
+              transform: "scaleX(-1)",
             }}
           />
 
@@ -237,7 +304,6 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
               width: "100%",
               height: "100%",
               pointerEvents: "none",
-              // display: "h",
             }}
           />
         </div>
@@ -248,6 +314,9 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
           disabled={!handLandmarker || !faceLandmarker || capturing}
           block
           size="large"
+          style={{
+            backgroundColor: faceCount > 1 ? "#ff4d4f" : "#1890ff",
+          }}
         >
           {capturing ? "Đang quay..." : "Quay & Predict"}
         </Button>

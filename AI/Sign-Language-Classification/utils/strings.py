@@ -101,7 +101,6 @@ class ExpressionHandler:
         "mu_chu": "Mù chữ",
         "vo_tinh": "Vô tình",
         "tet_han_thuc": "Tết Hàn Thực",
-        "gio": "Giỗ",
         "quoc_te_phu_nu": "ngày Quốc tế phụ nữ 8/3",
         "giai_phong_thu_do": "Ngày giải phóng thủ đô 10/10",
         "giai_phong_mien_nam": "Ngày giải phóng miền Nam 30/4",

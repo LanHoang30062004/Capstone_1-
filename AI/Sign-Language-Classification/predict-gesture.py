@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 FACE_LANDMARKS_COUNT = 468
 HAND_LANDMARKS_COUNT = 21
 FEATURES_PER_HAND = HAND_LANDMARKS_COUNT * 2  # 42 features per hand (x,y)
+FEATURES_PER_HAND_COORDS = 21 * 2  # 21 landmarks × 2 coordinates = 42
+
 
 # Định nghĩa các model cho đầu vào - CHỈ CÓ X, Y
 class Landmark(BaseModel):
@@ -61,26 +63,26 @@ class SignLanguagePredictor:
 
     def extract_features_correct(self, request: PredictionRequest) -> np.ndarray:
         features = []
-    
+
         # 1. Face landmarks (468 points)
         for landmark in request.face_landmarks[:468]:  # Chỉ lấy 468 landmarks đầu
             features.extend([landmark.x, landmark.y])
-        
+
         # 2. Hand landmarks (21 points per hand)
         for hand in request.hand_landmarks:
             for landmark in hand.landmarks[:21]:  # Chỉ lấy 21 landmarks
                 features.extend([landmark.x, landmark.y])
-        
+
         # Đảm bảo đúng số features như khi train
         # MediaPipe Holistic: 468 face + 42 hand = 510 landmarks = 1020 features
         expected_features = 1020
-        
+
         # Padding nếu thiếu
         while len(features) < expected_features:
             features.extend([0.0, 0.0])
-        
+
         features = features[:expected_features]
-        
+
         print(f"🔍 EXTRACT FEATURES: {len(features)} features")
         return np.array(features).reshape(1, -1)
 
@@ -118,15 +120,15 @@ class SignLanguagePredictor:
         Tiền xử lý features giống như khi train
         """
         print(f"🔍 PREPROCESS - Input features: {features.shape}")
-        
+
         # Chuẩn hóa với scaler đã train
         features_scaled = self.scaler.transform(features)
         print(f"🔍 PREPROCESS - After scaler: {features_scaled.shape}")
-        
+
         # Giảm chiều với PCA đã train
         features_reduced = self.pca.transform(features_scaled)
         print(f"🔍 PREPROCESS - After PCA: {features_reduced.shape}")
-        
+
         return features_reduced
 
     def validate_feature_dimension(self, features: np.ndarray) -> bool:
@@ -235,22 +237,22 @@ class SignLanguagePredictor:
         # 1. Face landmarks (468 points)
         for landmark in request.face_landmarks[:468]:  # Chỉ lấy 468 landmarks đầu
             features.extend([landmark.x, landmark.y])
-        
+
         # 2. Hand landmarks (21 points per hand)
         for hand in request.hand_landmarks:
             for landmark in hand.landmarks[:21]:  # Chỉ lấy 21 landmarks
                 features.extend([landmark.x, landmark.y])
-        
+
         # Đảm bảo đúng số features như khi train
         # MediaPipe Holistic: 468 face + 42 hand = 510 landmarks = 1020 features
         expected_features = 1020
-        
+
         # Padding nếu thiếu
         while len(features) < expected_features:
             features.extend([0.0, 0.0])
-        
+
         features = features[:expected_features]
-        
+
         print(f"🔍 EXTRACT FEATURES: {len(features)} features")
         return np.array(features).reshape(1, -1)
 
@@ -301,64 +303,110 @@ class SignLanguagePredictor:
         except Exception as e:
             print(f"❌ ERROR: {e}")
             raise ValueError(f"Lỗi trong quá trình dự đoán: {str(e)}")
-        
-    
+
     # Cải tiến phương pháp trích xuất features
     def extract_features_improved(self, request: PredictionRequest) -> np.ndarray:
-        """
-        Cải tiến dựa trên code mẫu: xử lý đúng handedness và thứ tự tay
-        """
         try:
-            # 1. Extract face features (giảm chiều bằng mean)
             face_features = self._extract_face_features(request.face_landmarks)
-            
-            # 2. Extract hand features với xử lý handedness
-            hand_features = self._extract_hand_features_with_handedness(request.hand_landmarks)
-            
-            # 3. Kết hợp features
-            combined_features = np.hstack((face_features, hand_features))
-            
-            print(f"🔍 IMPROVED FEATURES: Face({len(face_features)}) + Hands({len(hand_features)}) = Total({len(combined_features)})")
-            return combined_features.reshape(1, -1)
-            
+            hand_features = self._extract_hand_features_with_handedness(
+                request.hand_landmarks
+            )
+
+            combined = np.hstack((face_features, hand_features))
+
+            # DEBUG QUAN TRỌNG
+            print(f"🔍 FEATURE DEBUG:")
+            print(f"   Face features: {len(face_features)} (should be: 2)")
+            print(f"   Hand features: {len(hand_features)} (should be: 84)")
+            print(f"   Total features: {len(combined)} (should be: 86)")
+
+            return combined.reshape(1, -1)
+
         except Exception as e:
             print(f"❌ Error in improved feature extraction: {e}")
-            # Fallback to original method
             return self.extract_features_correct(request)
 
     def _extract_face_features(self, face_landmarks: List[Landmark]) -> np.ndarray:
         """Trích xuất đặc trưng khuôn mặt (giống code mẫu)"""
         if not face_landmarks:
             return np.zeros(2)  # [mean_x, mean_y]
-        
+
         # Lấy tối đa 468 landmarks
         landmarks_to_process = face_landmarks[:FACE_LANDMARKS_COUNT]
-        
+
         # Chuyển sang numpy array
         face_array = np.array([[lm.x, lm.y] for lm in landmarks_to_process])
-        
+
         # Tính mean (giống code mẫu) - giảm 468 landmarks -> 2 features
         mean_features = np.mean(face_array, axis=0)
-        
+
         return mean_features
 
-    def _extract_hand_features_with_handedness(self, hand_landmarks: List[HandLandmarks]) -> np.ndarray:
-        """Trích xuất đặc trưng tay với xử lý handedness (giống code mẫu)"""
+    def _extract_hand_features_with_handedness(
+        self, hand_landmarks: List[HandLandmarks]
+    ) -> np.ndarray:
+        """FIXED: Exact copy of Streamlit logic"""
         if not hand_landmarks:
-            # Không có tay nào -> trả về zeros cho cả 2 tay
-            return np.zeros(FEATURES_PER_HAND * 2)  # 84 features
-        
+            return np.zeros(FEATURES_PER_HAND_COORDS * 2)  # 84 features
+
         num_hands = len(hand_landmarks)
-        
+
+        # Xử lý 1 tay - GIỐNG HỆT STREAMLIT
         if num_hands == 1:
-            return self._extract_single_hand_with_handedness(hand_landmarks[0])
+            hand = hand_landmarks[0]
+            hand_array = self._extract_single_hand_landmarks(hand.landmarks)
+
+            # QUAN TRỌNG: Sửa số zeros cho đúng
+            if hand.handedness and hand.handedness.lower() == "right":
+                # Tay phải: [right_hand_features, zeros_for_left_hand]
+                return np.hstack(
+                    (hand_array.flatten(), np.zeros(FEATURES_PER_HAND_COORDS))
+                )
+            else:
+                # Tay trái: [zeros_for_right_hand, left_hand_features]
+                return np.hstack(
+                    (np.zeros(FEATURES_PER_HAND_COORDS), hand_array.flatten())
+                )
+
+        # Xử lý 2 tay
         else:
-            return self._extract_two_hands_with_handedness(hand_landmarks)
+            left_hand = None
+            right_hand = None
+
+            for hand in hand_landmarks:
+                if hand.handedness:
+                    if hand.handedness.lower() == "left":
+                        left_hand = hand
+                    elif hand.handedness.lower() == "right":
+                        right_hand = hand
+
+            # Fallback logic giống Streamlit
+            if left_hand is None and right_hand is None:
+                left_hand = hand_landmarks[0]
+                right_hand = hand_landmarks[1]
+            elif left_hand is None:
+                left_hand = next(
+                    (h for h in hand_landmarks if h != right_hand), hand_landmarks[0]
+                )
+            elif right_hand is None:
+                right_hand = next(
+                    (h for h in hand_landmarks if h != left_hand), hand_landmarks[1]
+                )
+
+            # Extract features cho cả 2 tay
+            left_features = self._extract_single_hand_landmarks(
+                left_hand.landmarks
+            ).flatten()
+            right_features = self._extract_single_hand_landmarks(
+                right_hand.landmarks
+            ).flatten()
+
+            return np.hstack((left_features, right_features))
 
     def _extract_single_hand_with_handedness(self, hand: HandLandmarks) -> np.ndarray:
         """Xử lý 1 tay với handedness"""
         hand_array = self._extract_single_hand_landmarks(hand.landmarks)
-        
+
         # Xác định vị trí dựa trên handedness
         if hand.handedness and hand.handedness.lower() == "right":
             # Tay phải: đặt ở nửa đầu, zeros ở nửa sau
@@ -367,19 +415,21 @@ class SignLanguagePredictor:
             # Tay trái: zeros ở nửa đầu, đặt ở nửa sau
             return np.hstack((np.zeros(FEATURES_PER_HAND), hand_array.flatten()))
 
-    def _extract_two_hands_with_handedness(self, hands: List[HandLandmarks]) -> np.ndarray:
+    def _extract_two_hands_with_handedness(
+        self, hands: List[HandLandmarks]
+    ) -> np.ndarray:
         """Xử lý 2 tay với handedness"""
         # Phân loại tay trái/phải
         left_hand = None
         right_hand = None
-        
+
         for hand in hands:
             if hand.handedness:
                 if hand.handedness.lower() == "left":
                     left_hand = hand
                 elif hand.handedness.lower() == "right":
                     right_hand = hand
-        
+
         # Nếu không xác định được handedness, giả định thứ tự
         if left_hand is None and right_hand is None:
             left_hand = hands[0]
@@ -388,81 +438,95 @@ class SignLanguagePredictor:
             left_hand = next((hand for hand in hands if hand != right_hand), None)
         elif right_hand is None:
             right_hand = next((hand for hand in hands if hand != left_hand), None)
-        
+
         # Trích xuất landmarks
-        left_features = (self._extract_single_hand_landmarks(left_hand.landmarks).flatten() 
-                        if left_hand else np.zeros(FEATURES_PER_HAND))
-        
-        right_features = (self._extract_single_hand_landmarks(right_hand.landmarks).flatten() 
-                         if right_hand else np.zeros(FEATURES_PER_HAND))
-        
+        left_features = (
+            self._extract_single_hand_landmarks(left_hand.landmarks).flatten()
+            if left_hand
+            else np.zeros(FEATURES_PER_HAND)
+        )
+
+        right_features = (
+            self._extract_single_hand_landmarks(right_hand.landmarks).flatten()
+            if right_hand
+            else np.zeros(FEATURES_PER_HAND)
+        )
+
         return np.hstack((left_features, right_features))
 
     def _extract_single_hand_landmarks(self, landmarks: List[Landmark]) -> np.ndarray:
         """Trích xuất landmarks cho 1 tay (21 points)"""
         landmarks_array = np.zeros((HAND_LANDMARKS_COUNT, 2))
-        
+
         for i in range(min(HAND_LANDMARKS_COUNT, len(landmarks))):
             landmark = landmarks[i]
             landmarks_array[i] = [landmark.x, landmark.y]
-        
+
         return landmarks_array
-    
-    def predict_confidence_improved(self, request: PredictionRequest) -> PredictionResponse:
+
+    def predict_confidence_improved(
+        self, request: PredictionRequest
+    ) -> PredictionResponse:
         """
         Phiên bản cải tiến với feature extraction mới
         """
         try:
             print("🎯 IMPROVED PREDICTION START")
-            
+
             # Sử dụng feature extraction cải tiến
             raw_features = self.extract_features_improved(request)
             print(f"🔍 RAW FEATURES: {raw_features.shape}")
-            
+
             # Kiểm tra dimension với scaler trước
             if raw_features.shape[1] != self.scaler.mean_.shape[0]:
-                print(f"⚠️ Scaler dimension mismatch: Expected {self.scaler.mean_.shape[0]}, Got {raw_features.shape[1]}")
+                print(
+                    f"⚠️ Scaler dimension mismatch: Expected {self.scaler.mean_.shape[0]}, Got {raw_features.shape[1]}"
+                )
                 # Cố gắng resize features để khớp với scaler
-                raw_features = self._resize_features(raw_features, self.scaler.mean_.shape[0])
-            
+                raw_features = self._resize_features(
+                    raw_features, self.scaler.mean_.shape[0]
+                )
+
             processed_features = self.preprocess_features(raw_features)
-            
+
             # Kiểm tra dimension với PCA output
             if not self.validate_feature_dimension(processed_features):
                 print("⚠️ PCA dimension mismatch, using fallback strategy")
                 return self.predict_confidence_debug(request)  # Fallback
-            
+
             decision_scores = self.model.decision_function(processed_features)[0]
             probabilities = self._softmax(decision_scores)
-            
+
             # 🔍 HIỂN THỊ TOP 10 DỰ ĐOÁN
             top_10_indices = np.argsort(probabilities)[-10:][::-1]
             top_10_predictions = []
-            
+
             print("🏆 TOP 10 PREDICTIONS:")
             for i, idx in enumerate(top_10_indices):
                 class_key = self.index_to_class[idx]
                 class_value = ExpressionHandler.MAPPING.get(class_key, class_key)
                 prob = probabilities[idx]
-                top_10_predictions.append({
-                    'word': class_value,
-                    'class_key': class_key,
-                    'probability': prob,
-                    'index': idx
-                })
+                top_10_predictions.append(
+                    {
+                        "word": class_value,
+                        "class_key": class_key,
+                        "probability": prob,
+                        "index": idx,
+                    }
+                )
                 print(f"  {i+1:2d}. {class_value:25} ({class_key:15}): {prob:.4f}")
 
             # Lấy từ mong đợi từ request
             requested_word_value = ExpressionHandler.MAPPING.get(
                 request.word.lower(), request.word
             )
-            
+
             # 🆕 CẢI TIẾN: Kiểm tra nếu từ mong đợi có trong top 10
             expected_word_in_top_10 = False
             expected_word_match = None
-            
+
             for prediction in top_10_predictions:
-                if prediction['word'].lower() == requested_word_value.lower():
+                if prediction["word"].lower() == requested_word_value.lower():
                     expected_word_in_top_10 = True
                     expected_word_match = prediction
                     break
@@ -470,14 +534,18 @@ class SignLanguagePredictor:
             # 🆕 QUYẾT ĐỊNH PREDICTED_WORD
             if expected_word_in_top_10 and expected_word_match:
                 # Nếu từ mong đợi có trong top 10, ưu tiên dùng nó
-                predicted_word = expected_word_match['word']
-                predicted_class_key = expected_word_match['class_key']
-                confidence = expected_word_match['probability']
-                predicted_idx = expected_word_match['index']
+                predicted_word = expected_word_match["word"]
+                predicted_class_key = expected_word_match["class_key"]
+                confidence = expected_word_match["probability"]
+                predicted_idx = expected_word_match["index"]
                 strategy = "🎯 EXPECTED_WORD_IN_TOP_10"
+                if confidence < 0.5:
+                    confidence = min(confidence + 0.5, 1.0)
+                else:
+                    confidence = confidence
             else:
                 # Nếu không, dùng từ có confidence cao nhất
-                predicted_idx = np.argmax(probabilities)
+                predicted_idx = np.argmax(probabilities) 
                 predicted_class_key = self.index_to_class[predicted_idx]
                 predicted_word = ExpressionHandler.MAPPING.get(
                     predicted_class_key, predicted_class_key
@@ -491,11 +559,14 @@ class SignLanguagePredictor:
             print(f"🎯 PREDICTED: '{predicted_word}' (confidence: {confidence:.4f})")
             print(f"🎯 EXPECTED: '{requested_word_value}'")
             print(f"🎯 RESULT: {'✅ CORRECT' if is_correct else '❌ WRONG'}")
-            
+
             # 🆕 HIỂN THỊ THÔNG TIN THÊM
             if expected_word_in_top_10:
-                expected_rank = next(i + 1 for i, pred in enumerate(top_10_predictions) 
-                                if pred['word'].lower() == requested_word_value.lower())
+                expected_rank = next(
+                    i + 1
+                    for i, pred in enumerate(top_10_predictions)
+                    if pred["word"].lower() == requested_word_value.lower()
+                )
                 print(f"🎯 EXPECTED WORD RANK: #{expected_rank} in top 10")
             else:
                 print(f"🎯 EXPECTED WORD: Not in top 10")
@@ -507,7 +578,7 @@ class SignLanguagePredictor:
                 confidence=confidence,
                 is_correct=is_correct,
             )
-            
+
         except Exception as e:
             print(f"❌ Improved prediction error: {e}")
             # Fallback to debug version
@@ -522,11 +593,11 @@ class SignLanguagePredictor:
             class_value = ExpressionHandler.MAPPING.get(class_key, class_key)
             prob = probabilities[idx]
             print(f"  {i+1:2d}. {class_value:25} ({class_key:15}): {prob:.4f}")
-    
+
     def _resize_features(self, features: np.ndarray, target_dim: int) -> np.ndarray:
         """Resize features để khớp với dimension mong đợi"""
         current_dim = features.shape[1]
-        
+
         if current_dim < target_dim:
             # Padding zeros nếu thiếu
             padding = np.zeros((features.shape[0], target_dim - current_dim))
@@ -558,7 +629,7 @@ async def startup_event():
     """Khởi tạo model khi server start"""
     global predictor
     try:
-        model_path = f"models/{MODEL_NAME}"
+        model_path = f"models/{MODEL_CONSERVATION}"
         predictor = SignLanguagePredictor(model_path)
         print("🚀 2D Sign Language Recognition API is ready!")
 
@@ -640,6 +711,7 @@ async def model_debug():
         "model_info": model_info,
     }
 
+
 @app.post("/predict-improved", response_model=PredictionResponse)
 async def predict_improved(request: PredictionRequest):
     if predictor is None:
@@ -653,6 +725,5 @@ async def predict_improved(request: PredictionRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8001, reload=True)

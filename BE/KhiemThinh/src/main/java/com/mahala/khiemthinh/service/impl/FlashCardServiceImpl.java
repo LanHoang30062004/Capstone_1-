@@ -4,6 +4,8 @@ import com.mahala.khiemthinh.dto.request.CardDTO;
 import com.mahala.khiemthinh.dto.request.FlashCardDTO;
 import com.mahala.khiemthinh.dto.response.PageResponse;
 import com.mahala.khiemthinh.exception.NotFoundException;
+import com.mahala.khiemthinh.mapper.FlashCardMapper;
+import com.mahala.khiemthinh.mapper.TopicMapper;
 import com.mahala.khiemthinh.model.FlashCard;
 import com.mahala.khiemthinh.model.TopicFlashCard;
 import com.mahala.khiemthinh.model.User;
@@ -32,6 +34,7 @@ public class FlashCardServiceImpl implements FlashCardService {
     private final FlashCardRepository flashCardRepository;
     private final WordRepository wordRepository;
     private final UserRepository userRepository;
+    private final FlashCardMapper flashCardMapper;
 
     @Override
     public PageResponse<?> getAllFlashCard(int page, int size, String search) {
@@ -106,9 +109,9 @@ public class FlashCardServiceImpl implements FlashCardService {
         topicFlashCard.setContent(flashCardDTO.getContent());
         topicFlashCard.setFlashCards(flashCardDTO.getCards().stream().map(item -> {
 
-            Word word = new Word();
+            Word word = new Word() ;
             try {
-                this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
+                word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
             }
             catch (Exception e) {
                 throw new RuntimeException("Can not find any correct word");
@@ -122,8 +125,8 @@ public class FlashCardServiceImpl implements FlashCardService {
         }).toList());
         topicFlashCard.setUser(user);
         user.addFlashCard(topicFlashCard);
-        this.topicFlashCardRepository.save(topicFlashCard);
-        return flashCardDTO;
+        TopicFlashCard flashCard =  this.topicFlashCardRepository.save(topicFlashCard);
+        return this.flashCardMapper.toFlashCardDTO(flashCard);
     }
 
     @Override
@@ -138,7 +141,7 @@ public class FlashCardServiceImpl implements FlashCardService {
 
         // Thêm flashcards mới
         for (CardDTO item : flashCardDTO.getCards()) {
-            Word word = new Word();
+            Word word ;
             try {
                 word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
             }

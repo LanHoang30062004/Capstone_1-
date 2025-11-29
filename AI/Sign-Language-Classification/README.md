@@ -37,4 +37,4 @@ streamlit run main.py
 - uvicorn test_simple:app (Test api example : http://localhost:8000/process-video)
 
 ## How to use the api validate-gesture (predict-gesture.py)
-- uvicorn predict-gesture:app --reload --host 0.0.0.0 --port 8000
+- uvicorn predict-gesture:app --reload --host 0.0.0.0 --port 8001

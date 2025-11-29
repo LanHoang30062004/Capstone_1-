@@ -70,6 +70,7 @@ public class TopicServiceImpl implements TopicService {
         return TopicDTO.builder()
                 .id(topic.getId())
                 .content(topic.getContent())
+                .durationMinutes(topic.getDurationMinutes())
                 .questions(topic.getQuestions().stream().map(item -> QuestionDTO.builder()
                         .options(item.getOptions().stream().map(option -> OptionDTO.builder().correct(option.getCorrect()).option(option.getOptionAnswer()).build()).collect(Collectors.toList()))
                         .questionUrl(item.getQuestionUrl())
