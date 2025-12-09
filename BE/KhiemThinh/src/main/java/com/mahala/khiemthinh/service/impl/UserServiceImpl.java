@@ -200,7 +200,9 @@ public class UserServiceImpl implements UserService {
         newAdmin.setRole(role);
         String password = generatePassword(adminDTO.getEmail());
         newAdmin.setPassword(this.passwordEncoder.encode(password));
+        this.userRepository.save(newAdmin) ;
         this.sendSimpleEmail(adminDTO.getEmail(),password);
+
     }
 
 }
