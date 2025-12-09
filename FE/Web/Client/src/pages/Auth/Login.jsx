@@ -28,6 +28,7 @@ const Login = () => {
           <Form.Item
             name="email"
             label="Email"
+            normalize={(value) => value.trim()}
             rules={[
               {
                 required: true,

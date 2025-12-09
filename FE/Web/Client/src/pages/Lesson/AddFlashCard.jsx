@@ -88,6 +88,7 @@ const AddFlashCard = (props) => {
           <Form.Item
             name="content"
             label="Nội dung"
+            normalize={(value) => value.trim()}
             rules={[
               {
                 required: true,

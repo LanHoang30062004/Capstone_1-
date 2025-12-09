@@ -56,8 +56,6 @@ const Practise = () => {
     fetchTopic(searchObject);
   }, [searchParams]);
 
-  console.log(topics);
-
   return (
     <>
       <section className="practise mt">
@@ -119,8 +117,6 @@ const Practise = () => {
                             <span>{item.numberOfQuestion} câu hỏi</span>
                           </div>
                         </Flex>
-
-                        <div className="practise__card--did">100 lượt làm</div>
 
                         <Link
                           to={`/practise/${item.id}`}

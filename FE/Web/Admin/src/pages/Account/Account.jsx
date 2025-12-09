@@ -140,7 +140,7 @@ const FlashCard = () => {
   return (
     <>
       <div className="flash-card_list contain">
-        <Header title="Flash Card" subTitle="Danh sách flash card" />
+        <Header title="Tài khoản" subTitle="Danh sách tài khoản" />
 
         <Card className="flash-card_table table">
           <div className="flash-card_table--head">

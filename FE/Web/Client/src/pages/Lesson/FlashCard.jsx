@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, Button, Progress } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "./FlashCard.scss";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import * as flashcardService from "~/service/flashcardService";
 import LessonAnalyze from "./LessonAnalyze";
 import Loading from "~/components/Loading/Loading";
@@ -11,6 +11,7 @@ const FlashCard = () => {
   const [data, setData] = useState([]);
   const [lessonAnalyze, setLessonAnalyze] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const params = useParams();
 
@@ -21,6 +22,11 @@ const FlashCard = () => {
     if (index < data.length - 1) {
       setIndex(index + 1);
       setFlipped(false);
+    } else {
+      // Đã đến thẻ cuối cùng, chuyển sang trang kết quả
+      navigate(`/flashcard/${params.id}/result`, {
+        state: { totalCards: data.length },
+      });
     }
   };
 
@@ -58,13 +64,8 @@ const FlashCard = () => {
         onClick={() => setFlipped(!flipped)}
       >
         <div className="flashcards__face flashcards__face--front">
-          <Card>
-            <video
-              src={data[index]?.videoUrl}
-              autoPlay
-              loop
-              style={{ width: "100%", height: "100%" }}
-            ></video>
+          <Card className="flashcards__video">
+            <video src={data[index]?.videoUrl} autoPlay loop></video>
           </Card>
         </div>
 
@@ -98,11 +99,13 @@ const FlashCard = () => {
         Phân tích
       </Button>
 
-      <LessonAnalyze
-        lessonAnalyze={lessonAnalyze}
-        setLessonAnalyze={setLessonAnalyze}
-        word={data[index]?.result}
-      />
+      {lessonAnalyze && (
+        <LessonAnalyze
+          lessonAnalyze={lessonAnalyze}
+          setLessonAnalyze={setLessonAnalyze}
+          word={data[index]?.result}
+        />
+      )}
     </div>
   );
 };

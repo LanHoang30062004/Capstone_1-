@@ -48,7 +48,7 @@ const ResetPassword = () => {
             <Form.Item
               name="confirmPassword"
               rules={[
-                { required: true, message: "Vui lòng nhập lại mật khẩu mới!" },
+                { required: true, message: "Vui lòng xác nhận mật khẩu mới!" },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("newPassword") === value) {

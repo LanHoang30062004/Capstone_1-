@@ -28,6 +28,7 @@ const Register = () => {
           <Form.Item
             name="username"
             label="Tài khoản"
+            normalize={(value) => value.trim()}
             rules={[
               {
                 required: true,
@@ -41,6 +42,7 @@ const Register = () => {
           <Form.Item
             name="email"
             label="Email"
+            normalize={(value) => value.trim()}
             rules={[
               {
                 required: true,

@@ -35,7 +35,7 @@ const AddTopic = () => {
 
   return (
     <div className="word__list contain">
-      <Header title="Chủ đề" subTitle="Danh sách chủ đề" />
+      <Header title="Bài test" subTitle="Thêm bài test" />
 
       <Form
         form={form}
@@ -47,8 +47,8 @@ const AddTopic = () => {
       >
         <Form.Item
           name="content"
-          label="Tên chủ đề"
-          rules={[{ required: true, message: "Vui lòng nhập tên chủ đề" }]}
+          label="Tên bài test"
+          rules={[{ required: true, message: "Vui lòng nhập tên bài test" }]}
         >
           <Input />
         </Form.Item>
@@ -168,7 +168,7 @@ const AddTopic = () => {
         <Space>
           <Form.Item noStyle>
             <Button type="primary" htmlType="submit" loading={loading}>
-              Thêm chủ đề
+              Thêm bài test
             </Button>
           </Form.Item>
 

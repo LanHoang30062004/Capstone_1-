@@ -18,16 +18,10 @@ import usePermission from "~/hooks/usePermission";
 
 const getItems = (hasPermission) => {
   return [
-    // hasPermission(permissions.VIEW_EMPLOYEE) && {
-    //   key: "employee",
-    //   icon: <MdOutlineTopic />,
-    //   label: <Link to="/employee">Chủ đề</Link>,
-    // },
-
     {
       key: "topic",
       icon: <MdOutlineTopic />,
-      label: <Link to="/topic">Chủ đề</Link>,
+      label: <Link to="/topic">Bài test</Link>,
     },
 
     {

@@ -23,10 +23,10 @@ const TopicDetail = () => {
   return (
     <>
       <div className="topic__detail contain">
-        <Header title="Chi tiết chủ đề" subTitle="Danh sách câu hỏi" />
+        <Header title="Chi tiết bài test" subTitle="Danh sách câu hỏi" />
         <div className="topic__detail--title">
           <Space>
-            <h2>Chủ đề: {topic?.content}</h2>
+            <h2>Test: {topic?.content}</h2>
             <Button
               type="primary"
               onClick={() => navigate(`/topic/edit/${topic?.id}`)}

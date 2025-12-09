@@ -100,7 +100,9 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
       const faceResult = faceLandmarker.detectForVideo(video, timestamp);
 
       // ⭐ THÊM: Cập nhật số lượng mặt phát hiện
-      const currentFaceCount = faceResult.faceLandmarks ? faceResult.faceLandmarks.length : 0;
+      const currentFaceCount = faceResult.faceLandmarks
+        ? faceResult.faceLandmarks.length
+        : 0;
       setFaceCount(currentFaceCount);
       faceResultsRef.current = faceResult; // ⭐ Lưu lại để sử dụng trong startCapture
 
@@ -144,7 +146,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         // ⭐ THAY ĐỔI: Vẽ tất cả các mặt phát hiện được
         for (let i = 0; i < faceResult.faceLandmarks.length; i++) {
           const points = faceResult.faceLandmarks[i];
-          
+
           // Vẽ mỗi mặt với màu khác nhau để phân biệt
           const colors = ["#00ff00", "#ff00ff", "#ffff00"]; // Xanh, Hồng, Vàng
           const color = colors[i] || "#ffffff";
@@ -171,7 +173,11 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
           if (points && points[0]) {
             ctx.fillStyle = color;
             ctx.font = "20px Arial";
-            ctx.fillText(`Mặt ${i + 1}`, points[0].x * canvas.width, points[0].y * canvas.height - 10);
+            ctx.fillText(
+              `Mặt ${i + 1}`,
+              points[0].x * canvas.width,
+              points[0].y * canvas.height - 10
+            );
           }
         }
 
@@ -194,14 +200,17 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
 
     // ⭐ THÊM: Kiểm tra số lượng mặt trước khi quay
     if (faceCount > 1) {
-      toast.warning(`⚠️ Phát hiện ${faceCount} mặt trong khung hình! Hãy đảm bảo chỉ có 1 mặt để kết quả chính xác.`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.warning(
+        `⚠️ Phát hiện ${faceCount} mặt trong khung hình! Hãy đảm bảo chỉ có 1 mặt để kết quả chính xác.`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
       return; // ⭐ DỪNG LẠI nếu có nhiều hơn 1 mặt
     }
 
@@ -228,8 +237,12 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
 
       // THÊM DEBUG CHI TIẾT
       console.log("🔍 DEBUG FACE LANDMARKS:");
-      console.log(`   Số lượng face landmarks: ${faceRef.current?.length || 0}`);
-      console.log(`   Số lượng hand landmarks: ${handRef.current?.length || 0}`);
+      console.log(
+        `   Số lượng face landmarks: ${faceRef.current?.length || 0}`
+      );
+      console.log(
+        `   Số lượng hand landmarks: ${handRef.current?.length || 0}`
+      );
       console.log(`   Số lượng mặt phát hiện: ${faceCount}`);
 
       if (faceRef.current && faceRef.current.length > 0) {
@@ -252,6 +265,13 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         })),
       };
 
+      console.log("Payload gửi đến BE:", {
+        word: payload.word,
+        face_landmarks_count: payload.face_landmarks.length,
+        hand_landmarks_count: payload.hand_landmarks.length,
+        sample_hand_landmark: payload.hand_landmarks[0]?.landmarks[0],
+      });
+
       console.log("✅ FIXED Payload:", {
         word: payload.word,
         face_landmarks_count: payload.face_landmarks.length,
@@ -266,8 +286,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         );
         setAccuracy(res.data.confidence);
         setPredicWord(res.data.predicted_word);
-      
-        
+
         console.log("✅ Kết quả từ BE:", res.data);
       } catch (err) {
         console.error("❌ Lỗi khi gửi request:", err);
@@ -304,6 +323,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
               width: "100%",
               height: "100%",
               pointerEvents: "none",
+              visibility: "hidden",
             }}
           />
         </div>
@@ -315,7 +335,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
           block
           size="large"
           style={{
-            backgroundColor: faceCount > 1 ? "#ff4d4f" : "#1890ff",
+            backgroundColor: faceCount > 1 ? "#ff4d4f" : "#49BBBD",
           }}
         >
           {capturing ? "Đang quay..." : "Quay & Predict"}
