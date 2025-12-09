@@ -16,7 +16,7 @@ import {
   PlusCircleOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./FlashCard.scss";
@@ -35,6 +35,7 @@ const columns = [
 const FlashCard = () => {
   const [openAddFlashCard, setOpenAddFlashCard] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const flashCards = useSelector((state) => state.flashCard.flashCards);
 
@@ -68,8 +69,6 @@ const FlashCard = () => {
           page: searchParams.get("page") - 1,
         });
       }
-
-      toast.success("Xoá thành công!");
     } catch (error) {
       console.log(error);
     }
@@ -101,9 +100,10 @@ const FlashCard = () => {
       content: flashCard?.content,
       action: (
         <Flex align="center" gap="small">
-          <Link to={`/flash-card/${flashCard.id}`}>
-            <EyeOutlined className="table__icon" />
-          </Link>
+          <EyeOutlined
+            className="table__icon"
+            onClick={() => navigate(`/flash-card/${flashCard.id}`)}
+          />
 
           <Popconfirm
             title="Xoá kí hiệu"

@@ -93,9 +93,10 @@ public class TopicServiceImpl implements TopicService {
             }
             Word word = new Word();
             try {
-                word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).orElseThrow(() -> new NotFoundException("Can not find any right sign"));
-            } catch (NotFoundException e) {
-                throw new RuntimeException(e);
+                word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).get(0);
+            }
+            catch (Exception e) {
+                throw new RuntimeException("Can not find any correct word");
             }
             question.setQuestionUrl(word.getVideoUrl());
             question.setOptions(item.getOptions().stream().map(option -> {
@@ -134,11 +135,14 @@ public class TopicServiceImpl implements TopicService {
                     .findAny()
                     .orElseThrow(() -> new NotFoundException("Can not find correct option"));
 
-            Word word = wordRepository.findByWordNameIgnoreCase(optionDTO.getOption())
-                    .orElseThrow(() -> new NotFoundException("Can not find any right sign"));
-
+            Word word = new Word();
+            try {
+                word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).get(0);
+            }
+            catch (Exception e) {
+                throw new RuntimeException("Can not find any correct word");
+            }
             question.setQuestionUrl(word.getVideoUrl());
-
             // thêm option
             for (OptionDTO option : item.getOptions()) {
                 Option optionAnswer = new Option();

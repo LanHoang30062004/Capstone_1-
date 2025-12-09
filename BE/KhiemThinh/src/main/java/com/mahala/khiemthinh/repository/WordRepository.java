@@ -7,12 +7,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface WordRepository extends JpaRepository<Word, Long>  , JpaSpecificationExecutor<Word> {
     Optional<Word> findByWordName(String wordName);
 
-    @Query("SELECT w FROM Word w WHERE LOWER(w.wordName) = LOWER(:wordName)")
-    Optional<Word> findByWordNameIgnoreCase(@Param("wordName") String wordName);
+    @Query(
+            value = "SELECT * FROM word WHERE LOWER(word_name) = LOWER(:wordName) LIMIT 1",
+            nativeQuery = true
+    )
+    List<Word> findByWordNameIgnoreCase(@Param("wordName") String wordName);
 }

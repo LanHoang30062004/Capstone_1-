@@ -23,7 +23,7 @@ import "./Topic.scss";
 import { fetchTopic, fetchTopicDelete } from "~/redux/topic/topicSlice";
 
 const columns = [
-  { title: "Mã chủ đề", dataIndex: "topicId" },
+  { title: "Mã bài test", dataIndex: "topicId" },
   { title: "Nội dung", dataIndex: "content" },
   { title: "Thời gian", dataIndex: "durationMinutes" },
   { title: "Số lượng câu hỏi", dataIndex: "numberOfQuestion" },
@@ -98,9 +98,10 @@ const Topic = () => {
       numberOfQuestion: topic.numberOfQuestion,
       action: (
         <Flex align="center" gap="small">
-          <Link to={`/topic/${topic.id}`}>
-            <EyeOutlined className="table__icon" />
-          </Link>
+          <EyeOutlined
+            className="table__icon"
+            onClick={() => navigate(`/topic/${topic.id}`)}
+          />
 
           <Popconfirm
             title="Xoá kí hiệu"
@@ -119,7 +120,7 @@ const Topic = () => {
   return (
     <>
       <div className="word__list contain">
-        <Header title="Chủ đề" subTitle="Danh sách chủ đề" />
+        <Header title="Test" subTitle="Danh sách bài test" />
 
         <Card className="word__table table">
           <div className="word__table--head">
@@ -149,7 +150,7 @@ const Topic = () => {
                   size="large"
                   onClick={() => navigate("/topic/add")}
                 >
-                  Thêm chủ đề
+                  Thêm bài test
                 </Button>
               </div>
             </Flex>

@@ -44,7 +44,7 @@ const EditTopic = () => {
 
   return (
     <div className="topic__list contain">
-      <Header title="Chủ đề" subTitle="Danh sách chủ đề" />
+      <Header title="Bài test" subTitle="Chỉnh sửa bài test" />
 
       <Form
         form={form}
@@ -54,8 +54,8 @@ const EditTopic = () => {
       >
         <Form.Item
           name="content"
-          label="Tên chủ đề"
-          rules={[{ required: true, message: "Vui lòng nhập tên chủ đề" }]}
+          label="Tên bài test"
+          rules={[{ required: true, message: "Vui lòng nhập tên bài test" }]}
         >
           <Input />
         </Form.Item>

@@ -177,16 +177,14 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
       const videoWidth = video.videoWidth;
       const videoHeight = video.videoHeight;
 
+      // ⭐ FIX: Chuẩn bị payload theo đúng format BE mong đợi
       const payload = {
         word: word || "",
-        face_landmarks: (faceRef.current || []).map((lm) => ({
-          x: lm.x, // MediaPipe face landmarks đã normalized [0,1]
-          y: lm.y,
-        })),
+        face_landmarks: [], // ⭐ QUAN TRỌNG: BE mới chỉ dùng 2 features mean
         hand_landmarks: (handRef.current || []).map((h) => ({
-          handedness: h.handedness,
-          landmarks: h.landmarks.map((lm) => ({
-            x: lm.x,
+          handedness: h.handedness, // ⭐ QUAN TRỌNG: Phải có handedness
+          landmarks: (h.landmarks || []).slice(0, 21).map((lm) => ({
+            x: lm.x, // Đã normalized [0,1] từ MediaPipe
             y: lm.y,
           })),
         })),
@@ -199,13 +197,24 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         sample_hand_landmark: payload.hand_landmarks[0]?.landmarks[0],
       });
 
+      console.log("✅ IMPROVED Payload:", {
+        word: payload.word,
+        hand_landmarks_count: payload.hand_landmarks.length,
+        handedness: payload.hand_landmarks.map((h) => h.handedness),
+        landmarks_per_hand: payload.hand_landmarks[0]?.landmarks?.length || 0,
+      });
+      console.log(payload);
+
       try {
-        const res = await axios.post("http://localhost:8000/predict", payload);
+        const res = await axios.post(
+          "http://localhost:8000/predict-improved",
+          payload
+        );
         setAccuracy(res.data.confidence);
         setPredicWord(res.data.predicted_word);
-        console.log("Kết quả từ BE:", res.data);
+        console.log("✅ Kết quả từ BE:", res.data);
       } catch (err) {
-        console.error("Lỗi khi gửi request:", err);
+        console.error("❌ Lỗi khi gửi request:", err);
       }
     }, 5000);
   };
@@ -216,12 +225,13 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         <div style={{ position: "relative" }}>
           <Webcam
             ref={webcamRef}
-            mirrored={false}
+            mirrored={true}
             videoConstraints={{ facingMode: "user" }}
             style={{
               width: "100%",
               height: "100%",
               borderRadius: "10px",
+              transform: "scaleX(-1)",
             }}
           />
 

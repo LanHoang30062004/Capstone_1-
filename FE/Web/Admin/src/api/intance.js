@@ -36,6 +36,10 @@ instance.interceptors.response.use(function (response) {
   // if (error.response?.status === 401) {
   //   accountService.logout();
   // }
+
+  if (error.response?.status === 403) {
+    accountService.logout();
+  }
   const originalRequest = error.config
 
   if (error.response?.status === 410 && !originalRequest._retry) {

@@ -101,7 +101,6 @@ class ExpressionHandler:
         "mu_chu": "Mù chữ",
         "vo_tinh": "Vô tình",
         "tet_han_thuc": "Tết Hàn Thực",
-        "gio": "Giỗ",
         "quoc_te_phu_nu": "ngày Quốc tế phụ nữ 8/3",
         "giai_phong_thu_do": "Ngày giải phóng thủ đô 10/10",
         "giai_phong_mien_nam": "Ngày giải phóng miền Nam 30/4",
@@ -722,3 +721,8 @@ class ExpressionHandler:
 
     def get_message_old(self):
         return ExpressionHandler.MAPPING.get(self.current_message, self.current_message)
+    
+    @classmethod
+    def get_display_text(cls, key: str) -> str:
+        """Lấy value từ key, nếu không có thì trả về key gốc"""
+        return cls.MAPPING.get(key, key)

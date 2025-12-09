@@ -105,16 +105,20 @@ public class FlashCardServiceImpl implements FlashCardService {
         TopicFlashCard topicFlashCard = new TopicFlashCard();
         topicFlashCard.setContent(flashCardDTO.getContent());
         topicFlashCard.setFlashCards(flashCardDTO.getCards().stream().map(item -> {
+
+            Word word = new Word();
             try {
-                Word word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).orElseThrow(() -> new NotFoundException("Can not find word"));
-                FlashCard flashCard = new FlashCard();
-                flashCard.setResult(word.getWordName());
-                flashCard.setVideoUrl(word.getVideoUrl());
-                topicFlashCard.addFlashCard(flashCard);
-                return flashCard;
-            } catch (NotFoundException e) {
-                throw new RuntimeException(e);
+                word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
             }
+            catch (Exception e) {
+                throw new RuntimeException("Can not find any correct word");
+            }
+            FlashCard flashCard = new FlashCard();
+            flashCard.setResult(word.getWordName());
+            flashCard.setVideoUrl(word.getVideoUrl());
+            topicFlashCard.addFlashCard(flashCard);
+            return flashCard;
+
         }).toList());
         topicFlashCard.setUser(user);
         user.addFlashCard(topicFlashCard);
@@ -134,8 +138,13 @@ public class FlashCardServiceImpl implements FlashCardService {
 
         // Thêm flashcards mới
         for (CardDTO item : flashCardDTO.getCards()) {
-            Word word = wordRepository.findByWordNameIgnoreCase(item.getResult())
-                    .orElseThrow(() -> new NotFoundException("Cannot find word: " + item.getResult()));
+            Word word = new Word();
+            try {
+                word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
+            }
+            catch (Exception e) {
+                throw new RuntimeException("Can not find any correct word");
+            }
 
             FlashCard flashCard = new FlashCard();
             flashCard.setResult(word.getWordName());
@@ -156,13 +165,11 @@ public class FlashCardServiceImpl implements FlashCardService {
 
         User user = topicFlashCard.getUser();
         if (user != null) {
-            user.getTopicFlashCards().remove(topicFlashCard); 
+            user.getTopicFlashCards().remove(topicFlashCard);
         }
 
         topicFlashCardRepository.delete(topicFlashCard);
     }
-
-
 
 
 }

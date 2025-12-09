@@ -93,6 +93,7 @@ export const wordSlice = createSlice({
       const flashCardId = action.payload
 
       state.flashCards.items = state.flashCards?.items?.filter(item => item.id !== flashCardId)
+      toast.success("Xoá thành công!");
     })
   },
 })

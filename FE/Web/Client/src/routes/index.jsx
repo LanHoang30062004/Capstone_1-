@@ -18,6 +18,7 @@ import ResetPassword from "~/pages/ForgotPassword/ResetPassword";
 import LoginGoogle from "~/pages/Auth/LoginGoogle";
 import TestResult from "~/pages/Practise/TestResult";
 import FlashCardDetail from "~/pages/Lesson/FlashCardDetail";
+import FlashCardResult from "~/pages/Lesson/FlashCardResult";
 
 const routes = [
   {
@@ -72,6 +73,11 @@ const routes = [
       {
         path: "/flashcard/:id",
         element: <FlashCard />,
+      },
+
+      {
+        path: "/flashcard/:id/result",
+        element: <FlashCardResult />,
       },
 
       {

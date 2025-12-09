@@ -82,32 +82,6 @@ const Header = (props) => {
           </div>
 
           <div className="header__right">
-            <Dropdown
-              menu={{ items: notificationItems }}
-              trigger={["click"]}
-              placement="bottomRight"
-              dropdownRender={(menu) => (
-                <div className={`dropdown__notification ${myTheme}`}>
-                  <div className="dropdown__notification--head">
-                    <Flex align="center">
-                      <Flex align="center" gap={10}>
-                        <NotificationIcon style={{ fontSize: "20px" }} />
-                        <span>Thông báo</span>
-                      </Flex>
-                    </Flex>
-                  </div>
-
-                  <div className="dropdown__notification--body">{menu}</div>
-                </div>
-              )}
-            >
-              <div className={`header__notification ${myTheme}`}>
-                <Badge dot>
-                  <NotificationIcon style={{ fontSize: "20px" }} />
-                </Badge>
-              </div>
-            </Dropdown>
-
             <Dropdown menu={{ items }}>
               <div menu={{ items }} className="header__account">
                 <Avatar
