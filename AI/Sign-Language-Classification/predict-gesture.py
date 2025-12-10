@@ -629,7 +629,7 @@ async def startup_event():
     """Khởi tạo model khi server start"""
     global predictor
     try:
-        model_path = f"models/{MODEL_CONSERVATION}"
+        model_path = f"models/{MODEL_NAME}"
         predictor = SignLanguagePredictor(model_path)
         print("🚀 2D Sign Language Recognition API is ready!")
 

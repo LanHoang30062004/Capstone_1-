@@ -92,7 +92,7 @@ def remove_duplicates_and_skip(text):
 
         # Nếu là ký tự đơn alphabet
         chars = part.split(",")  # nếu có dạng ký tự đơn
-        if all(len(c.strip()) == 1 and c.strip().isalpha() for c in chars):
+        if all(len(c.strip()) == 1 and c.strip().isalnum() for c in chars):
             buffer_word += "".join(c.strip() for c in chars)
             continue
         else:
