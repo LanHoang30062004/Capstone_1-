@@ -28,14 +28,14 @@ public class TopicController {
                                        @RequestParam(required = false) String search ,
                                        @RequestParam(required = false) String content
     ) {
-        return new ResponseData<>(HttpStatus.OK.value(), "Get all topic name successful", this.topicService.getAllTopics(page, size , search , content));
+        return new ResponseData<>(HttpStatus.OK.value(), "Lấy tất cả các bài test thành công", this.topicService.getAllTopics(page, size , search , content));
     }
 
     @GetMapping("/content")
     @Operation(summary = "Lay tat ca danh sach cac content cua topic", description = "Lay tat ca danh sach cac content cua topic")
     public ResponseData<?> getAllContent() {
         log.info("Get all content successful");
-        return new ResponseData<>(HttpStatus.OK.value(), "Get all content successful" , this.topicService.getAllContent());
+        return new ResponseData<>(HttpStatus.OK.value(), "Lấy tất cả nội dung thành công" , this.topicService.getAllContent());
     }
 
     @GetMapping("/{id}")
@@ -44,10 +44,10 @@ public class TopicController {
         try {
             TopicDTO result = this.topicService.getAllTopicContent(id);
             log.info("Get all topic content successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Get all topic content successful", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Lấy tất cả nội dung của bài test thành công", result);
         } catch (Exception e) {
             log.error("Get all topic content failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Get all topic content failed :" + e.getMessage(), null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lấy tất cả nội dung của bài test thất bại :" + e.getMessage(), null);
         }
     }
 
@@ -57,10 +57,10 @@ public class TopicController {
         try {
             TopicDTO result = this.topicService.addNewTOPIC(topicDTO);
             log.info("Add topic successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Add topic successful", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Thêm bài test thành công", result);
         } catch (Exception e) {
             log.error("Add topic failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Add topic failed :" + e.getMessage() , null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Thêm bài test thất bại :" + e.getMessage() , null);
         }
     }
 
@@ -70,10 +70,10 @@ public class TopicController {
         try {
             this.topicService.updateTopic(id, topicDTO);
             log.info("Update topic successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Update topic successful :" , null);
+            return new ResponseData<>(HttpStatus.OK.value(), "Cập nhật bài test thành công" , null);
         } catch (Exception e) {
             log.error("Update topic failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Update topic failed :" + e.getMessage(), null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Cập nhật bài test thất bại :" + e.getMessage(), null);
         }
     }
 
@@ -83,10 +83,10 @@ public class TopicController {
         try {
             this.topicService.deleteTopic(id);
             log.info("Delete topic successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Delete topic successful", null);
+            return new ResponseData<>(HttpStatus.OK.value(), "Xóa chủ đề thành công", null);
         } catch (Exception e) {
             log.error("Delete topic failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Delete topic failed :" + e.getMessage(), null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Xóa chủ đề thành thất bại :" + e.getMessage(), null);
         }
     }
 }

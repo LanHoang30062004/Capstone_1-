@@ -65,7 +65,7 @@ public class FlashCardServiceImpl implements FlashCardService {
     public PageResponse<?> getAllFlashCardByUserId(int page, int size, Long userID, String search) throws NotFoundException {
         List<TopicFlashCard> check = this.topicFlashCardRepository.findByUserId(userID);
         if (check.isEmpty()) {
-            throw new NotFoundException("Can not find any flash card by user id :" + userID);
+            throw new NotFoundException("Không thể tìm thấy flashcard nào theo user ID :" + userID);
         }
         page = page > 0 ? page - 1 : 0;
         Pageable pageable = PageRequest.of(page, size);
@@ -93,7 +93,7 @@ public class FlashCardServiceImpl implements FlashCardService {
 
     @Override
     public FlashCardDTO getFlashCardById(Long id) throws NotFoundException {
-        TopicFlashCard topicFlashCard = this.topicFlashCardRepository.findById(id).orElseThrow(() -> new NotFoundException("Can not find this topic"));
+        TopicFlashCard topicFlashCard = this.topicFlashCardRepository.findById(id).orElseThrow(() -> new NotFoundException("Không thể tìm thấy flashcard này"));
         return FlashCardDTO.builder()
                 .content(topicFlashCard.getContent())
                 .id(topicFlashCard.getId())
@@ -104,7 +104,7 @@ public class FlashCardServiceImpl implements FlashCardService {
 
     @Override
     public FlashCardDTO addNewFlashCard(FlashCardDTO flashCardDTO) throws NotFoundException {
-        User user = this.userRepository.findById(flashCardDTO.getUserId()).orElseThrow(() -> new NotFoundException("Can not find user with id :" + flashCardDTO.getUserId()));
+        User user = this.userRepository.findById(flashCardDTO.getUserId()).orElseThrow(() -> new NotFoundException("Không thể tìm thấy người dùng với ID :" + flashCardDTO.getUserId()));
         TopicFlashCard topicFlashCard = new TopicFlashCard();
         topicFlashCard.setContent(flashCardDTO.getContent());
         topicFlashCard.setFlashCards(flashCardDTO.getCards().stream().map(item -> {
@@ -114,7 +114,7 @@ public class FlashCardServiceImpl implements FlashCardService {
                 word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
             }
             catch (Exception e) {
-                throw new RuntimeException("Can not find any correct word");
+                throw new RuntimeException("Không thể tìm thấy từ đúng nào");
             }
             FlashCard flashCard = new FlashCard();
             flashCard.setResult(word.getWordName());
@@ -132,7 +132,7 @@ public class FlashCardServiceImpl implements FlashCardService {
     @Override
     public void updateFlashCard(Long id, FlashCardDTO flashCardDTO) throws NotFoundException {
         TopicFlashCard topicFlashCard = topicFlashCardRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cannot find this topic"));
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy flashcard này"));
 
         topicFlashCard.setContent(flashCardDTO.getContent());
 
@@ -146,7 +146,7 @@ public class FlashCardServiceImpl implements FlashCardService {
                 word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
             }
             catch (Exception e) {
-                throw new RuntimeException("Can not find any correct word");
+                throw new RuntimeException("Không thể tìm thấy từ đúng nào");
             }
 
             FlashCard flashCard = new FlashCard();
@@ -164,7 +164,7 @@ public class FlashCardServiceImpl implements FlashCardService {
     @Override
     public void deleteFlashCard(Long id) throws NotFoundException {
         TopicFlashCard topicFlashCard = topicFlashCardRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cannot find this topic"));
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy flashcard này"));
 
         User user = topicFlashCard.getUser();
         if (user != null) {

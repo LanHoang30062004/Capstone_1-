@@ -35,9 +35,9 @@ public class AuthController {
             User user = userRepository.findByEmail(email)
                     .orElseGet(() -> userRepository.save(User.builder().email(email).role(role).build()));
             String jwt = jwtToken.generateToken(user);
-            return new ResponseData<>(HttpStatus.OK.value(), "Oauth2 with google successful", jwt);
+            return new ResponseData<>(HttpStatus.OK.value(), "Xác thực OAuth2 với Google thành công", jwt);
         } else {
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Oauth2 with google unsuccessful");
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Xác thực OAuth2 với Google không thành công");
         }
     }
 }

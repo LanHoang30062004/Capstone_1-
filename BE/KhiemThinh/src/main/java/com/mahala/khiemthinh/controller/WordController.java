@@ -33,10 +33,10 @@ public class WordController {
         try {
             PageResponse<?> result = this.wordService.findAllWord(page, size, search);
             log.info("Find all word by search successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Find all word by search successfully", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Tìm tất cả từ theo tìm kiếm thành công", result);
         } catch (Exception e) {
             log.error("Find all word by search successfully : {}" , e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Find all word by search unsuccessfully", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Tìm tất cả từ theo tìm kiếm thất bại", null);
         }
     }
 
@@ -46,10 +46,10 @@ public class WordController {
         try {
             String result = this.wordService.uploadVideo(file);
             log.info("Upload video successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Upload video successfully", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Tải video lên thành công", result);
         } catch (Exception e) {
             log.error("Upload video unsuccessfully : {}" , e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Upload video unsuccessfully", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Tải video lên thất bại", null);
         }
     }
 
@@ -59,10 +59,10 @@ public class WordController {
         try {
             WordDTO result = this.wordService.addWord(wordDTO);
             log.info("Add word successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Add word successfully", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Thêm từ thành công", result);
         } catch (Exception e) {
             log.error("Add word unsuccessful : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Add word unsuccessful", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Thêm từ thất bại", null);
         }
     }
 
@@ -72,10 +72,10 @@ public class WordController {
         try {
             this.wordService.updateWord(id, wordDTO);
             log.info("Update word successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Update word successfully", wordDTO);
+            return new ResponseData<>(HttpStatus.OK.value(), "Cập nhật từ thành công", wordDTO);
         } catch (Exception e) {
             log.error("Update word unsuccessful : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Update word unsuccessful", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Cập nhật từ thất bại", null);
         }
     }
 
@@ -85,10 +85,10 @@ public class WordController {
         try {
             this.wordService.deleteWord(id);
             log.info("Delete word successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Delete word successfully");
+            return new ResponseData<>(HttpStatus.OK.value(), "Xóa từ thành công");
         } catch (Exception e) {
             log.error("Delete word unsuccessful : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Delete word unsuccessful", null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Xóa từ thất bại", null);
         }
     }
 }

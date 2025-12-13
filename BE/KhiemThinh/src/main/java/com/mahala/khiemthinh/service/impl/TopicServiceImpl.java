@@ -66,7 +66,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public TopicDTO getAllTopicContent(Long topicID) throws NotFoundException {
-        Topic topic = this.topicRepository.findById(topicID).orElseThrow(() -> new NotFoundException("Can not find content topic with topic id :" + topicID));
+        Topic topic = this.topicRepository.findById(topicID).orElseThrow(() -> new NotFoundException("Không thể tìm thấy nội dung bài test với ID bài test :" + topicID));
         return TopicDTO.builder()
                 .id(topic.getId())
                 .content(topic.getContent())
@@ -88,7 +88,7 @@ public class TopicServiceImpl implements TopicService {
             Question question = new Question();
             OptionDTO optionDTO = null;
             try {
-                optionDTO = item.getOptions().stream().filter(o -> o.getCorrect()).findAny().orElseThrow(() -> new NotFoundException("Can not find correct option"));
+                optionDTO = item.getOptions().stream().filter(o -> o.getCorrect()).findAny().orElseThrow(() -> new NotFoundException("Không thể tìm thấy đáp án đúng"));
             } catch (NotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -97,7 +97,7 @@ public class TopicServiceImpl implements TopicService {
                 word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).get(0);
             }
             catch (Exception e) {
-                throw new RuntimeException("Can not find any correct word");
+                throw new RuntimeException("Không thể tìm thấy từ đúng nào");
             }
             question.setQuestionUrl(word.getVideoUrl());
             question.setOptions(item.getOptions().stream().map(option -> {
@@ -117,7 +117,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void updateTopic(Long idTopic, TopicDTO topicDTO) throws NotFoundException {
         Topic topic = topicRepository.findById(idTopic)
-                .orElseThrow(() -> new NotFoundException("Can not found topic with id " + idTopic));
+                .orElseThrow(() -> new NotFoundException("Không thể tìm thấy bài test với ID" + idTopic));
 
         topic.setContent(topicDTO.getContent());
         topic.setDurationMinutes(topicDTO.getDurationMinutes());
@@ -134,14 +134,14 @@ public class TopicServiceImpl implements TopicService {
             OptionDTO optionDTO = item.getOptions().stream()
                     .filter(OptionDTO::getCorrect)
                     .findAny()
-                    .orElseThrow(() -> new NotFoundException("Can not find correct option"));
+                    .orElseThrow(() -> new NotFoundException("Không thể tìm thấy đáp án đúng"));
 
             Word word = new Word();
             try {
                 word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).get(0);
             }
             catch (Exception e) {
-                throw new RuntimeException("Can not find any correct word");
+                throw new RuntimeException("Không thể tìm thấy từ đúng nào");
             }
             question.setQuestionUrl(word.getVideoUrl());
             // thêm option
@@ -161,7 +161,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public void deleteTopic(Long idTopic) throws NotFoundException {
-        Topic topic = this.topicRepository.findById(idTopic).orElseThrow(() -> new NotFoundException("Can not found topic with id " + idTopic));
+        Topic topic = this.topicRepository.findById(idTopic).orElseThrow(() -> new NotFoundException("Không thể tìm thấy bài test với ID : " + idTopic));
         this.topicRepository.delete(topic);
     }
 

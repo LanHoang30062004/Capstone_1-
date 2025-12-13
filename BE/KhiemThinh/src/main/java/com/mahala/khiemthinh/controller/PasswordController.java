@@ -24,7 +24,7 @@ public class PasswordController {
         try {
             log.info("Send email verification successfully");
             this.emailService.sendSimpleEmail(email);
-            return new ResponseData<>(HttpStatus.OK.value(), "Send email verification successfully");
+            return new ResponseData<>(HttpStatus.OK.value(), "Gửi email xác minh thành công");
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
@@ -36,7 +36,7 @@ public class PasswordController {
     public ResponseData<?> checkOtp(@RequestBody PasswordDTO passwordDTO) {
         try {
             log.info("Verification code successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Verification code successfully", this.emailService.checkOTP(passwordDTO));
+            return new ResponseData<>(HttpStatus.OK.value(), "Mã xác minh thành công", this.emailService.checkOTP(passwordDTO));
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage() , false);
@@ -49,7 +49,7 @@ public class PasswordController {
         try {
             this.emailService.changePassword(passwordDTO);
             log.info("Change password successful with email : {}", passwordDTO.getEmail());
-            return new ResponseData<>(HttpStatus.OK.value(), "Change password successful with email :" + passwordDTO.getEmail());
+            return new ResponseData<>(HttpStatus.OK.value(), "Đổi mật khẩu thành công qua email :" + passwordDTO.getEmail());
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());

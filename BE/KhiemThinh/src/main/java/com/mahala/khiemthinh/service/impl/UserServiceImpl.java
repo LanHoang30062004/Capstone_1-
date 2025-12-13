@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
         User user = this.userRepository.findByEmail(userDTO.getEmail()).orElse(null);
         Role role = this.roleRepository.findById(1L).orElse(null);
         if (user != null) {
-            throw new Exception("User is exist");
+            throw new Exception("Người dùng đã tồn tại");
         }
         User newUser = User.builder()
                 .address(userDTO.getAddress())
@@ -96,10 +96,10 @@ public class UserServiceImpl implements UserService {
     public String login(String email, String password) throws Exception {
         User user = this.userRepository.findByEmail(email).orElse(null);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("Không tìm thấy người dùng");
         }
         if (!this.passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadCredentialsException("Wrong password");
+            throw new BadCredentialsException("Sai mật khẩu");
         }
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), password, user.getAuthorities());
         this.authenticationManager.authenticate(authenticationToken);
@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserById(Long id) throws Exception {
-        User user = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
+        User user = this.userRepository.findById(id).orElseThrow(() -> new Exception("Không tìm thấy người dùng với ID : " + id));
         UserDTO result = UserDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -153,7 +153,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserByEmail(String email) throws Exception {
-        User user = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("User not found with email : " + email));
+        User user = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("Không tìm thấy người dùng với email : " + email));
         UserDTO result = UserDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -168,7 +168,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(String email , UserDTO userDTO) throws Exception {
-        User userOld = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("User not found with email : " + email));
+        User userOld = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("Không tìm thấy người dùng với email : " + email));
         userOld.setFullName(userDTO.getFullName());
         userOld.setDateOfBirth(userDTO.getDateOfBirth());
         userOld.setGender(userDTO.getGender());
@@ -179,17 +179,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) throws Exception {
-        User userOld = this.userRepository.findById(id).orElseThrow(() -> new Exception("User not found with id : " + id));
+        User userOld = this.userRepository.findById(id).orElseThrow(() -> new Exception("Không tìm thấy người dùng với ID : " + id));
         this.userRepository.delete(userOld);
     }
 
     @Override
     public void addNewAdmin(AdminDTO adminDTO) throws Exception {
-        Role role = this.roleRepository.findByRoleName("ADMIN").orElseThrow(() -> new NotFoundException("Can not find role")) ;
+        Role role = this.roleRepository.findByRoleName("ADMIN").orElseThrow(() -> new NotFoundException("Không thể tìm thấy vai trò")) ;
         User admin = this.userRepository.findByEmail(adminDTO.getEmail()).orElse(null) ;
         User newAdmin = new User() ;
         if (admin != null) {
-            throw new Exception("Admin is exist with email :" + adminDTO.getEmail());
+            throw new Exception("Admin đã tồn tại với email này :" + adminDTO.getEmail());
         }
         newAdmin.setEmail(adminDTO.getEmail());
         newAdmin.setFullName(adminDTO.getFullName());

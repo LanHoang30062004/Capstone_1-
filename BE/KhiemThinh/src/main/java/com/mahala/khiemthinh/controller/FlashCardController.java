@@ -28,10 +28,10 @@ public class FlashCardController {
         try {
             PageResponse result = this.flashCardService.getAllFlashCard(page, size, search);
             log.info("Get all flash card successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Get all flash card successfully", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Lấy tất cả flashcard thành công", result);
         } catch (Exception e) {
             log.error("Get all flash card failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Get all flash card failed : " + e.getMessage(), null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lấy tất cả flashcard thất bại: " + e.getMessage(), null);
         }
     }
     @GetMapping("/user/{id}")
@@ -44,10 +44,10 @@ public class FlashCardController {
         try {
             PageResponse result = this.flashCardService.getAllFlashCardByUserId(page, size , id, search);
             log.info("Get all flash card by user id successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Get all flash card by user id successfully", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Lấy tất cả flashcard theo user id thành công", result);
         } catch (Exception e) {
             log.error("Get all flash card by user id failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Get all flash card by user id failed : " + e.getMessage(), null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lấy tất cả flashcard theo user id thất bại: " + e.getMessage(), null);
         }
     }
 
@@ -57,10 +57,10 @@ public class FlashCardController {
         try {
             FlashCardDTO result = this.flashCardService.getFlashCardById(id);
             log.info("Get flash card successfully with id : {}", id);
-            return new ResponseData<>(HttpStatus.OK.value(), "Get flash card successfully", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Lấy flashcard thành công", result);
         } catch (Exception e) {
             log.error("Get flash card failed with id : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Get flash card failed : " + e.getMessage(), null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lấy flashcard thất bại:" + e.getMessage(), null);
         }
     }
 
@@ -70,10 +70,10 @@ public class FlashCardController {
         try {
             FlashCardDTO result = this.flashCardService.addNewFlashCard(flashCardDTO);
             log.info("Add new flash card successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Add new flash card successfully", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Thêm flashcard mới thành công", result);
         } catch (Exception e) {
             log.error("Add new flash card failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Add new flash card failed : " + e.getMessage(), null);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Thêm flashcard mới thất bại : " + e.getMessage(), null);
         }
     }
 
@@ -83,10 +83,10 @@ public class FlashCardController {
         try {
             this.flashCardService.updateFlashCard(id, flashCardDTO);
             log.info("Update flash card successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Update flash card successfully", true);
+            return new ResponseData<>(HttpStatus.OK.value(), "Cập nhật flashcard thành công", true);
         } catch (Exception e) {
             log.error("Update flash card failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Update flash card failed : " + e.getMessage(), false);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Cập nhật flashcard thất bại : " + e.getMessage(), false);
         }
     }
 
@@ -96,10 +96,10 @@ public class FlashCardController {
         try {
             this.flashCardService.deleteFlashCard(id);
             log.info("Delete flash card successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "Delete flash card successfully", true);
+            return new ResponseData<>(HttpStatus.OK.value(), "Xóa flashcard thành công", true);
         } catch (Exception e) {
             log.error("Delete flash card failed : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Delete flash card failed : " + e.getMessage(), false);
+            return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Xóa flashcard thất bại : " + e.getMessage(), false);
         }
     }
 }

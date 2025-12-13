@@ -33,7 +33,7 @@ public class UserController {
         try {
             PageResponse result = this.userService.getUsers(page, size, search);
             log.info("Get all user successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Get all user successful", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Lấy tất cả người dùng thành công", result);
         }
         catch (Exception e){
             log.error("Get all user failed : {}" , e.getMessage());
@@ -45,10 +45,10 @@ public class UserController {
     @PostMapping("/login")
     public ResponseData<?> login(@Valid @RequestBody AuthenDTO userDTO) {
         try {
-            return new ResponseData<>(HttpStatus.OK.value(), "Login successful", this.userService.login(userDTO.getEmail(), userDTO.getPassword()));
+            return new ResponseData<>(HttpStatus.OK.value(), "Đăng nhập thành công", this.userService.login(userDTO.getEmail(), userDTO.getPassword()));
         } catch (Exception e) {
             log.error("Can not login : {}", e.getMessage());
-            return new ResponseData<>(HttpStatus.UNAUTHORIZED.value(), "Can not login : " + e.getMessage());
+            return new ResponseData<>(HttpStatus.UNAUTHORIZED.value(), "Không thể đăng nhập : " + e.getMessage());
         }
     }
 
@@ -57,8 +57,8 @@ public class UserController {
     public ResponseData<?> register(@Valid @RequestBody UserDTO userDTO) {
         try {
             this.userService.save(userDTO);
-            log.info("User registered successfully");
-            return new ResponseData<>(HttpStatus.OK.value(), "User registered successfully");
+            log.info("Người dùng đăng ký thành công");
+            return new ResponseData<>(HttpStatus.OK.value(), "Người dùng đăng ký thành công");
 
         } catch (Exception e) {
             log.error("Can not register : {}", e.getMessage());
@@ -72,11 +72,11 @@ public class UserController {
         try{
            this.userService.addNewAdmin(userDTO);
            log.info("Admin added successfully");
-           return new ResponseData<>(HttpStatus.OK.value(),"Admin added successfully" , null ) ;
+           return new ResponseData<>(HttpStatus.OK.value(),"Thêm admin thành công" , null ) ;
         }
         catch (Exception e){
          log.error("Can not add admin : {}", e.getMessage());
-         return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),"Can not add admin : " + e.getMessage());
+         return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),"Không thể thêm admin : " + e.getMessage());
         }
     }
 
@@ -86,7 +86,7 @@ public class UserController {
         try {
             UserDTO result = this.userService.getUserById(id);
             log.info("Get user by id successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Get user by id successful", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Lấy người dùng theo ID thành công", result);
         }
         catch (Exception e){
             log.error("Can not get user by id : {}", e.getMessage());
@@ -100,7 +100,7 @@ public class UserController {
         try {
             UserDTO result = this.userService.getUserByEmail(email);
             log.info("Get user by email successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Get user by email successful", result);
+            return new ResponseData<>(HttpStatus.OK.value(), "Lấy người dùng theo email thành công", result);
         }
         catch (Exception e){
             log.error("Can not get user by email : {}", e.getMessage());
@@ -114,7 +114,7 @@ public class UserController {
         try {
             this.userService.updateUser(userDTO.getEmail(), userDTO);
             log.info("Update user successful");
-            return new ResponseData<>(HttpStatus.OK.value(), "Update user successful");
+            return new ResponseData<>(HttpStatus.OK.value(), "Cập nhật người dùng thành công");
         }
         catch (Exception e){
             log.error("Can not update user : {}", e.getMessage());
@@ -127,10 +127,10 @@ public class UserController {
         try {
            this.userService.deleteUser(id);
            log.info("Delete user successful");
-           return new ResponseData<>(HttpStatus.OK.value(), "Delete user successful");
+           return new ResponseData<>(HttpStatus.OK.value(), "Xóa người dùng thành công");
         }
         catch (Exception e){
-            log.error("Can not delete user : {}", e.getMessage());
+            log.error("Không thể xóa người dùng : {}", e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
         }
     }

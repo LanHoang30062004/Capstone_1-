@@ -41,7 +41,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendSimpleEmail(String to) throws MessagingException, NotFoundException {
-        User user = this.userRepository.findByEmail(to).orElseThrow(() -> new NotFoundException("Can not find user with email :" + to));
+        User user = this.userRepository.findByEmail(to).orElseThrow(() -> new NotFoundException("Không thể tìm thấy người dùng với email :" + to));
         String newPassword = generatePassword();
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -55,14 +55,14 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void changePassword(PasswordDTO passwordDTO) throws NotFoundException {
-        User user = this.userRepository.findByEmail(passwordDTO.getEmail()).orElseThrow(() -> new NotFoundException("Can not find user with email :" + passwordDTO.getEmail()));
+        User user = this.userRepository.findByEmail(passwordDTO.getEmail()).orElseThrow(() -> new NotFoundException("Không thể tìm thấy người dùng với email :" + passwordDTO.getEmail()));
         user.setPassword(this.passwordEncoder.encode(passwordDTO.getPassword()));
         this.userRepository.save(user);
     }
 
     @Override
     public Boolean checkOTP(PasswordDTO passwordDTO) throws Exception {
-        User user = this.userRepository.findByEmail(passwordDTO.getEmail()).orElseThrow(() -> new NotFoundException("Can not find user with email :" + passwordDTO.getEmail()));
+        User user = this.userRepository.findByEmail(passwordDTO.getEmail()).orElseThrow(() -> new NotFoundException("Không thể tìm thấy người dùng với email :" + passwordDTO.getEmail()));
         if (this.passwordEncoder.matches(passwordDTO.getCode(), user.getPassword())) {
             return true;
         } else {

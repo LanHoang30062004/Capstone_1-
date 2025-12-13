@@ -72,7 +72,7 @@ public class WordServiceImpl implements WordService {
 
     @Override
     public WordDTO addWord(WordDTO word) throws NotFoundException {
-        User user = this.userRepository.findById(word.getUserId()).orElseThrow(() -> new NotFoundException("Can not find user with id :" + word.getUserId()));
+        User user = this.userRepository.findById(word.getUserId()).orElseThrow(() -> new NotFoundException("Không thể tìm thấy người dùng với ID :" + word.getUserId()));
         Word result = new Word();
         result.setWordName(word.getWordName());
         result.setWordMeaning(word.getWordMeaning());
@@ -85,7 +85,7 @@ public class WordServiceImpl implements WordService {
 
     @Override
     public void updateWord(Long wordId, WordDTO wordDTO) throws NotFoundException {
-        Word word = this.wordRepository.findById(wordId).orElseThrow(() -> new NotFoundException("Can not find word with id :" + wordId));
+        Word word = this.wordRepository.findById(wordId).orElseThrow(() -> new NotFoundException("Không thể tìm thấy từ với ID :" + wordId));
         word.setWordName(wordDTO.getWordName());
         word.setWordMeaning(wordDTO.getWordMeaning());
         word.setVideoUrl(wordDTO.getVideoUrl());
@@ -94,7 +94,7 @@ public class WordServiceImpl implements WordService {
 
     @Override
     public void deleteWord(Long wordId) throws NotFoundException {
-        Word word = this.wordRepository.findById(wordId).orElseThrow(() -> new NotFoundException("Can not find word with id :" + wordId));
+        Word word = this.wordRepository.findById(wordId).orElseThrow(() -> new NotFoundException("Không thể tìm thấy từ với ID :" + wordId));
         word.getUsers().clear();
         wordRepository.delete(word);
     }
