@@ -32,6 +32,7 @@ const InfoAccount = () => {
     if (response.status > 400) toast.error(response.message);
     else {
       toast.success(response.message);
+      localStorage.setItem("adminInfo", JSON.stringify(value));
     }
 
     form.setFieldsValue({

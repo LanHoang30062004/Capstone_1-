@@ -40,13 +40,8 @@ const Topic = () => {
   useEffect(() => {
     const searchObject = Object.fromEntries(searchParams.entries());
 
-    if (Object.keys(searchObject).length === 0) {
-      searchObject.page = 1;
-      searchObject.size = 10;
-    }
-
-    searchObject.page = parseInt(searchObject.page);
-    searchObject.size = parseInt(searchObject.size);
+    searchObject.page = parseInt(searchObject.page) || 1;
+    searchObject.size = parseInt(searchObject.size) || 10;
 
     dispatch(fetchTopic(searchObject));
   }, [dispatch, searchParams]);

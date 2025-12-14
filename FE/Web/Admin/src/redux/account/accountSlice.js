@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { data } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import instance from '~/api/intance'
 

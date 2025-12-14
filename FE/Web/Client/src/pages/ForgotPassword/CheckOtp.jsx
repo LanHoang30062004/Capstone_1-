@@ -15,6 +15,8 @@ const CheckOtp = () => {
       values.password = "";
       const response = await userService.checkOtp(values);
 
+      console.log(response);
+
       if (response.status > 400) toast.error(response.message);
       else navigate(`/reset-password/${email}/${values.code}`);
     } catch (error) {
@@ -27,7 +29,7 @@ const CheckOtp = () => {
   const handleResendOtp = async () => {
     try {
       setLoading(true);
-      toast.promise(userService.forgot({ email: email }), {
+      await toast.promise(userService.forgot({ email: email }), {
         pending: "Đang gửi mã OTP...",
         success: "Gửi mã OTP thành công!",
       });

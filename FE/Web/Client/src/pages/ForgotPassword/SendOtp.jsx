@@ -1,19 +1,26 @@
 import { Button, Form, Input } from "antd";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as userService from "~/service/userService";
 
 const SendOtp = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleForgotPassword = async (value) => {
     try {
+      setLoading(true);
       const response = await userService.forgot(value);
 
-      if (response.status < 400) navigate(`/check-pass/${value.email}`);
-      else toast.error(response.message);
+      if (response.status < 400) {
+        toast.success("Gửi email xác minh thành công");
+        navigate(`/check-pass/${value.email}`);
+      } else toast.error(response.message);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,7 +46,7 @@ const SendOtp = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button block type="primary" htmlType="submit">
+          <Button block type="primary" htmlType="submit" loading={loading}>
             Gửi mã OTP
           </Button>
         </Form.Item>
