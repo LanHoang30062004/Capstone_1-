@@ -97,7 +97,7 @@ public class TopicServiceImpl implements TopicService {
                 word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).get(0);
             }
             catch (Exception e) {
-                throw new RuntimeException("Không thể tìm thấy từ đúng nào");
+                throw new RuntimeException("Từ này không tồn tại!");
             }
             question.setQuestionUrl(word.getVideoUrl());
             question.setOptions(item.getOptions().stream().map(option -> {
@@ -141,7 +141,7 @@ public class TopicServiceImpl implements TopicService {
                 word = this.wordRepository.findByWordNameIgnoreCase(optionDTO.getOption()).get(0);
             }
             catch (Exception e) {
-                throw new RuntimeException("Không thể tìm thấy từ đúng nào");
+                throw new RuntimeException("Từ này không tồn tại!");
             }
             question.setQuestionUrl(word.getVideoUrl());
             // thêm option

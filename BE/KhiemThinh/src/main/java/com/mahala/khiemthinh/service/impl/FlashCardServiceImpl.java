@@ -114,7 +114,7 @@ public class FlashCardServiceImpl implements FlashCardService {
                 word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
             }
             catch (Exception e) {
-                throw new RuntimeException("Không thể tìm thấy từ đúng nào");
+                throw new RuntimeException("Từ này không tồn tại!");
             }
             FlashCard flashCard = new FlashCard();
             flashCard.setResult(word.getWordName());
@@ -146,7 +146,7 @@ public class FlashCardServiceImpl implements FlashCardService {
                 word = this.wordRepository.findByWordNameIgnoreCase(item.getResult()).get(0);
             }
             catch (Exception e) {
-                throw new RuntimeException("Không thể tìm thấy từ đúng nào");
+                throw new RuntimeException("Từ này không tồn tại!");
             }
 
             FlashCard flashCard = new FlashCard();
