@@ -1,6 +1,7 @@
 package com.mahala.khiemthinh.service.impl;
 
 import com.mahala.khiemthinh.dto.request.AdminDTO;
+import com.mahala.khiemthinh.dto.request.LoginDTO;
 import com.mahala.khiemthinh.dto.request.UserDTO;
 import com.mahala.khiemthinh.dto.response.PageResponse;
 import com.mahala.khiemthinh.exception.NotFoundException;
@@ -93,7 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String login(String email, String password) throws Exception {
+    public LoginDTO login(String email, String password) throws Exception {
         User user = this.userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             throw new UsernameNotFoundException("Không tìm thấy người dùng");
@@ -104,7 +105,10 @@ public class UserServiceImpl implements UserService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), password, user.getAuthorities());
         this.authenticationManager.authenticate(authenticationToken);
         String token = this.jwtToken.generateToken(user);
-        return token;
+        return LoginDTO.builder()
+                .token(token)
+                .role(user.getRole().getRoleName())
+                .build();
     }
 
     @Override
