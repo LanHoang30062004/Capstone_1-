@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
 import instance from '~/api/intance'
 
 const initialState = {
@@ -29,10 +30,10 @@ export const fetchWordAdd = createAsyncThunk(
 
 export const fetchWordEdit = createAsyncThunk(
   'word/fetchWordEdit',
-  async (data) => {
-    const response = await instance.put(`/word/${data.wordId}`, data)
+  async ({ id, data }) => {
+    const response = await instance.put(`/word/${id}`, data)
 
-    return response.data.data
+    return response.data
   },
 )
 
@@ -62,10 +63,12 @@ export const wordSlice = createSlice({
     })
 
     builder.addCase(fetchWordEdit.fulfilled, (state, action) => {
-      const updatedWord = action.payload
+      const updatedWord = action.payload.data
+      console.log(action.payload.data)
       const index = state.words.items.findIndex(word => word.wordId === updatedWord.wordId);
 
       state.words.items[index] = updatedWord
+      toast.success("Chỉnh sửa thành công!");
     })
 
     builder.addCase(fetchWordDelete.fulfilled, (state, action) => {

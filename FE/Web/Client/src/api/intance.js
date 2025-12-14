@@ -35,6 +35,7 @@ instance.interceptors.response.use(function (response) {
   //   accountService.logout();
   // }
 
+  console.log(error.response)
   if (error.response?.status !== 410) {
     toast.error(error.response?.data?.message || error.response?.message || error?.message);
   }

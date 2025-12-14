@@ -21,10 +21,24 @@ const getUser = async (query) => {
   return response.data;
 };
 
+const getUserById = async (id) => {
+  const response = await instance.get(`/user/${id}`);
+
+  return response.data;
+};
+
+const editAccount = async (data) => {
+  const response = await instance.put(`/user`, data)
+
+  return response.data
+}
+
 const accountService = {
   login,
   getUser,
-  logout
+  logout,
+  getUserById,
+  editAccount
 };
 
 export default accountService;

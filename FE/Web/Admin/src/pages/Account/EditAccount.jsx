@@ -23,7 +23,6 @@ const EditAccount = (props) => {
       };
 
       dispatch(fetchAccount(searchObject));
-      await dispatch();
     } catch (error) {
       toast.error(error);
     } finally {

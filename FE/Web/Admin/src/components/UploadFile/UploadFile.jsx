@@ -4,7 +4,6 @@ import { UploadOutlined } from "@ant-design/icons";
 
 const UploadFile = ({ setFileUrl }) => {
   const accessToken = localStorage.getItem("adminAccessToken");
-  console.log(accessToken);
   const config = {
     name: "file",
     action: "http://localhost:8080/api/v1/word/upload",

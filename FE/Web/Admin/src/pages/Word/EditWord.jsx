@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { LoadingContext } from "~/context/LoadingContext";
 import UploadFile from "../../components/UploadFile/UploadFile";
 import { fetchWordEdit } from "~/redux/word/wordSlice";
+import { data } from "react-router-dom";
 
 const EditWord = (props) => {
   const { open, setOpen, word } = props;
@@ -22,11 +23,9 @@ const EditWord = (props) => {
 
     try {
       toggleLoading(true);
-      toast.promise(dispatch(fetchWordEdit(value)), {
+      toast.promise(dispatch(fetchWordEdit({ id: word.wordId, data: value })), {
         pending: "Đang chỉnh sửa...",
       });
-
-      toast.success("Chỉnh sửa thành công!");
     } catch (error) {
       console.log(error);
     } finally {

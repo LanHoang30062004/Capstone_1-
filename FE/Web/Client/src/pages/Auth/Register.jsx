@@ -10,9 +10,9 @@ const Register = () => {
   const handleSubmit = async (value) => {
     const res = await userService.register(value);
     if (res.status > 400) {
-      toast.error(res.message?.message || "Đăng ký thất bại!");
+      toast.error(res?.message || "Đăng ký thất bại!");
     } else {
-      toast.success(res.message || "Đăng ký thành công!");
+      toast.success(res?.message || "Đăng ký thành công!");
       navigate("/login");
     }
   };

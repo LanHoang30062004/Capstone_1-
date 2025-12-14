@@ -30,47 +30,8 @@ const items = [
 
 const Header = (props) => {
   const { title, subTitle } = props;
-  const [notification, setNotification] = useState([]);
   const { myTheme } = useContext(ThemeContext);
-
-  const notificationItems = notification?.map((item) => ({
-    key: item,
-    label: (
-      <div className="dropdown__notification--item">
-        <div className="dropdown__notification--icon">
-          {item.includes("Cảnh báo") ? (
-            <div className="dropdown__notification--icon warning">
-              <WarningOutlined className="icon" />
-            </div>
-          ) : item.includes("Lương") ? (
-            <div className="dropdown__notification--icon message">
-              <MessageOutlined className="icon" />
-            </div>
-          ) : (
-            <div className="dropdown__notification--icon sucess">
-              <DollarOutlined className="icon" />
-            </div>
-          )}
-        </div>
-
-        <div className="dropdown__notification--content">
-          <p className="dropdown__notification--title">{item}</p>
-        </div>
-      </div>
-    ),
-  }));
-
-  // useEffect(() => {
-  //   const fetchNotification = async () => {
-  //     const response = await accountService.getNotification();
-  //     const notification = response?.notification?.split("|");
-  //     if (notification.length > 0) {
-  //       setNotification(notification);
-  //     }
-  //   };
-
-  //   fetchNotification();
-  // }, []);
+  const userInfo = JSON.parse(localStorage.getItem("adminInfo"));
 
   return (
     <>
@@ -91,7 +52,7 @@ const Header = (props) => {
                   size={40}
                 />
                 <div className="header__account--info">
-                  <p className="header__account--name">Long</p>
+                  <p className="header__account--name">{userInfo?.fullName}</p>
                   <p className="header__account--role">admin</p>
                 </div>
                 <DownOutlined />

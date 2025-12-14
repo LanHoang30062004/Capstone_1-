@@ -80,13 +80,13 @@ const Login = () => {
               <Input.Password placeholder="Mật khẩu..." />
             </Form.Item>
 
-            <Form.Item>
+            {/* <Form.Item>
               <Flex justify="end" align="center">
                 <Link to="/forgot-password" className="auth__forgot-password">
                   Quên mật khẩu
                 </Link>
               </Flex>
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item>
               <Button block type="primary" htmlType="submit" loading={loading}>

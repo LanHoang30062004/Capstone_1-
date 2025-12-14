@@ -21,7 +21,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
 
   const handRef = useRef([]);
   const faceRef = useRef([]);
-  const faceResultsRef = useRef(null); // ⭐ THÊM: Lưu toàn bộ face results
+  const faceResultsRef = useRef(null); // THÊM: Lưu toàn bộ face results
 
   useEffect(() => {
     const initModels = async () => {
@@ -47,7 +47,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         },
         runningMode: "VIDEO",
         outputFaceBlendshapes: false,
-        numFaces: 2, // ⭐ THAY ĐỔI: Cho phép phát hiện tối đa 2 mặt
+        numFaces: 2, // THAY ĐỔI: Cho phép phát hiện tối đa 2 mặt
       });
 
       setHandLandmarker(handLm);
@@ -99,12 +99,12 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
       const handResult = handLandmarker.detectForVideo(video, timestamp);
       const faceResult = faceLandmarker.detectForVideo(video, timestamp);
 
-      // ⭐ THÊM: Cập nhật số lượng mặt phát hiện
+      // THÊM: Cập nhật số lượng mặt phát hiện
       const currentFaceCount = faceResult.faceLandmarks
         ? faceResult.faceLandmarks.length
         : 0;
       setFaceCount(currentFaceCount);
-      faceResultsRef.current = faceResult; // ⭐ Lưu lại để sử dụng trong startCapture
+      faceResultsRef.current = faceResult; // Lưu lại để sử dụng trong startCapture
 
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -115,7 +115,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         for (let i = 0; i < handResult.landmarks.length; i++) {
           const landmarks = handResult.landmarks[i];
 
-          // ⭐ Draw connections
+          // Draw connections
           drawingUtils.drawConnectors(
             landmarks,
             HandLandmarker.HAND_CONNECTIONS,
@@ -125,7 +125,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
             }
           );
 
-          // ⭐ Draw landmarks
+          // Draw landmarks
           drawingUtils.drawLandmarks(landmarks, {
             color: "#00ff00",
             lineWidth: 2,
@@ -143,7 +143,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
 
       /** ---------------- FACE ---------------- */
       if (faceResult.faceLandmarks && faceResult.faceLandmarks.length > 0) {
-        // ⭐ THAY ĐỔI: Vẽ tất cả các mặt phát hiện được
+        // THAY ĐỔI: Vẽ tất cả các mặt phát hiện được
         for (let i = 0; i < faceResult.faceLandmarks.length; i++) {
           const points = faceResult.faceLandmarks[i];
 
@@ -169,7 +169,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
             { color: "#ff0000", lineWidth: 2 }
           );
 
-          // ⭐ THÊM: Hiển thị số thứ tự mặt
+          // THÊM: Hiển thị số thứ tự mặt
           if (points && points[0]) {
             ctx.fillStyle = color;
             ctx.font = "20px Arial";
@@ -181,7 +181,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
           }
         }
 
-        // ⭐ Lưu mặt đầu tiên cho prediction (như cũ)
+        // Lưu mặt đầu tiên cho prediction (như cũ)
         faceRef.current = faceResult.faceLandmarks[0];
       } else {
         faceRef.current = [];
@@ -198,10 +198,10 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
   const startCapture = () => {
     if (!webcamRef.current) return;
 
-    // ⭐ THÊM: Kiểm tra số lượng mặt trước khi quay
+    // THÊM: Kiểm tra số lượng mặt trước khi quay
     if (faceCount > 1) {
       toast.warning(
-        `⚠️ Phát hiện ${faceCount} mặt trong khung hình! Hãy đảm bảo chỉ có 1 mặt để kết quả chính xác.`,
+        `Phát hiện ${faceCount} mặt trong khung hình! Hãy đảm bảo chỉ có 1 mặt để kết quả chính xác.`,
         {
           position: "top-right",
           autoClose: 5000,
@@ -211,11 +211,11 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
           draggable: true,
         }
       );
-      return; // ⭐ DỪNG LẠI nếu có nhiều hơn 1 mặt
+      return; // DỪNG LẠI nếu có nhiều hơn 1 mặt
     }
 
     if (faceCount === 0) {
-      toast.error("❌ Không phát hiện mặt nào! Hãy điều chỉnh vị trí.", {
+      toast.error("Không phát hiện mặt nào! Hãy điều chỉnh vị trí.", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -272,7 +272,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         sample_hand_landmark: payload.hand_landmarks[0]?.landmarks[0],
       });
 
-      console.log("✅ FIXED Payload:", {
+      console.log("FIXED Payload:", {
         word: payload.word,
         face_landmarks_count: payload.face_landmarks.length,
         hand_landmarks_count: payload.hand_landmarks.length,
@@ -287,10 +287,10 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
         setAccuracy(res.data.confidence);
         setPredicWord(res.data.predicted_word);
 
-        console.log("✅ Kết quả từ BE:", res.data);
+        console.log("Kết quả từ BE:", res.data);
       } catch (err) {
-        console.error("❌ Lỗi khi gửi request:", err);
-        toast.error("❌ Lỗi kết nối đến server!", {
+        console.error("Lỗi khi gửi request:", err);
+        toast.error("Lỗi kết nối đến server!", {
           position: "top-right",
           autoClose: 3000,
         });
