@@ -85,7 +85,7 @@ const FlashCard = () => {
 
     setSearchParams({
       ...searchObject,
-      search: value.search,
+      search: value.search.trim(),
     });
   };
 

@@ -84,7 +84,7 @@ const Word = () => {
     setSearchParams({
       ...searchObject,
       page: 1,
-      search: value.search,
+      search: value.search.trim(),
     });
   };
 

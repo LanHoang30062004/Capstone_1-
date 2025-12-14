@@ -15,10 +15,11 @@ const CheckOtp = () => {
       values.password = "";
       const response = await userService.checkOtp(values);
 
-      console.log(response);
-
       if (response.status > 400) toast.error(response.message);
-      else navigate(`/reset-password/${email}/${values.code}`);
+      else {
+        if (response.data) navigate(`/reset-password/${email}/${values.code}`);
+        else toast.error("Mã xác minh không hợp lệ");
+      }
     } catch (error) {
       console.log(error);
     } finally {
