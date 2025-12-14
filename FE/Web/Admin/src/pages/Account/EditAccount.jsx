@@ -78,6 +78,7 @@ const EditAccount = (props) => {
           <Form.Item
             name="email"
             label="Email"
+            normalize={(value) => value.trim()}
             rules={[
               {
                 required: true,
@@ -90,7 +91,7 @@ const EditAccount = (props) => {
               },
             ]}
           >
-            <Input />
+            <Input disabled />
           </Form.Item>
 
           <Form.Item name="dateOfBirth" label="Ngày sinh">

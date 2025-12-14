@@ -17,8 +17,10 @@ const CheckOtp = () => {
 
       if (response.status > 400) toast.error(response.message);
       else {
-        if (response.data) navigate(`/reset-password/${email}/${values.code}`);
-        else toast.error("Mã xác minh không hợp lệ");
+        if (response.data) {
+          navigate(`/reset-password/${email}/${values.code}`);
+          toast.success("Mã xác minh thành công");
+        } else toast.error("Mã xác minh không hợp lệ");
       }
     } catch (error) {
       console.log(error);
@@ -72,8 +74,15 @@ const CheckOtp = () => {
           name="code"
           rules={[
             {
-              required: true,
-              message: "Vui lòng nhập mã otp!",
+              validator: (_, value) => {
+                if (!value || value.trim().length === 0) {
+                  return Promise.reject("Vui lòng nhập mã OTP!");
+                }
+                if (!/^\d{6}$/.test(value)) {
+                  return Promise.reject("Mã OTP phải gồm đúng 6 chữ số");
+                }
+                return Promise.resolve();
+              },
             },
           ]}
           className="input-otp"

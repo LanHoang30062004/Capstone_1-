@@ -129,7 +129,7 @@ const InfoAccount = () => {
                           { type: "email", message: "Email không hợp lệ" },
                         ]}
                       >
-                        <Input placeholder="Email" />
+                        <Input placeholder="Email" disabled />
                       </Form.Item>
                     </Col>
                   </Row>

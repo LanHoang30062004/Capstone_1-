@@ -66,7 +66,11 @@ const EditAccount = (props) => {
             </Col>
 
             <Col span={12}>
-              <Form.Item name="email" label="Email">
+              <Form.Item
+                name="email"
+                label="Email"
+                normalize={(value) => value.trim()}
+              >
                 <Input placeholder="Email" disabled />
               </Form.Item>
             </Col>

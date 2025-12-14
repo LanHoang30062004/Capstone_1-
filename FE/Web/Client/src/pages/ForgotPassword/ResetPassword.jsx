@@ -20,8 +20,10 @@ const ResetPassword = () => {
 
       const response = await userService.changePass(data);
 
-      if (response.status < 400) navigate(`/login`);
-      else toast.error(response.message);
+      if (response.status < 400) {
+        navigate(`/login`);
+        toast.success("Thay đổi mật khẩu thành công");
+      } else toast.error(response.message);
     } catch (error) {
       console.log(error);
     } finally {
@@ -54,7 +56,7 @@ const ResetPassword = () => {
                     if (!value || getFieldValue("newPassword") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("Mật khẩu không khớp!"));
+                    return Promise.reject(new Error("Xác nhận mật khẩu không khớp"));
                   },
                 }),
               ]}
