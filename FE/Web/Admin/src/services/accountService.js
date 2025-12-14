@@ -9,6 +9,7 @@ const login = async (data) => {
 const logout = () => {
   localStorage.removeItem('adminAccessToken')
   localStorage.removeItem('adminInfo')
+  localStorage.removeItem('role')
 
   location.href = '/login'
 };

@@ -24,8 +24,9 @@ const Login = () => {
       }
 
       toast.success(response.message);
-      localStorage.setItem("adminAccessToken", response.data);
+      localStorage.setItem("adminAccessToken", response.data?.token);
       localStorage.setItem("adminInfo", JSON.stringify(user.data));
+      localStorage.setItem("role", response.data?.role);
 
       navigate("/topic");
     } catch (error) {

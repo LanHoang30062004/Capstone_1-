@@ -17,6 +17,7 @@ const Login = () => {
       toast.success(res.message || "Đăng nhập thành công!");
       localStorage.setItem("accessToken", res.data);
       localStorage.setItem("userInfo", JSON.stringify(user.data));
+      localStorage.setItem("userInfo", JSON.stringify(user.data));
       navigate("/");
     }
   };

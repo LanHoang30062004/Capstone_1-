@@ -183,8 +183,8 @@ const NotFound = () => {
                 </div>
               </div>
             </div>
-            <div class="button" onClick={() => navigate(-1)}>
-              Quay lại
+            <div class="button" onClick={() => navigate("/login")}>
+              Quay về đăng nhập
             </div>
           </div>
           <div class="sorry">Không tìm thấy trang!</div>

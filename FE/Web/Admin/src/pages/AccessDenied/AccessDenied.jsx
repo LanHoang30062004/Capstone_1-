@@ -182,8 +182,8 @@ const AccessDenied = () => {
                 </div>
               </div>
             </div>
-            <div class="button" onClick={() => navigate(-1)}>
-              Quay lại
+            <div class="button" onClick={() => navigate("/login")}>
+              Quay về đăng nhập
             </div>
           </div>
           <div class="sorry">Bạn không có quyền truy cập vào trang này!</div>
