@@ -1,9 +1,10 @@
-import { Button, Form, Input, Modal, Space, Upload } from "antd";
+import { Button, Flex, Form, Input, Modal, Space, Upload } from "antd";
 import { useContext } from "react";
 import { useDispatch } from "react-redux";
 import { LoadingContext } from "~/context/LoadingContext";
 import { fetchFlashCardAdd } from "~/redux/flashCard/flashCardSlice";
 import { CloseOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 const AddFlashCard = (props) => {
   const { open, setOpen } = props;
@@ -17,6 +18,8 @@ const AddFlashCard = (props) => {
       toggleLoading(true);
       const userInfo = JSON.parse(localStorage.getItem("adminInfo"));
       value.userId = parseInt(userInfo.id);
+      if (!value.cards || value.cards.length < 1)
+        return toast.error("Vui lòng thêm ít nhất 1 từ");
 
       await dispatch(fetchFlashCardAdd(value)).unwrap();
     } catch (error) {
@@ -59,8 +62,20 @@ const AddFlashCard = (props) => {
                   }}
                 >
                   {subFields.map((subField) => (
-                    <Space key={subField.key}>
-                      <Form.Item noStyle name={[subField.name, "result"]}>
+                    <Flex align="center" key={subField.key} gap={10}>
+                      <Form.Item
+                        name={[subField.name, "result"]}
+                        rules={[
+                          {
+                            transform: (value) => value?.trim(),
+                          },
+                          {
+                            required: true,
+                            message: "Không được để trống từ",
+                          },
+                        ]}
+                        style={{ width: "100%" }}
+                      >
                         <Input placeholder="Kí hiệu" />
                       </Form.Item>
 
@@ -71,12 +86,14 @@ const AddFlashCard = (props) => {
                         <Input />
                       </Form.Item>
 
-                      <CloseOutlined
-                        onClick={() => {
-                          subOpt.remove(subField.name);
-                        }}
-                      />
-                    </Space>
+                      <Form.Item>
+                        <CloseOutlined
+                          onClick={() => {
+                            subOpt.remove(subField.name);
+                          }}
+                        />
+                      </Form.Item>
+                    </Flex>
                   ))}
                   <Button type="dashed" onClick={() => subOpt.add()} block>
                     + Thêm dòng

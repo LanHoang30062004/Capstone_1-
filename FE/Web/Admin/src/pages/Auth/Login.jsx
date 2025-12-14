@@ -19,7 +19,7 @@ const Login = () => {
       const user = await accountService.getUser({ email: values.email });
 
       if (response.status !== 200) {
-        toast.error(response.message);
+        toast.error("Tài khoản hoặc mật khẩu sai");
         return;
       }
 

@@ -70,8 +70,13 @@ const AddAccount = (props) => {
               },
 
               {
-                pattern: /^\S+@\S+.\S+$/,
+                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                 message: "Vui lòng nhập đúng định dạng email",
+              },
+
+              {
+                max: 256,
+                message: "Email không dài quá 256 kí tự",
               },
             ]}
           >
@@ -85,6 +90,22 @@ const AddAccount = (props) => {
               {
                 required: true,
                 message: "Vui lòng nhập mật khẩu",
+              },
+
+              {
+                max: 256,
+                message: "Mật khẩu không dài quá 256 kí tự",
+              },
+
+              {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/,
+                message:
+                  "Mật khẩu phải chứ ít nhât 1 chữ hoa, 1 chữ thường, 1 chữ số",
+              },
+
+              {
+                min: 6,
+                message: "Mật khẩu phải từ 6 ký tự trở lên",
               },
             ]}
           >
