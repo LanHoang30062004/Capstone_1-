@@ -27,7 +27,7 @@ const Dictionary = () => {
     setSearchParams({
       ...searchObject,
       page: 1,
-      search: value.search,
+      search: value.search.trim(),
     });
   };
 
@@ -72,7 +72,7 @@ const Dictionary = () => {
             <h1 className="dictionary__title">Ngôn ngữ kí hiệu</h1>
 
             <Form onFinish={handleSearch}>
-              <Form.Item name="search" normalize={(value) => value?.trim()}>
+              <Form.Item name="search">
                 <Input
                   size="large"
                   placeholder="Tìm kiếm..."
