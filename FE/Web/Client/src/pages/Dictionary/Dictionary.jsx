@@ -72,7 +72,7 @@ const Dictionary = () => {
             <h1 className="dictionary__title">Ngôn ngữ kí hiệu</h1>
 
             <Form onFinish={handleSearch}>
-              <Form.Item name="search">
+              <Form.Item name="search" normalize={(value) => value?.trim()}>
                 <Input
                   size="large"
                   placeholder="Tìm kiếm..."

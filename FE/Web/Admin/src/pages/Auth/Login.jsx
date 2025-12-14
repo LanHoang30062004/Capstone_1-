@@ -64,6 +64,7 @@ const Login = () => {
                   message: "Vui lòng nhập email đúng định dạng!",
                 },
               ]}
+              normalize={(value) => value?.trim()}
             >
               <Input placeholder="Email..." />
             </Form.Item>
