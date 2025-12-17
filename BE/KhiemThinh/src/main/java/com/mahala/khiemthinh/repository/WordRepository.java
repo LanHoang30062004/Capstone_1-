@@ -15,7 +15,7 @@ public interface WordRepository extends JpaRepository<Word, Long>  , JpaSpecific
     Optional<Word> findByWordName(String wordName);
 
     @Query(
-            value = "SELECT * FROM word WHERE BINARY word_name = BINARY :wordName LIMIT 1",
+            value = "SELECT * FROM word WHERE LOWER(word_name) =  LOWER(:wordName) LIMIT 1",
             nativeQuery = true
     )
     List<Word> findByWordNameIgnoreCase(@Param("wordName") String wordName);
