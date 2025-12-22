@@ -26,7 +26,8 @@ class ExpressionHandler:
         "thanh_pho_hue": "Thành phố Huế",
         "hoc_tap": "học tập",
         "giup_do": "giúp đỡ",
-        "ngur" : "ngủ",
+        "ngur": "ngủ",
+        "xin_loi": "xin lỗi",
         "1": "1",
         "2": "2",
         "3": "3",
@@ -698,14 +699,12 @@ class ExpressionHandler:
             self.current_gesture
             and len(self.predictions) - self.gesture_start_frame >= self.min_frames_per_gesture
         ):
-            mapped_gesture = self.MAPPING.get(self.current_gesture, self.current_gesture)
+            mapped_gesture = self.MAPPING.get(
+                self.current_gesture, self.current_gesture)
             self.sequence.append(mapped_gesture)
 
         # Chỉ join bằng dấu phẩy, không ghép ký tự đơn
         return ", ".join([g.strip() for g in self.sequence])
-
-
-
 
     def get_message(self):
         sequence = self.get_sequence()
@@ -721,7 +720,7 @@ class ExpressionHandler:
 
     def get_message_old(self):
         return ExpressionHandler.MAPPING.get(self.current_message, self.current_message)
-    
+
     @classmethod
     def get_display_text(cls, key: str) -> str:
         """Lấy value từ key, nếu không có thì trả về key gốc"""

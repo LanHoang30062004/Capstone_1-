@@ -15,7 +15,8 @@ const Login = () => {
       toast.error(res.message || "Đăng nhập thất bại!");
     } else {
       toast.success(res.message || "Đăng nhập thành công!");
-      localStorage.setItem("accessToken", res.data);
+
+      localStorage.setItem("accessToken", res.data?.token);
       localStorage.setItem("userInfo", JSON.stringify(user.data));
       localStorage.setItem("userInfo", JSON.stringify(user.data));
       navigate("/");
