@@ -1,7 +1,10 @@
 import BackgroundHero from "~/assets/images/BgHero.png";
 import "./Hero.scss";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <>
       <section className="hero">
@@ -20,7 +23,10 @@ const Hero = () => {
               </div>
 
               <div className="hero__btn">
-                <button className="hero__btn--learn btn">
+                <button
+                  className="hero__btn--learn btn"
+                  onClick={() => navigate("/dictionary")}
+                >
                   Bắt đầu học ngay
                 </button>
                 <button className="hero__btn--intro btn">Tìm hiểu thêm</button>

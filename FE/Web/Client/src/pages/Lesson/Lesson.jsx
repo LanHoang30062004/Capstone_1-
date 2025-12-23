@@ -1,17 +1,17 @@
 import { Button, Card, Col, Pagination, Popconfirm, Row } from "antd";
-import "./Lesson.scss";
-import { FaPlus } from "react-icons/fa6";
-import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Loading from "~/components/Loading/Loading";
+import { FaPlus } from "react-icons/fa6";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import Loading from "~/components/Loading/Loading";
 import {
   fetchFlashCard,
   fetchFlashCardDelete,
 } from "~/redux/flashCard/flashCardSlice";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import AddFlashCard from "./AddFlashCard";
-import { toast } from "react-toastify";
+import "./Lesson.scss";
 
 const Lesson = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,8 +29,10 @@ const Lesson = () => {
 
       const searchObject = Object.fromEntries(searchParams.entries());
 
+      console.log(flashCards?.items.length);
       if (flashCards?.items.length === 1) {
         setSearchParams({
+          size: searchParams.get("size") || 10,
           ...searchObject,
           page: searchParams.get("page") - 1,
         });
@@ -143,7 +145,7 @@ const Lesson = () => {
             <Pagination
               current={parseInt(searchParams.get("page")) || 1}
               className="lesson__pagination"
-              total={flashCards?.totalPages * flashCards?.pageSize}
+              total={flashCards?.totalPages * flashCards?.pageSize || 0}
               align="center"
               onChange={handleChangePage}
               pageSize={flashCards?.pageSize || 10}

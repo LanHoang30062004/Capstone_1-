@@ -63,28 +63,6 @@ const Practise = () => {
           <div className="practise__inner">
             <div className="practise__head">
               <h1 className="practise__title">Ngân hàng câu hỏi</h1>
-              <div className="practise__topic">
-                <div
-                  className={
-                    searchParams.get("content")
-                      ? "practise__topic--item"
-                      : "practise__topic--item active"
-                  }
-                >
-                  Tất cả
-                </div>
-                {topics?.items?.length > 0 &&
-                  topics.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="practise__topic--item"
-                      onClick={() => handleSearch({ content: item.content })}
-                    >
-                      {item.content}
-                    </div>
-                  ))}
-              </div>
-
               <Form onFinish={handleSearch}>
                 <Form.Item name="content">
                   <Input
