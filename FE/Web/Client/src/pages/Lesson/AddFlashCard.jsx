@@ -105,8 +105,10 @@ const AddFlashCard = (props) => {
           <Form.Item
             name="content"
             label="Nội dung"
-            normalize={(value) => value.trim()}
             rules={[
+              {
+                transform: (value) => value?.trim(),
+              },
               {
                 required: true,
                 message: "Vui lòng nhập nội dung",
