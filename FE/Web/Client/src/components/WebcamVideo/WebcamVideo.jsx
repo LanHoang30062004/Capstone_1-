@@ -143,46 +143,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
 
       /** ---------------- FACE ---------------- */
       if (faceResult.faceLandmarks && faceResult.faceLandmarks.length > 0) {
-        // THAY ĐỔI: Vẽ tất cả các mặt phát hiện được
-        for (let i = 0; i < faceResult.faceLandmarks.length; i++) {
-          const points = faceResult.faceLandmarks[i];
-
-          // Vẽ mỗi mặt với màu khác nhau để phân biệt
-          const colors = ["#00ff00", "#ff00ff", "#ffff00"]; // Xanh, Hồng, Vàng
-          const color = colors[i] || "#ffffff";
-
-          drawingUtils.drawConnectors(
-            points,
-            FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-            { color: color + "60", lineWidth: 1 }
-          );
-
-          drawingUtils.drawConnectors(
-            points,
-            FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
-            { color: color, lineWidth: 2 }
-          );
-
-          drawingUtils.drawConnectors(
-            points,
-            FaceLandmarker.FACE_LANDMARKS_LIPS,
-            { color: "#ff0000", lineWidth: 2 }
-          );
-
-          // THÊM: Hiển thị số thứ tự mặt
-          if (points && points[0]) {
-            ctx.fillStyle = color;
-            ctx.font = "20px Arial";
-            ctx.fillText(
-              `Mặt ${i + 1}`,
-              points[0].x * canvas.width,
-              points[0].y * canvas.height - 10
-            );
-          }
-        }
-
-        // Lưu mặt đầu tiên cho prediction (như cũ)
-        faceRef.current = faceResult.faceLandmarks[0];
+        faceRef.current = faceResult.faceLandmarks[0]; // chỉ lưu để predict
       } else {
         faceRef.current = [];
       }
@@ -323,7 +284,7 @@ const WebcamVideo = ({ word, setAccuracy, setPredicWord }) => {
               width: "100%",
               height: "100%",
               pointerEvents: "none",
-              visibility: "hidden",
+              // visibility: "hidden",
             }}
           />
         </div>
