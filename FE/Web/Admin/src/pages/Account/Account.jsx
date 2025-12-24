@@ -28,9 +28,9 @@ import DetailAccount from "./DetailAccount";
 
 const columns = [
   { title: "Id", dataIndex: "accountId" },
-  { title: "fullName", dataIndex: "fullName" },
-  { title: "email", dataIndex: "email" },
-  { title: "phone", dataIndex: "phone" },
+  { title: "Họ tên", dataIndex: "fullName" },
+  { title: "Email", dataIndex: "email" },
+  { title: "Số điện thoại", dataIndex: "phone" },
   { title: "Hành động", dataIndex: "action" },
 ];
 

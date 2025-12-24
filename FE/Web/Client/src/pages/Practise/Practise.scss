@@ -6,6 +6,7 @@
     font-size: 6rem;
     font-weight: 700;
     letter-spacing: -1px;
+    margin-bottom: 20px;
   }
 
   &__topic {
@@ -112,13 +113,13 @@
 
   &__info {
 
-    div {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 1.8rem;
-      color: var(--color-gray-one);
-    }
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.8rem;
+    color: var(--color-gray-one);
+
+    div {}
   }
 }
 

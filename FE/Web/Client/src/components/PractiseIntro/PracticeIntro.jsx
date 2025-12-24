@@ -11,8 +11,8 @@ export default function PracticeIntro() {
               Luyện tập với <span>Ngân hàng câu hỏi</span>
             </h2>
             <p className="practice-intro__description">
-              SignLang cung cấp nhiều bài luyện tập trắc nghiệm giúp bạn ôn tập,
-              ghi nhớ và kiểm tra kiến thức ngôn ngữ ký hiệu đã học.
+              SignSmart cung cấp nhiều bài luyện tập trắc nghiệm giúp bạn ôn
+              tập, ghi nhớ và kiểm tra kiến thức ngôn ngữ ký hiệu đã học.
             </p>
           </div>
 
@@ -53,12 +53,13 @@ export default function PracticeIntro() {
               </div>
 
               <h3 className="practice-intro__card--title">
-                Thử thách ghép nghĩa &amp; hội thoại
+                Flashcard ghi nhớ ký hiệu
               </h3>
 
               <p className="practice-intro__card--description">
-                Ghép đúng ký hiệu với nghĩa hoặc câu hội thoại, rèn luyện khả
-                năng sử dụng ký hiệu trong tình huống thực tế.
+                Học và ghi nhớ các ký hiệu thông qua flashcard trực quan, giúp
+                nhận diện nhanh ý nghĩa và cách sử dụng ký hiệu trong ngữ cảnh
+                thực tế.
               </p>
             </div>
           </div>

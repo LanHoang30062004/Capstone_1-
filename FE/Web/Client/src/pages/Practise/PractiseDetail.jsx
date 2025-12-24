@@ -42,7 +42,7 @@ const PractiseDetail = () => {
           <div className="practise-detail__inner">
             <Card className="practise-detail__card">
               <Flex vertical gap={20}>
-                <h2 className="practise-detail__title">Động vật</h2>
+                <h2 className="practise-detail__title">{topic?.content}</h2>
 
                 <div className="practise-detail__btn btn">
                   Thông tin bài luyện
@@ -52,9 +52,7 @@ const PractiseDetail = () => {
                   <div className="practise-detail__info">
                     <MdAccessTime className="practise-detail__info--icon" />{" "}
                     {/* Thời gian làm bài: {topic?.durationMinutes} phút |{" "} */}
-                    Số lượng câu hỏi:
-                    3 câu hỏi
-                    {/* {topic?.numberOfQuestion} câu hỏi */}
+                    Số lượng câu hỏi: {topic?.questions?.length} câu hỏi
                   </div>
                 </div>
 
