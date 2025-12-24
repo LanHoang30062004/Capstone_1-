@@ -79,14 +79,14 @@ const LessonAnalyze = ({ lessonAnalyze, setLessonAnalyze, word }) => {
                     <p>Từ AI dự đoán:</p>
                     <Flex align="center" gap={6}>
                       {predicWord &&
-                        (predicWord === word ? (
+                        (predicWord?.toUpperCase() === word?.toUpperCase() ? (
                           <AiOutlineCheckCircle className="lesson-analyze__icon lesson-analyze__icon--correct" />
                         ) : (
                           <AiOutlineCloseCircle className="lesson-analyze__icon lesson-analyze__icon--wrong" />
                         ))}
                       <strong
                         className={`lesson-analyze__word ${
-                          predicWord === word
+                          predicWord?.toUpperCase() === word?.toUpperCase()
                             ? "lesson-analyze__word--correct"
                             : "lesson-analyze__word--wrong"
                         }`}
