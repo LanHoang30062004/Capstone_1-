@@ -41,6 +41,19 @@ public class UserController {
         }
     }
 
+    @GetMapping("/check-phone")
+    @Operation(summary = "Kiểm tra số điện thoại" , description = "Kiểm tra số điện thoại")
+    public ResponseData<?> checkPhone (@RequestParam(name = "phone") String phone) {
+        try{
+           Boolean check = this.userService.existByPhone(phone) ;
+           return new ResponseData<>(HttpStatus.OK.value(), "Kiểm tra số điện thoại thành công", check);
+        }
+        catch (Exception e){
+            log.error(e.getMessage());
+            return new ResponseData<>(HttpStatus.OK.value(), e.getMessage(), false);
+        }
+    }
+
     @Operation(summary = "Dang nhap")
     @PostMapping("/login")
     public ResponseData<?> login(@Valid @RequestBody AuthenDTO userDTO) {

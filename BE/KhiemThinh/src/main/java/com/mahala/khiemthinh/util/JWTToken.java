@@ -33,6 +33,7 @@ public class JWTToken {
         claims.put("email", user.getEmail());
         claims.put("fullName", user.getFullName());
         claims.put("role", user.getRole().getRoleName());
+        claims.put("authorities", "ROLE_" + user.getRole().getRoleName().toUpperCase()) ;
         try {
             String token = Jwts.builder()
                     .setClaims(claims)

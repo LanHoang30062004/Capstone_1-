@@ -25,4 +25,6 @@ public interface UserService {
 
     void addNewAdmin (AdminDTO adminDTO) throws Exception;
 
+    Boolean existByPhone (String phone) throws Exception;
+
 }

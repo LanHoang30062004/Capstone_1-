@@ -209,4 +209,13 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public Boolean existByPhone(String phone) throws Exception {
+        Boolean exist = this.userRepository.existsByPhone(phone) ;
+        if (exist) {
+            throw new Exception("Số điện thoại trên đã tồn tại !") ;
+        }
+        return true;
+    }
+
 }

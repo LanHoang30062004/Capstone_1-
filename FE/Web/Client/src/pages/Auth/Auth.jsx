@@ -37,7 +37,7 @@ const Auth = () => {
               <Segmented
                 shape="round"
                 size="large"
-                options={["login", "register"]}
+                options={["Đăng nhập", "Đăng ký"]}
                 className="auth__segment"
                 defaultValue={location.pathname.slice(1)}
                 onChange={handleChange}
