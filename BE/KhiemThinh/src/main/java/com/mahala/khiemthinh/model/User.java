@@ -51,8 +51,14 @@ public class User implements UserDetails {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users")
+    @ManyToMany
+    @JoinTable(
+            name = "user_word",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "word_id")
+    )
     private List<Word> words;
+
 
     @OneToMany(fetch = FetchType.EAGER , mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
     private List<TopicFlashCard> topicFlashCards;

@@ -23,13 +23,9 @@ public class Word {
     @Column(name = "video_url")
     private String videoUrl;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_word",
-            joinColumns = @JoinColumn(name = "word_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
+    @ManyToMany(mappedBy = "words", fetch = FetchType.EAGER)
     private List<User> users;
+
 
     public void addUser(User user) {
         if (this.users == null) {
