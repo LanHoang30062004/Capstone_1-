@@ -29,7 +29,6 @@ const Lesson = () => {
 
       const searchObject = Object.fromEntries(searchParams.entries());
 
-      console.log(flashCards?.items.length);
       if (flashCards?.items.length === 1) {
         setSearchParams({
           size: searchParams.get("size") || 10,

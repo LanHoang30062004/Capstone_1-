@@ -9,7 +9,7 @@ const Auth = () => {
   const navigate = useNavigate();
 
   const handleChange = (value) => {
-    navigate(`/${value}`);
+    navigate(`/${value === "Đăng nhập" ? "login" : "register"}`);
   };
 
   return (

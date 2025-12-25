@@ -3,6 +3,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as userService from "~/service/userService";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -80,6 +81,13 @@ const Login = () => {
           </Form.Item>
 
           <Divider>Hoặc</Divider>
+
+          <a href="http://localhost:8080/oauth2/authorization/google?state=web">
+            <Button size="large" shape="round" className="google__login-button">
+              <FcGoogle style={{ fontSize: "3rem" }} />
+              Đăng nhập với Google
+            </Button>
+          </a>
         </Form>
       </div>
     </>
