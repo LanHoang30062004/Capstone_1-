@@ -173,6 +173,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(String email , UserDTO userDTO) throws Exception {
         User userOld = this.userRepository.findByEmail(email).orElseThrow(() -> new Exception("Không tìm thấy người dùng với email : " + email));
+        Boolean check = this.userRepository.existsByPhone(userDTO.getPhone()) ;
+        if (!check) throw new Exception("Số điện thoại trên đã tồn tại !");
         userOld.setFullName(userDTO.getFullName());
         userOld.setDateOfBirth(userDTO.getDateOfBirth());
         userOld.setGender(userDTO.getGender());
