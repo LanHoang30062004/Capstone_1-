@@ -54,6 +54,10 @@ const Header = () => {
                       <Link to="/practise" className="header__link--item">
                         Làm bài test
                       </Link>
+
+                      <Link to="/account" className="header__link--item">
+                        Tài khoản
+                      </Link>
                     </Flex>
                   </div>
 

@@ -19,6 +19,7 @@ import LoginGoogle from "~/pages/Auth/LoginGoogle";
 import TestResult from "~/pages/Practise/TestResult";
 import FlashCardDetail from "~/pages/Lesson/FlashCardDetail";
 import FlashCardResult from "~/pages/Lesson/FlashCardResult";
+import Account from "~/pages/Account/Account";
 
 const routes = [
   {
@@ -83,6 +84,11 @@ const routes = [
       {
         path: "/test-result/:id",
         element: <TestResult />,
+      },
+
+      {
+        path: "/account",
+        element: <Account />,
       },
     ],
   },

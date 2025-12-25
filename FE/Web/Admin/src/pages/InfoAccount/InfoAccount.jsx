@@ -110,7 +110,6 @@ const InfoAccount = () => {
                           },
                           { min: 3, message: "Họ và tên tối thiểu 3 ký tự" },
                         ]}
-                        normalize={(value) => value?.trim()}
                       >
                         <Input placeholder="Họ và tên" />
                       </Form.Item>

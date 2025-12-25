@@ -51,3 +51,10 @@ export const getUser = async (query) => {
 
   return response.data;
 };
+
+
+export const editAccount = async (data) => {
+  const response = await instance.put(`/user`, data)
+
+  return response.data
+}

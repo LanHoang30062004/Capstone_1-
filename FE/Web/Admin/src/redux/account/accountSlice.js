@@ -67,8 +67,6 @@ export const accountSlice = createSlice({
     })
 
     builder.addCase(fetchAccountEdit.fulfilled, (state, action) => {
-
-      console.log(action.payload)
       if (action.payload.status > 400)
         toast.error(action.payload.message)
       else {

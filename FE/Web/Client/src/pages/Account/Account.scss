@@ -1,0 +1,20 @@
+.account {
+  margin-top: 80px;
+
+  &__title {
+    color: var(--color-blue-dark);
+    font-size: 3rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  &__form {
+
+    &--card {
+      max-width: 600px;
+      margin: 0 auto;
+      margin-bottom: 20px;
+    }
+  }
+}
