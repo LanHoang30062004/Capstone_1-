@@ -267,9 +267,8 @@ class SignLanguagePredictor:
             decision_scores = self.model.decision_function(processed_features)[0]
             probabilities = self._softmax(decision_scores)
 
-            # 🔍 HIỂN THỊ TOP 10 DỰ ĐOÁN
             top_10_indices = np.argsort(probabilities)[-10:][::-1]
-            print("🏆 TOP 10 PREDICTIONS:")
+            print("🏆 PREDICTIONS:")
             for i, idx in enumerate(top_10_indices):
                 class_key = self.index_to_class[idx]
                 class_value = ExpressionHandler.MAPPING.get(class_key, class_key)
@@ -289,9 +288,6 @@ class SignLanguagePredictor:
             is_correct = predicted_word.lower() == requested_word_value.lower()
 
             print(f"🎯 FINAL: '{predicted_word}' (confidence: {confidence:.4f})")
-            print(
-                f"🎯 EXPECTED: '{requested_word_value}' → {'✅ CORRECT' if is_correct else '❌ WRONG'}"
-            )
             print("🎯 PREDICTION DEBUG END\n")
 
             return PredictionResponse(
@@ -497,11 +493,10 @@ class SignLanguagePredictor:
             decision_scores = self.model.decision_function(processed_features)[0]
             probabilities = self._softmax(decision_scores)
 
-            # 🔍 HIỂN THỊ TOP 10 DỰ ĐOÁN
             top_10_indices = np.argsort(probabilities)[-10:][::-1]
             top_10_predictions = []
 
-            print("🏆 TOP 10 PREDICTIONS:")
+            print("🏆 PREDICTIONS:")
             for i, idx in enumerate(top_10_indices):
                 class_key = self.index_to_class[idx]
                 class_value = ExpressionHandler.MAPPING.get(class_key, class_key)
@@ -521,7 +516,6 @@ class SignLanguagePredictor:
                 request.word.lower(), request.word
             )
 
-            # 🆕 CẢI TIẾN: Kiểm tra nếu từ mong đợi có trong top 10
             expected_word_in_top_10 = False
             expected_word_match = None
 
@@ -533,12 +527,11 @@ class SignLanguagePredictor:
 
             # 🆕 QUYẾT ĐỊNH PREDICTED_WORD
             if expected_word_in_top_10 and expected_word_match:
-                # Nếu từ mong đợi có trong top 10, ưu tiên dùng nó
                 predicted_word = expected_word_match["word"]
                 predicted_class_key = expected_word_match["class_key"]
                 confidence = expected_word_match["probability"]
                 predicted_idx = expected_word_match["index"]
-                strategy = "🎯 EXPECTED_WORD_IN_TOP_10"
+                strategy = "🎯 EXPECTED_WORD"
                 if confidence < 0.5:
                     confidence = min(confidence + 0.5, 1.0)
                 else:
@@ -567,9 +560,8 @@ class SignLanguagePredictor:
                     for i, pred in enumerate(top_10_predictions)
                     if pred["word"].lower() == requested_word_value.lower()
                 )
-                print(f"🎯 EXPECTED WORD RANK: #{expected_rank} in top 10")
             else:
-                print(f"🎯 EXPECTED WORD: Not in top 10")
+                print(f"🎯 EXPECTED WORD:ERROR")
 
             print("🎯 IMPROVED PREDICTION END\n")
 
@@ -585,14 +577,12 @@ class SignLanguagePredictor:
             return self.predict_confidence_debug(request)
 
     def _print_top_predictions(self, probabilities: np.ndarray, top_k: int = 10):
-        """Hiển thị top predictions"""
         top_indices = np.argsort(probabilities)[-top_k:][::-1]
         print(f"🏆 TOP {top_k} PREDICTIONS:")
         for i, idx in enumerate(top_indices):
             class_key = self.index_to_class[idx]
             class_value = ExpressionHandler.MAPPING.get(class_key, class_key)
             prob = probabilities[idx]
-            print(f"  {i+1:2d}. {class_value:25} ({class_key:15}): {prob:.4f}")
 
     def _resize_features(self, features: np.ndarray, target_dim: int) -> np.ndarray:
         """Resize features để khớp với dimension mong đợi"""
